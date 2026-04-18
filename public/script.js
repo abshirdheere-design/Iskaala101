@@ -277,7 +277,6 @@ function handleTouchEnd(e) {
     dragStartIndex = null;
 }
 
-
 /* ================= ACTIONS ================= */
 
 function handleDhigista() {
@@ -392,28 +391,31 @@ function handleSort() {
 function handleDragStart(e) {
     const card = e.target.closest(".card");
     if (!card) return;
-    dragStartIndex = +card.dataset.index;
+    
+    // Halkan ha ku qorin 'let' ama 'const', kaliya qiimaha sii
+    dragStartIndex = +card.dataset.index; 
 }
 
 function handleDragOver(e) {
-    e.preventDefault(); // Waa muhiim si drop u shaqeeyo
+    e.preventDefault(); // Muhiim si drop-ku u shaqeeyo
 }
 
 function handleDrop(e) {
     const dropCard = e.target.closest(".card");
-    if (!dropCard) return;
+    if (!dropCard || dragStartIndex === null) return;
 
     const dragEndIndex = +dropCard.dataset.index;
 
-    // Badal boosaska labada kaar
+    // 1. Bedel boosaska labada kaar ee Array-ga myHand
     const temp = myHand[dragStartIndex];
     myHand[dragStartIndex] = myHand[dragEndIndex];
     myHand[dragEndIndex] = temp;
 
-    // Ka saar selection-ka
+    // 2. Nadiifi xogta
     myHand.forEach(c => c.selected = false);
+    dragStartIndex = null; // Dib u eberree markii uu dhamaysto
 
-    // Dib u sawir gacanta
+    // 3. Dib u sawir gacanta
     renderMyHand();
 }
 
