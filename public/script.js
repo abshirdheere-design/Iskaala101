@@ -469,39 +469,44 @@ document.getElementById("startGameBtn").onclick = () => {
 
 // --- KU DAR KANI (Waa muhiim si magacyada loo arko) ---
 socket.on("waitingRoomUpdate", (data) => {
-    console.log("WAITING DATA RECEIVED:", data); // Hubi haddii kani soo baxo
+    // 1. Tani waa inay Console-ka ka soo muuqataa mar kasta oo qof ku soo biiro
+    console.log("XOGTA SUGITAANKA:", data); 
 
     const statusText = document.getElementById("waiting-status");
     const listArea = document.getElementById("players-list");
 
-    if (!data || !data.players) return;
+    if (!data || !data.players) {
+        console.error("Xogtu waa ebar (No players data)");
+        return;
+    }
 
-    // 1. Sawir Magacyada
+    const count = data.players.length;
+    const dhiman = 4 - count;
+
+    // 2. Hubi nambarka dhiman
+    console.log("Ciyaartoyda hadda:", count, "| Dhiman:", dhiman);
+
+    // Sawir magacyada
     if (listArea) {
         listArea.innerHTML = "";
         data.players.forEach(p => {
             const pDiv = document.createElement("div");
-            pDiv.style.cssText = "padding:10px; margin:5px; background:rgba(46, 204, 113, 0.2); border-radius:8px; color:white;";
+            pDiv.style.cssText = "padding:8px; margin:5px; background:rgba(255,255,255,0.1); border-radius:5px;";
             pDiv.innerHTML = `✅ <b>${p.name}</b> waa diyaar`;
             listArea.appendChild(pDiv);
         });
     }
 
-    // 2. Beddel Farriinta (Switch Logic)
+    // 3. Beddel farriinta
     if (statusText) {
-        const count = data.players.length;
-        const dhiman = 4 - count;
-
-        // Midabada
-        let color = "#ffffff"; 
-        if (dhiman === 3) color = "#f1c40f"; // Jaalle
-        if (dhiman === 2) color = "#e67e22"; // Oranji
-        if (dhiman === 1) color = "#e74c3c"; // Cas
-
         if (dhiman > 0) {
-            // HAL XARIIQ: Si uusan u cidhiidhiyin sanduuqa
-            statusText.innerHTML = `La helay: ${count} ciyaaryahan | Maqan: ${dhiman}`;
-            statusText.style.color = color;
+            statusText.style.display = "block"; // Hubi inuu muuqdo
+            statusText.innerHTML = `Waxaa la helay: ${count}<br>Waxaa dhiman: ${dhiman}`;
+            
+            // Midabada
+            if (dhiman === 3) statusText.style.color = "#f1c40f";
+            if (dhiman === 2) statusText.style.color = "#e67e22";
+            if (dhiman === 1) statusText.style.color = "#e74c3c";
         } else {
             statusText.innerText = "Dhammaan waa la helay! Ciyaartu waa bilaabanaysaa...";
             statusText.style.color = "#2ecc71";
