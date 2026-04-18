@@ -222,11 +222,21 @@ let touchStartX, touchStartY;
 let originalElement = null;
 let dragStartIndex = null; // Hubi inuu kan kor yaallo
 
+function handleDragStart(e) {
+    const card = e.target.closest(".card");
+    if (!card) return;
+    
+    // Halkan 'let' ha ku qorin, si uu u isticmaalo kii dusha sare ka furnaa
+    dragStartIndex = +card.dataset.index; 
+}
+
 function handleTouchStart(e) {
     const card = e.target.closest(".card");
     if (!card) return;
 
-    dragStartIndex = +card.dataset.index; // Kaarka farta la saaray index-kiisa
+    // Halkan isna 'let' ha ku qorin
+    dragStartIndex = +card.dataset.index; 
+    
     const touch = e.touches[0];
     touchStartX = touch.clientX;
     touchStartY = touch.clientY;
@@ -385,15 +395,6 @@ function handleSort() {
     myHand.forEach(c => c.selected = false);
 
     renderMyHand();
-}
-
-
-function handleDragStart(e) {
-    const card = e.target.closest(".card");
-    if (!card) return;
-    
-    // Halkan ha ku qorin 'let' ama 'const', kaliya qiimaha sii
-    dragStartIndex = +card.dataset.index; 
 }
 
 function handleDragOver(e) {
