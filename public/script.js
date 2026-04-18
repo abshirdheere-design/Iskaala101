@@ -26,60 +26,39 @@ function karaaInuuDego(sets) {
     return hasFourOrMore;
 }
 
-/* ================= RENDER HAND ================= */
+/* ================= RENDER HAND (Cusboonaysiin) ================= */
 function renderMyHand() {
     const area = document.getElementById("my-hand");
-    const countBadge = document.getElementById("card-count-badge");
-    const tuurBtn = document.getElementById("tuurBtn");
-
     if (!area) return;
-    area.innerHTML = ""; // Nadiifi gacanta ka hor intaanan dib u sawirin
+    area.innerHTML = ""; 
 
-    // 1. Cusboonaysii tirada kaararka
-    if (countBadge) countBadge.textContent = myHand.length;
-
-    // 2. Badhanka TUUR logic-ga
-    if (tuurBtn) {
-        tuurBtn.style.display = (isMyTurn && (myHand.length === 15 || hasDrawn)) ? "block" : "none";
-    }
-
-    // 3. Sawir kaar kasta oo gacanta ku jira
     myHand.forEach((card, index) => {
         const cardDiv = document.createElement("div");
-        cardDiv.draggable = true;
-        cardDiv.dataset.index = index;
-        // Ku dar class-yada CSS-ka
         cardDiv.className = `card ${card.selected ? 'selected' : ''}`;
-        
-        // Midabka gaduudka (Hearts/Diamonds)
+        cardDiv.dataset.index = index;
+        cardDiv.draggable = true;
+
+        // Muuqaalka Kaarka
         const isRed = (card.suit === '♥' || card.suit === '♦');
-        if (isRed) cardDiv.classList.add("red-card");
+        cardDiv.style.color = isRed ? "red" : "black";
+        cardDiv.innerHTML = `<b>${card.value}${card.suit}</b>`;
 
-        // Dhismaha gudaha ee kaarka
-        cardDiv.innerHTML = `
-            <div class="card-top">
-                <span>${card.value}</span>
-                <span>${card.suit}</span>
-            </div>
-            <div class="card-center">${card.suit}</div>
-            <div class="card-bottom">
-                <span>${card.suit}</span>
-                <span>${card.value}</span>
-            </div>
-        `;
-
-        // Marka kaarka la riixo (Selection)
-        cardDiv.onclick = () => {
+        // --- 1. CLICK EVENT ---
+        cardDiv.onclick = (e) => {
+            // Ka ilaali inuu click noqdo haddii la jiidayay
             card.selected = !card.selected;
-            renderMyHand(); // Dib u sawir si 'selected' u muuqato
-            if (typeof calculateTemporaryScore === "function") {
-                calculateTemporaryScore();
-            }
+            renderMyHand();
+            if (typeof calculateTemporaryScore === "function") calculateTemporaryScore();
         };
 
-        // DRAG EVENTS
-        cardDiv.addEventListener("dragstart", handleDragStart);
-        cardDiv.addEventListener("dragover", handleDragOver);
+        // --- 2. DRAG EVENTS ---
+        cardDiv.addEventListener("dragstart", (e) => {
+            dragStartIndex = index;
+            e.target.style.opacity = "0.5";
+        });
+
+        cardDiv.addEventListener("dragover", (e) => e.preventDefault());
+
         cardDiv.addEventListener("drop", handleDrop);
 
         area.appendChild(cardDiv);
@@ -173,53 +152,61 @@ function handleDhigista() {
     if (!isMyTurn) return alert("Sug doorkaaga!");
 
     let selectedCards = myHand.filter(c => c.selected);
-    if (selectedCards.length < 3) return alert("Koox kasta waa inay ugu yaraan 3 kaar noqotaa!");
+    if (selectedCards.length < 3) {
+        return alert("Koox kasta waa inay ugu yaraan 3 kaar noqotaa!");
+    }
 
-    // 1. Hubi haddii kooxda hadda la doortay ay sax tahay
+    // 1. Hubi haddii kooxda ay sax tahay
     if (!isSerial(selectedCards) && !isSet(selectedCards)) {
         return alert("Kaararka aad dooratay ma ahan koox sax ah (Set ama Serial).");
     }
 
-    // 2. Xisaabi dhibcaha kooxdan cusub
-    let currentSetScore = selectedCards.reduce((sum, c) => sum + (pointValues[c.value] || 0), 0);
+    // 2. Xisaabi dhibcaha
+    let currentSetScore = selectedCards.reduce(
+        (sum, c) => sum + (pointValues[c.value] || 0),
+        0
+    );
 
-    if (!isOpened) { // Halkan waxaan u isticmaalnay 'isOpened' oo ah state-ka rasmiga ah
-        // --- URURINTA KUMEEL-GAARKA AH ---
+    if (!isOpened) {
+        // --- URURIN ---
         temporaryScore += currentSetScore;
-        myOpenedSets.push([...selectedCards]); 
+        myOpenedSets.push([...selectedCards]);
 
-        // Ka saar gacanta si ku-meel-gaar ah
+        // Ka saar gacanta
         myHand = myHand.filter(c => !c.selected);
+
         renderMyHand();
         renderMyTableSets();
 
-        // 3. Xeerka 101: Haddii wadarta kumeel-gaarka ah ay gaarto 101
+        // 3. Xeerka 101
         if (temporaryScore >= 101) {
             const hasFourCardGroup = myOpenedSets.some(set => set.length >= 4);
 
             if (!hasFourCardGroup) {
-                // Haddii dhibcuhu 101 gaareen laakiin aan la haysan 4-xabo
-                alert("101 waad gaartay, laakiin xeerka Iskaala wuxuu rabaa ugu yaraan hal koox oo 4+ kaar ah. Sii wad dhigista!");
-                return; 
+                return alert(
+                    "101 waad gaartay, laakiin waa inaad haysataa ugu yaraan hal koox oo 4+ kaar ah!"
+                );
             }
 
-            // 🔥 Hadda u dir Server-ka dhammaan wixii miiska kumeel-gaarka ah saarnaa
-            isOpened = true; // State-ka guud u beddel true
+            isOpened = true;
+
             socket.emit("playerOpens", {
-                allSets: myOpenedSets, 
+                allSets: myOpenedSets,
                 totalScore: temporaryScore
             });
 
             alert("Hambalyo! Waad degtay. Dhibcahaaga: " + temporaryScore);
         } else {
-            alert(`Kooxda waa la qabtay. Wadarta hadda: ${temporaryScore}. Sii wad ilaa 101!`);
+            alert(`Wadarta hadda: ${temporaryScore}. Sii wad ilaa 101!`);
         }
 
     } else {
-        // Haddii uu qofku hore u degay (Turn-yadii hore)
+        // Haddii hore u degay
         socket.emit("addToTable", { cards: selectedCards });
+
         myOpenedSets.push([...selectedCards]);
         myHand = myHand.filter(c => !c.selected);
+
         renderMyHand();
         renderMyTableSets();
     }
@@ -283,20 +270,19 @@ function handleDragOver(e) {
 
 function handleDrop(e) {
     const dropCard = e.target.closest(".card");
-    if (!dropCard) return;
+    if (!dropCard || dragStartIndex === null) return;
 
     const dragEndIndex = +dropCard.dataset.index;
 
-    // Badal boosaska labada kaar
-    const temp = myHand[dragStartIndex];
-    myHand[dragStartIndex] = myHand[dragEndIndex];
-    myHand[dragEndIndex] = temp;
+    if (dragStartIndex !== dragEndIndex) {
+        // Ka saar kaarka meeshuu joogay
+        const [movedCard] = myHand.splice(dragStartIndex, 1);
+        // Ku dhex rid booska cusub ee la keenay
+        myHand.splice(dragEndIndex, 0, movedCard);
+    }
 
-    // Ka saar selection-ka
-    myHand.forEach(c => c.selected = false);
-
-    // Dib u sawir gacanta
-    renderMyHand();
+    dragStartIndex = null;
+    renderMyHand(); // Dib u sawir gacanta oo habaysan
 }
 
 function renderSets(elementId, sets) {
@@ -367,31 +353,40 @@ socket.on("updateTableUI", (data) => {
 
 
 /* ================= HELPER FUNCTIONS ================= */
+
+function isSet(cards) {
+    if (cards.length < 3) return false;
+
+    const value = cards[0].value;
+    const suits = new Set();
+
+    for (let c of cards) {
+        if (c.value !== value) return false;
+        if (suits.has(c.suit)) return false;
+        suits.add(c.suit);
+    }
+
+    return true;
+}
+
 function isSerial(cards) {
     if (cards.length < 3) return false;
 
-    // 1. Dhammaan waa inay isku suit noqdaan
     const suit = cards[0].suit;
     if (!cards.every(c => c.suit === suit)) return false;
 
-    // 2. Qiimaha kaararka
     const valueOrder = {
         "6": 6, "7": 7, "8": 8, "9": 9, "10": 10,
         "J": 11, "Q": 12, "K": 13, "A": 14
     };
 
-    // 3. Haddii value aan la aqoon → serial ma noqon karo
     const mapped = cards.map(c => valueOrder[c.value]);
     if (mapped.includes(undefined)) return false;
 
-    // 4. Kala saar
     mapped.sort((a, b) => a - b);
 
-    // 5. Hubi in ay isku xiga yihiin
     for (let i = 0; i < mapped.length - 1; i++) {
-        if (mapped[i + 1] !== mapped[i] + 1) {
-            return false;
-        }
+        if (mapped[i + 1] !== mapped[i] + 1) return false;
     }
 
     return true;
@@ -500,47 +495,27 @@ socket.on("waitingRoomUpdate", (data) => {
     }
 });
 
-// Badhamada kale ee ciyaarta dhexdeeda
-document.getElementById("dhigoBtn").onclick = handleDhigista;
-document.getElementById("tuurBtn").onclick = handleTuurista;
-document.getElementById("sortBtn").onclick = handleSort;
-document.getElementById("resetBtn").onclick = handleResetDhigista;
-
-// Qaadashada kaarka (Stock Pile)
-document.getElementById("stock-pile").onclick = () => {
-    if (!isMyTurn) return alert("Sug doorkaaga!");
-    if (hasDrawn) return alert("Hore ayaad u qaadatay kaar turn-kan!");
-    
-    socket.emit("drawCard");
-    console.log("Kaar ayaa laga codsaday server-ka...");
-};
-
 
 socket.on("playersUpdate", (data) => {
     const { players, stockCount, currentTurnId } = data;
 
     isMyTurn = (currentTurnId === socket.id);
 
-    // Update turn text
     const statusEl = document.getElementById("turnText");
     if (statusEl) {
         statusEl.textContent = isMyTurn ? "Doorkaaga" : "Sugaya...";
         statusEl.style.color = isMyTurn ? "#2ecc71" : "#f1c40f";
     }
 
-    // Update stock count
     const stockEl = document.getElementById("stock-count");
-    if (stockEl) stockEl.textContent = stockCount;
+    if (stockEl && stockCount !== undefined) {
+        stockEl.textContent = stockCount;
+    }
 
-    // Control buttons
     document.getElementById("dhigoBtn").disabled = !isMyTurn;
     document.getElementById("tuurBtn").disabled = !isMyTurn;
-    document.getElementById("sortBtn").disabled = false; // sort always allowed
+    document.getElementById("sortBtn").disabled = false;
     document.getElementById("resetBtn").disabled = !isMyTurn;
-
-    // Control piles
-    document.getElementById("stock-pile").style.pointerEvents = isMyTurn ? "auto" : "none";
-    document.getElementById("discard-pile").style.pointerEvents = isMyTurn ? "auto" : "none";
 });
 
 
@@ -655,15 +630,6 @@ socket.on("yourTurn", (playerId) => {
     }
 
     renderMyHand();
-});
-
-
-
-socket.on("playersUpdate", (data) => {
-    const stockCount = document.getElementById("stock-count");
-    if (stockCount && data.stockCount !== undefined) {
-        stockCount.innerText = data.stockCount;
-    }
 });
 
 
