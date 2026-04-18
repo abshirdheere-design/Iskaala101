@@ -473,22 +473,31 @@ socket.on("waitingRoomUpdate", (data) => {
     const statusText = document.getElementById("waiting-status");
     
     if (listArea) {
-        listArea.innerHTML = ""; // Nadiifi liiskii hore
+        listArea.innerHTML = ""; 
         data.players.forEach(p => {
             const pDiv = document.createElement("div");
-            pDiv.style.padding = "10px";
-            pDiv.style.marginBottom = "8px";
-            pDiv.style.background = "rgba(46, 204, 113, 0.1)";
-            pDiv.style.borderRadius = "8px";
-            pDiv.style.color = "#fff";
-            pDiv.style.textAlign = "left";
+            pDiv.className = "player-list-item"; // Waxaad ku qurxin kartaa CSS
             pDiv.innerHTML = `✅ <b>${p.name}</b> waa diyaar`;
             listArea.appendChild(pDiv);
         });
     }
 
     if (statusText) {
-        statusText.innerText = `Ciyaartoyda la helay: ${data.players.length}/4`;
+        const count = data.players.length;
+        let dhiman = 4 - count; // Maadaama ciyaartu tahay 4 qof
+        
+        // Farriimaha loo qorayo ciyaartoyda
+        if (dhiman === 3) {
+            statusText.innerText = "3 qof ayaa dhiman weli...";
+        } else if (dhiman === 2) {
+            statusText.innerText = "2 qof ayaa dhiman weli...";
+        } else if (dhiman === 1) {
+            statusText.innerText = "1 qof ayaa dhiman weli...";
+        } else if (dhiman === 0) {
+            statusText.innerText = "Dhammaan waa la helay! Ciyaartu waa bilaabanaysaa...";
+        } else {
+            statusText.innerText = `Ciyaartoyda la helay: ${count}/4`;
+        }
     }
 });
 
