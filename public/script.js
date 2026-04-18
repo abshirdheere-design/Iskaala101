@@ -469,43 +469,45 @@ document.getElementById("startGameBtn").onclick = () => {
 
 // --- KU DAR KANI (Waa muhiim si magacyada loo arko) ---
 socket.on("waitingRoomUpdate", (data) => {
-    const listArea = document.getElementById("players-list");
+    console.log("WAITING DATA RECEIVED:", data); // Hubi haddii kani soo baxo
+
     const statusText = document.getElementById("waiting-status");
-    
-    // Hubi in xogtu jirto, haddii kale jooji
+    const listArea = document.getElementById("players-list");
+
     if (!data || !data.players) return;
 
+    // 1. Sawir Magacyada
     if (listArea) {
-        listArea.innerHTML = ""; 
+        listArea.innerHTML = "";
         data.players.forEach(p => {
             const pDiv = document.createElement("div");
-            pDiv.style.cssText = "padding:10px; margin:5px; background:rgba(255,255,255,0.1); border-radius:5px;";
+            pDiv.style.cssText = "padding:10px; margin:5px; background:rgba(46, 204, 113, 0.2); border-radius:8px; color:white;";
             pDiv.innerHTML = `✅ <b>${p.name}</b> waa diyaar`;
             listArea.appendChild(pDiv);
         });
     }
 
+    // 2. Beddel Farriinta (Switch Logic)
     if (statusText) {
         const count = data.players.length;
-        const dhiman = 4 - count; 
+        const dhiman = 4 - count;
 
-        // Isticmaalka Switch si uu koodhku u nadiifnaado
         switch(dhiman) {
             case 3:
                 statusText.innerText = "3 qof ayaa dhiman weli...";
-                statusText.style.color = "#f1c40f"; // Jaalle
+                statusText.style.color = "#f1c40f";
                 break;
             case 2:
                 statusText.innerText = "2 qof ayaa dhiman weli...";
-                statusText.style.color = "#e67e22"; // Oranji
+                statusText.style.color = "#e67e22";
                 break;
             case 1:
-                statusText.innerText = "1 qof ayaa dhiman! Diyaar garow...";
-                statusText.style.color = "#e74c3c"; // Cas
+                statusText.innerText = "1 qof ayaa dhiman weli...";
+                statusText.style.color = "#e74c3c";
                 break;
             case 0:
-                statusText.innerText = "Dhammaan waa la helay! Ciyaartu waa bilaabanaysaa...";
-                statusText.style.color = "#2ecc71"; // Cagaar
+                statusText.innerText = "Ciyaartu way bilaabanaysaa...";
+                statusText.style.color = "#2ecc71";
                 break;
             default:
                 statusText.innerText = `Ciyaartoyda la helay: ${count}/4`;
@@ -747,6 +749,21 @@ if (tuurBtn) {
         if (typeof timerInterval !== 'undefined') clearInterval(timerInterval);
     };
 }
+
+/* ================= SOCKET SETUP ================= */
+const socket = io();
+
+// Halkan dhig koodhka debug-ga ah:
+socket.on("connect", () => {
+    console.log("Socket-ku waa xiranyahay! ID-gaagu waa: " + socket.id);
+});
+
+socket.onAny((eventName, ...args) => {
+    console.log(`DHACDO CUSUB (Event): ${eventName}`, args);
+});
+
+/* ================= STATE & GLOBAL VARIABLES ================= */
+// ... koodhkii kale ee hoos ku qornaa ...
 
 socket.on("gameOver", ({ winnerName }) => {
     alert("Ciyaarta waxaa ku guuleystay: " + winnerName);
