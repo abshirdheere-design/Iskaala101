@@ -13,7 +13,7 @@ let temporaryScore = 0; // Dhibcaha urursanaya ka hor 101
 let setsOfTopPlayer = [];
 let setsOfLeftPlayer = [];
 let setsOfRightPlayer = [];
-
+let dragStartIndex = null;
 
 const pointValues = { 
     '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 
@@ -38,27 +38,33 @@ function renderMyHand() {
         cardDiv.dataset.index = index;
         cardDiv.draggable = true;
 
-        // Muuqaalka Kaarka
-        const isRed = (card.suit === '♥' || card.suit === '♦');
-        cardDiv.style.color = isRed ? "red" : "black";
-        cardDiv.innerHTML = `<b>${card.value}${card.suit}</b>`;
+        // 1. U beddel Suit-ka xarafka faylka SVG-gu aqoonsan yahay
+        // Tusaale: '♠' -> 's', '♥' -> 'h', '♦' -> 'd', '♣' -> 'c'
+        const suitMap = { '♠': 's', '♥': 'h', '♦': 'd', '♣': 'c' };
+        const suitLetter = suitMap[card.suit] || 's';
+        
+        // 2. Dhis magaca faylka (Tusaale: "10s.svg")
+        const fileName = `${card.value}${suitLetter}.svg`;
 
-        // --- 1. CLICK EVENT ---
+        // 3. Ku rid sawirka SVG-ga gudaha kaarka
+        cardDiv.innerHTML = `
+            <img src="/cards/${fileName}" alt="${card.value}${card.suit}" 
+                 style="width: 100%; height: 100%; pointer-events: none; border-radius: 5px;">
+        `;
+
+        // --- CLICK EVENT ---
         cardDiv.onclick = (e) => {
-            // Ka ilaali inuu click noqdo haddii la jiidayay
             card.selected = !card.selected;
             renderMyHand();
             if (typeof calculateTemporaryScore === "function") calculateTemporaryScore();
         };
 
-        // --- 2. DRAG EVENTS ---
+        // --- DRAG EVENTS ---
         cardDiv.addEventListener("dragstart", (e) => {
             dragStartIndex = index;
             e.target.style.opacity = "0.5";
         });
-
         cardDiv.addEventListener("dragover", (e) => e.preventDefault());
-
         cardDiv.addEventListener("drop", handleDrop);
 
         area.appendChild(cardDiv);
