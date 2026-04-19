@@ -30,20 +30,6 @@ body {
     overflow: hidden; /* 🔥 HALKAN SAX */
 }
 
-/* ================= GAME HEADER ================= */
-.game-header {
-    display: none; /* JS ayaa ka dhigi doona flex */
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    background: rgba(0, 0, 0, 0.9);
-    border-bottom: 2px solid #f1c40f;
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 9500; /* Ka sarreeya wax kasta marka ciyaartu socoto */
-}
 
 /* ================= MY HAND SECTION ================= */
 .player-hand-section {
@@ -961,7 +947,8 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-.top-bar {
+/* Qaybta sare ee ciyaarta (Header) */
+.top-bar, .game-header {
     position: fixed;
     top: 0;
     left: 0;
@@ -971,7 +958,21 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.95); /* In yar ka madowow */
     border-bottom: 2px solid #f1c40f;
-    z-index: 1000;
+    
+    /* --- HALKAN LAGU DARAY --- */
+    color: white !important; /* Qoraalka ka dhig cad */
+    box-sizing: border-box;
+}
+
+/* Haddii .top-bar iyo .game-header ay isku meel yihiin, 
+   kan dambe ha lahaado z-index ka sarreeya */
+.top-bar {
+    z-index: 9000;
+}
+
+.game-header {
+    display: none; /* JS ayaa ka dhigi doona flex */
+    z-index: 9500; 
 }
