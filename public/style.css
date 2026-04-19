@@ -32,17 +32,18 @@ body {
 
 /* ================= GAME HEADER ================= */
 .game-header {
+    height: 60px; /* Cabbir go'an sii */
     display: none; /* JS ayaa ka dhigi doona flex */
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
-    background: rgba(0, 0, 0, 0.9);
+    padding: 0 20px;
+    background: rgba(10, 10, 10, 0.95);
     border-bottom: 2px solid #f1c40f;
-    width: 100%;
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 9500; /* Ka sarreeya wax kasta marka ciyaartu socoto */
+    width: 100%;
+    z-index: 9999;
 }
 
 /* ================= MY HAND SECTION ================= */
@@ -82,15 +83,10 @@ body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
-/* ================= GAME TABLE ================= */
+/* Miiska Ciyaarta (Game Table) */
 #game-table {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
-    z-index: 10;
-    /* In yar kor u qaad miiska oo dhan */
-    margin-top: -30px; 
+    margin-top: 70px; /* Ka soo sikee Header-ka (Header height + 10px) */
+    min-height: calc(100vh - 250px); /* Meel bannaan u reeb gacantaada hoose */
 }
 
 /* Ku dar qaybtaan si aad u qariso walxaha aan loo baahnayn bilowga */
