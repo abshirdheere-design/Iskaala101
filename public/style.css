@@ -48,21 +48,19 @@ body {
 
 /* ================= MY HAND SECTION ================= */
 .player-hand-section {
+    display: none; /* JS ayaa ka dhigi doona flex */
     position: fixed;
-    bottom: 45px; /* Kor ayuu uga yara fogaanayaa salka hoose */
+    bottom: 0;
     left: 0;
-    right: 0;
-    display: none; /* 🔥 BILOWGA MA MUUQANAYO - Tani waa xalka sawirkaaga */
+    width: 100%;
+    background: rgba(0, 0, 0, 0.8);
     flex-direction: column;
     align-items: center;
-    z-index: 9999 !important;
-    pointer-events: none;
+    padding: 15px 0;
+    z-index: 9000;
+    border-top: 2px solid #f1c40f;
 }
 
-/* Badhamada iyo kaararka uun ha la taaban karo */
-.player-hand-section > * {
-    pointer-events: auto;
-}
 
 /* ================= ACTION BUTTONS ================= */
 .action-buttons {
@@ -453,12 +451,12 @@ body {
 
 
 #my-hand {
-    pointer-events: auto;
     display: flex;
     justify-content: center;
-    gap: -20px; /* Kaararka oo is dhow */
-    margin-bottom: 10px;
-	z-index: 20
+    gap: -30px; /* Si ay kaarku isku dul saarnaadaan waxyar */
+    margin-bottom: 15px;
+    width: 90%;
+    min-height: 120px; /* Hubi in kaarku leeyahay meel ay ku dhex jiraan */
 }
 
 /* ================= CARD STYLING ================= */
