@@ -32,35 +32,36 @@ body {
 
 /* ================= GAME HEADER ================= */
 .game-header {
-    height: 60px; /* Cabbir go'an sii */
     display: none; /* JS ayaa ka dhigi doona flex */
     justify-content: space-between;
     align-items: center;
-    padding: 0 20px;
-    background: rgba(10, 10, 10, 0.95);
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.9);
     border-bottom: 2px solid #f1c40f;
+    width: 100%;
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    z-index: 9999;
+    z-index: 9500; /* Ka sarreeya wax kasta marka ciyaartu socoto */
 }
 
 /* ================= MY HAND SECTION ================= */
 .player-hand-section {
-    display: none; /* JS ayaa ka dhigi doona flex */
     position: fixed;
-    bottom: 0;
+    bottom: 45px; /* Kor ayuu uga yara fogaanayaa salka hoose */
     left: 0;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    right: 0;
+    display: none; /* 🔥 BILOWGA MA MUUQANAYO - Tani waa xalka sawirkaaga */
     flex-direction: column;
     align-items: center;
-    padding: 15px 0;
-    z-index: 9000;
-    border-top: 2px solid #f1c40f;
+    z-index: 9999 !important;
+    pointer-events: none;
 }
 
+/* Badhamada iyo kaararka uun ha la taaban karo */
+.player-hand-section > * {
+    pointer-events: auto;
+}
 
 /* ================= ACTION BUTTONS ================= */
 .action-buttons {
@@ -81,10 +82,15 @@ body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
-/* Miiska Ciyaarta (Game Table) */
+/* ================= GAME TABLE ================= */
 #game-table {
-    margin-top: 70px; /* Ka soo sikee Header-ka (Header height + 10px) */
-    min-height: calc(100vh - 250px); /* Meel bannaan u reeb gacantaada hoose */
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 10;
+    /* In yar kor u qaad miiska oo dhan */
+    margin-top: -30px; 
 }
 
 /* Ku dar qaybtaan si aad u qariso walxaha aan loo baahnayn bilowga */
@@ -451,12 +457,12 @@ body {
 
 
 #my-hand {
+    pointer-events: auto;
     display: flex;
     justify-content: center;
-    gap: -30px; /* Si ay kaarku isku dul saarnaadaan waxyar */
-    margin-bottom: 15px;
-    width: 90%;
-    min-height: 120px; /* Hubi in kaarku leeyahay meel ay ku dhex jiraan */
+    gap: -20px; /* Kaararka oo is dhow */
+    margin-bottom: 10px;
+	z-index: 20
 }
 
 /* ================= CARD STYLING ================= */
@@ -955,7 +961,6 @@ body {
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
 
 .top-bar {
     display: flex;
