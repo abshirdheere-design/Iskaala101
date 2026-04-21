@@ -38,12 +38,13 @@ function renderMyHand() {
         cardDiv.dataset.index = index;
         cardDiv.draggable = true;
 
-        // U beddel Suits-ka xarfaha faylka (s, h, d, c)
         const suitMap = { '♠': 's', '♥': 'h', '♦': 'd', '♣': 'c' };
         const suitLetter = suitMap[card.suit] || 's';
-        const fileName = `${card.value}${suitLetter}.svg`;
 
-        // Halkaan ayuu isbeddelka weyn ku jiraa (Isticmaalka Img)
+        // 🔥 HALKAN SAX: .toLowerCase() ku dar card.value
+        const val = String(card.value).toLowerCase();
+        const fileName = `${val}${suitLetter}.svg`;
+
         cardDiv.innerHTML = `
             <img src="/cards/${fileName}" 
                  style="width: 100%; height: 100%; pointer-events: none; border-radius: 5px;">
@@ -331,10 +332,8 @@ socket.on("updateTableUI", (data) => {
         tableArea.appendChild(playerTable);
     }
 
-    // 1. Nadiifi miiska ka hor intaanan dib u sawirin
     playerTable.innerHTML = "";
 
-    // 2. halkan dhig koodhka cusub ee sawirada (SVG) isticmaalaya
     allSets.forEach(set => {
         const setDiv = document.createElement("div");
         setDiv.classList.add("set");
@@ -343,10 +342,12 @@ socket.on("updateTableUI", (data) => {
             const cardDiv = document.createElement("div");
             cardDiv.classList.add("card", "mini-card");
 
-            // Mapping-ka Suit-ka
             const suitMap = { '♠': 's', '♥': 'h', '♦': 'd', '♣': 'c' };
             const suitLetter = suitMap[card.suit] || 's';
-            const fileName = `${card.value}${suitLetter}.svg`;
+            
+            // 🔥 ISBEDDELKA: .toLowerCase() ku dar halkan
+            const val = String(card.value).toLowerCase();
+            const fileName = `${val}${suitLetter}.svg`;
 
             // Sawirka SVG-ga
             cardDiv.innerHTML = `<img src="/cards/${fileName}" style="width: 100%; height: 100%; border-radius: 2px;">`;
@@ -356,7 +357,6 @@ socket.on("updateTableUI", (data) => {
         playerTable.appendChild(setDiv);
     });
 
-    // 3. Update dhibcaha loo baahan yahay
     const req = document.getElementById("requiredPoints");
     if (req) req.innerText = nextRequiredPoints;
 });
@@ -702,7 +702,10 @@ socket.on("updateDiscardPile", (card) => {
     if (card) {
         const suitMap = { '♠': 's', '♥': 'h', '♦': 'd', '♣': 'c' };
         const suitLetter = suitMap[card.suit] || 's';
-        const fileName = `${card.value}${suitLetter}.svg`;
+        
+        // 🔥 HALKAN XITA: Ka dhig xaraf yar
+        const val = String(card.value).toLowerCase();
+        const fileName = `${val}${suitLetter}.svg`;
 
         const cardDiv = document.createElement("div");
         cardDiv.className = "card";
