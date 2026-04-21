@@ -17,7 +17,7 @@ let dragStartIndex = null;
 
 const pointValues = { 
     '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 
-    'J': 10, 'Q': 10, 'K': 10, 'A': 11 
+    'j': 10, 'q': 10, 'k': 10, 'a': 11 
 };
 
 // Hubinta xeerka 101 iyo in ugu yaraan hal koox ay tahay 4+ kaar
