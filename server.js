@@ -7,6 +7,13 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+app.use((req, res, next) => {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+    next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // GLOBAL STATE
@@ -130,6 +137,47 @@ io.on("connection", (socket) => {
 
     /* 1. JOIN RANDOM ROOM */
     socket.on("joinRandom", (name) => {
+        
+        // --- RECONNECT LOGIC (XALKA MOBILKA & REFRESH) ---
+        for (let id in rooms) {
+            let room = rooms[id];
+            let existingPlayer = room.players.find(p => p.name === name && p.online === false);
+            
+            if (existingPlayer) {
+                console.log(`RECONNECT: ${name} ayaa dib u soo laabtay.`);
+                existingPlayer.id = socket.id; // Sii ID-ga cusub ee Socket-ka
+                existingPlayer.online = true;  // Online ka dhig
+                socket.roomId = id;
+                socket.join(id);
+                
+                // A. Dib ugu soo celi kaararkiisii gacanta
+                socket.emit("startHand", existingPlayer.hand); 
+
+                // B. Tusi kaarka hadda dhexda yaalla (Discard Pile)
+                if (room.discardPile.length > 0) {
+                    socket.emit("updateDiscardPile", room.discardPile.at(-1));
+                }
+
+                // C. Tusi dhammaan kaararka ay dadku miiska dhigteen (Sets)
+                room.players.forEach(p => {
+                    if (p.isOpened && p.openedSets.length > 0) {
+                        socket.emit("updateTableUI", {
+                            playerId: p.id,
+                            allSets: p.openedSets,
+                            nextRequiredPoints: room.lastOpenPoints
+                        });
+                    }
+                });
+
+                // D. Cusboonaysii dadka kale
+                updateRoomPlayers(id);
+                socket.emit("notification", "Waad ku soo laabtay ciyaarta!");
+                return; // MUHIIM: Halkan ku jooji, haku darin qol kale
+            }
+        }
+        // --- DHAMAADKA RECONNECT LOGIC ---
+
+        // --- RAADINTA QOL CUSUB (NEW PLAYER) ---
         let roomId = Object.keys(rooms).find(id => 
             rooms[id].players.length < 4 && !rooms[id].gameStarted
         );
@@ -143,7 +191,8 @@ io.on("connection", (socket) => {
                 stockPile: [],
                 discardPile: [],
                 activePlayerIndex: 0,
-                lastOpenPoints: 101
+                lastOpenPoints: 101,
+                turnTimeout: null
             };
         }
 
@@ -154,7 +203,8 @@ io.on("connection", (socket) => {
             isOpened: false,
             hasActioned: false,
             pickedFromDiscard: false,
-            openedSets: []
+            openedSets: [],
+            online: true 
         };
 
         rooms[roomId].players.push(newPlayer);
@@ -162,10 +212,9 @@ io.on("connection", (socket) => {
         socket.roomId = roomId;
 
         const room = rooms[roomId];
-        const playersDataForLobby = room.players.map(p => ({ name: p.name }));
         
         io.to(roomId).emit("waitingRoomUpdate", {
-            players: playersDataForLobby
+            players: room.players.map(p => ({ name: p.name }))
         });
 
         if (room.players.length === 4) {
@@ -191,13 +240,12 @@ io.on("connection", (socket) => {
         updateRoomPlayers(roomId);
     });
 
-    /* 2. PICK FROM DISCARD (KII AAD CODSATAY) */
+    /* 2. PICK FROM DISCARD */
     socket.on("pickDiscard", () => {
         const room = rooms[socket.roomId];
         if (!room || !room.gameStarted) return;
 
         const p = room.players[room.activePlayerIndex];
-        // Hubi inuu doorkiisa yahay iyo inuusan horay wax u qaadan
         if (p.id !== socket.id || p.hasActioned) {
             return socket.emit("notification", "Maahan doorkaaga ama horay ayaad u qaadatay!");
         }
@@ -206,11 +254,10 @@ io.on("connection", (socket) => {
             const card = room.discardPile.pop();
             p.hand.push(card);
             p.hasActioned = true;
-            p.pickedFromDiscard = true; // Xeerka 101 ayay tan kicinaysaa
+            p.pickedFromDiscard = true; 
             
             socket.emit("discardPickedSuccess", card);
             
-            // Cusboonaysii muuqaalka tuurista ee dadka kale
             const nextDiscard = room.discardPile.length > 0 ? room.discardPile.at(-1) : null;
             io.to(socket.roomId).emit("updateDiscardPile", nextDiscard);
             updateRoomPlayers(socket.roomId);
@@ -218,37 +265,34 @@ io.on("connection", (socket) => {
     });
 
     /* 3. DRAW FROM STOCK */
-    /* 2. DRAW FROM STOCK */
-socket.on("drawCard", () => {
-    const room = rooms[socket.roomId];
-    if (!room || !room.gameStarted) return;
+    socket.on("drawCard", () => {
+        const room = rooms[socket.roomId];
+        if (!room || !room.gameStarted) return;
 
-    const p = room.players[room.activePlayerIndex];
+        const p = room.players[room.activePlayerIndex];
 
-    // --- CUSBOONAYSIIN: HUBI TIRADA GACANTA ---
-    // Haddii uu haysto 15 xabo, looma oggola inuu 16-aad qaato
-    if (p.hand.length >= 15) {
-        return socket.emit("notification", "Gacantaadu waa buuxdaa (15)! Mid tuur marka hore.");
-    }
+        if (p.hand.length >= 15) {
+            return socket.emit("notification", "Gacantaadu waa buuxdaa (15)! Mid tuur marka hore.");
+        }
 
-    if (p.id !== socket.id || p.hasActioned) {
-        return socket.emit("notification", "Maahan doorkaaga ama mar hore ayaad qaadatay!");
-    }
+        if (p.id !== socket.id || p.hasActioned) {
+            return socket.emit("notification", "Maahan doorkaaga ama mar hore ayaad qaadatay!");
+        }
 
-    if (room.stockPile.length === 0) {
-        if (room.discardPile.length <= 1) return socket.emit("notification", "Turub ma jiro!");
-        const top = room.discardPile.pop();
-        room.stockPile = shuffle(room.discardPile);
-        room.discardPile = [top];
-    }
+        if (room.stockPile.length === 0) {
+            if (room.discardPile.length <= 1) return socket.emit("notification", "Turub ma jiro!");
+            const top = room.discardPile.pop();
+            room.stockPile = shuffle(room.discardPile);
+            room.discardPile = [top];
+        }
 
-    const card = room.stockPile.pop();
-    p.hand.push(card);
-    p.hasActioned = true;
-    p.pickedFromDiscard = false; 
-    socket.emit("receiveCard", card);
-    updateRoomPlayers(socket.roomId);
-});
+        const card = room.stockPile.pop();
+        p.hand.push(card);
+        p.hasActioned = true;
+        p.pickedFromDiscard = false; 
+        socket.emit("receiveCard", card);
+        updateRoomPlayers(socket.roomId);
+    });
 
     /* 4. PLAYER OPENS (101 Logic) */
     socket.on("playerOpens", (data) => {
@@ -282,7 +326,7 @@ socket.on("drawCard", () => {
 
         socket.emit("startHand", player.hand);
         updateRoomPlayers(socket.roomId);
-    }); // <--- Halkan waxaa ku xiran playerOpens
+    });
 
     /* 5. PLAY CARD (Tuurista) */
     socket.on("playCard", (card) => {
@@ -310,22 +354,33 @@ socket.on("drawCard", () => {
         } else {
             nextTurn(socket.roomId);
         }
-    }); // <--- Halkan waxaa ku xiran playCard
+    });
 
-    /* 6. DISCONNECT & OTHERS */
+    /* 6. DISCONNECT (XALKA MOBILADA) */
     socket.on("disconnect", () => {
         onlineUsers--;
         io.emit("updateOnlineCount", onlineUsers);
+        
         const room = rooms[socket.roomId];
         if (room) {
-            room.players = room.players.filter(p => p.id !== socket.id);
-            if (room.players.length === 0) {
+            if (!room.gameStarted) {
+                // Haddii ciyaartu weli bilaaban, caadi u tirtir qofka
+                room.players = room.players.filter(p => p.id !== socket.id);
+                io.to(socket.roomId).emit("waitingRoomUpdate", { players: room.players.map(p => ({name: p.name})) });
+            } else {
+                // Haddii ciyaartu socoto, HA TIRTIRIN booska, kaliya offline ka dhig
+                const player = room.players.find(p => p.id === socket.id);
+                if (player) {
+                    player.online = false;
+                    io.to(socket.roomId).emit("notification", `${player.name} waa go'ay, laakiin booskiisa waa loo hayyaa.`);
+                }
+            }
+
+            // Haddii qolka uu noqdo eber qof oo online ah, tirtir qolka
+            const onlineInRoom = room.players.filter(p => p.online === true).length;
+            if (onlineInRoom === 0) {
                 delete rooms[socket.roomId];
             } else {
-                if (!room.gameStarted) {
-                    io.to(socket.roomId).emit("waitingRoomUpdate", { players: room.players.map(p => ({name: p.name})) });
-                }
-                io.to(socket.roomId).emit("notification", "Ciyaartoy ayaa baxay.");
                 updateRoomPlayers(socket.roomId);
             }
         }
@@ -336,7 +391,7 @@ socket.on("drawCard", () => {
         if (room && room.players[room.activePlayerIndex].id === socket.id) nextTurn(socket.roomId);
     });
 
-}); // <--- KANI WAA XIRITAANKA MUHIIMKA AH EE io.on("connection")
+});
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
