@@ -565,21 +565,55 @@ socket.on("waitingRoomUpdate", (data) => {
 });
 
 socket.on("playersUpdate", (data) => {
-    const { players, stockCount, currentTurnId } = data;
+    const { players, stockCount, currentTurnId, turnStartTime } = data;
+
     isMyTurn = (currentTurnId === socket.id);
 
     const statusEl = document.getElementById("turnText");
-    if (statusEl) {
-        statusEl.textContent = isMyTurn ? "Doorkaaga" : "Sugaya...";
-        statusEl.style.color = isMyTurn ? "#2ecc71" : "#f1c40f";
+    
+    // Nadiifi timer-kii hore haddii uu jiro
+    if (timerInterval) clearInterval(timerInterval);
+
+    if (isMyTurn) {
+        // --- XISAABI WAQTIGA HARAY ---
+        // turnStartTime waa waqtigii doorku bilaawday (ka yimid server-ka)
+        const now = Date.now();
+        const elapsed = Math.floor((now - turnStartTime) / 1000);
+        let timeLeft = 30 - elapsed;
+
+        if (timeLeft > 0) {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                let msg = myHand.length >= 15 ? "TUUR XABBAD!" : "DOORKAAGA!";
+                
+                if (statusEl) {
+                    statusEl.innerHTML = `<b style="color:#2ecc71">${msg} (${timeLeft}s)</b>`;
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    socket.emit("forceEndTurn");
+                }
+            }, 1000);
+        } else {
+            if (statusEl) statusEl.textContent = "WAQTIGII WAA KA DHAMAADAY!";
+        }
+    } else {
+        if (statusEl) {
+            statusEl.textContent = "Sugaya...";
+            statusEl.style.color = "#f1c40f";
+        }
     }
 
-    const stockEl = document.getElementById("stock-count");
-    if (stockEl && stockCount !== undefined) stockEl.textContent = stockCount;
+    // Fur/Xir badhamada
+    const btns = ["dhigoBtn", "tuurBtn", "resetBtn"];
+    btns.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = !isMyTurn;
+    });
 
-    document.getElementById("dhigoBtn").disabled = !isMyTurn;
-    document.getElementById("tuurBtn").disabled = !isMyTurn;
-    document.getElementById("resetBtn").disabled = !isMyTurn;
+    const stockEl = document.getElementById("stock-count");
+    if (stockEl) stockEl.textContent = stockCount;
 });
 
 /* GAME START LISTENER */
