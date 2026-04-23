@@ -494,6 +494,66 @@ setInterval(() => {
     }
 }, 10000); 
 
+// 1. Function u gaar ah qashinka iyo muujinta miiska
+function switchUItoGame() {
+    const setupScreen = document.getElementById("setup-screen");
+    const waitingRoom = document.getElementById("waiting-room");
+    const mainHeader = document.getElementById("main-header");
+    const gameTable = document.getElementById("game-table");
+    const myHandSection = document.getElementById("my-hand-section");
+
+    if (setupScreen) setupScreen.style.display = "none";
+    if (waitingRoom) waitingRoom.style.display = "none";
+    if (mainHeader) mainHeader.style.display = "flex";
+    if (gameTable) gameTable.style.display = "flex";
+    if (myHandSection) myHandSection.style.display = "flex";
+}
+
+// 2. Marka ciyaartu bilaabato (caadi)
+socket.on("matchFound", (data) => {
+    setTimeout(switchUItoGame, 1500); 
+});
+
+// 3. Marka aad dib u soo laabato (Reconnect Fix)
+socket.on("startHand", (hand) => {
+    myHand = hand.map(c => ({...c, selected:false}));
+    
+    // 🔥 MUHIIM: Haddii qolka sugitaanka uu weli muuqdo, qari oo tusi ciyaarta
+    if (document.getElementById("waiting-room").style.display !== "none") {
+        switchUItoGame();
+    }
+    
+    renderMyHand();
+});
+
+document.getElementById("startGameBtn").onclick = () => {
+    const nameInput = document.getElementById("nameInput");
+    const name = nameInput.value.trim();
+    
+    if (!name) return alert("Fadlan magacaaga qor!");
+
+    // 🔥 KANI WAA ISBEDELKA: Browser-ka ha xasuusto magacaaga
+    localStorage.setItem("turub_user_name", name);
+
+    document.getElementById("setup-screen").style.display = "none";
+    document.getElementById("waiting-room").style.display = "block";
+    socket.emit("joinRandom", name);
+};
+
+/* ================= AUTO-LOAD NAME (RECONNECT FIX) ================= */
+// Marka boggu soo laabto (Refresh), magaca iskiis ha u soo qoro
+window.addEventListener("load", () => {
+    const savedName = localStorage.getItem("turub_user_name");
+    const nameInput = document.getElementById("nameInput");
+    
+    if (savedName && nameInput) {
+        nameInput.value = savedName;
+        console.log("Magacaagii hore waa la soo celiyay: " + savedName);
+    }
+});
+
+
+
 
 /* ================= EVENT LISTENERS ================= */
 
