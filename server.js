@@ -110,21 +110,54 @@ function nextTurn(roomId) {
     const room = rooms[roomId];
     if (!room) return;
 
-    // 🔥 Masax timer-kii hore
+    // 1. Masax timer-kii hore si uusan laba jeer u shaqayn
     if (room.turnTimeout) clearTimeout(room.turnTimeout);
 
+    // 2. Wareeji doorka oo u dhiib qofka xiga
     room.activePlayerIndex = (room.activePlayerIndex + 1) % room.players.length;
-    room.players.forEach(p => p.hasActioned = false);
+    
+    // Nadiifi xogta doorkii hore
+    room.players.forEach(p => {
+        p.hasActioned = false;
+        p.pickedFromDiscard = false;
+    });
 
     const currentPlayer = room.players[room.activePlayerIndex];
+
+    // 3. U sheeg qofka in doorkiisa yahay
     io.to(roomId).emit('yourTurn', currentPlayer.id);
     updateRoomPlayers(roomId);
 
-    // 🔥 Server-side safety timer
+    // 4. ROBOT-KA (Auto-Play Logic)
+    // Haddii qofku 35 ilbiriqsi gudaheed waxba ku tuuri waayo:
     room.turnTimeout = setTimeout(() => {
-        console.log(`Auto-skipping player in room ${roomId}`);
+        console.log(`ROBOT: ${currentPlayer.name} waa laga maqan yahay. Robot-ka ayaa u ciyaaraya.`);
+
+        // A. Haddii uusan weli kaar qaadan, Robot-ka ha u qaado Badda (Stock)
+        if (!currentPlayer.hasActioned) {
+            if (room.stockPile.length > 0) {
+                const card = room.stockPile.pop();
+                currentPlayer.hand.push(card);
+                currentPlayer.hasActioned = true;
+                // U sheeg qofka kaarka loo qaaday (haddii uu hadda soo laabto)
+                io.to(currentPlayer.id).emit("receiveCard", card);
+            }
+        }
+
+        // B. Robot-ka ha u tuuro kaarka ugu dambeeya ee gacanta (si ciyaartu u socoto)
+        if (currentPlayer.hand.length > 0) {
+            const cardToDiscard = currentPlayer.hand.pop(); 
+            room.discardPile.push(cardToDiscard);
+            
+            // Cusboonaysii miiska qof walba u muuqda
+            io.to(roomId).emit("updateDiscardPile", cardToDiscard);
+            io.to(roomId).emit("notification", `${currentPlayer.name} waa laga daahay, Robot-ka ayaa kaar u tuuray.`);
+        }
+
+        // C. U gudbi qofka xiga (Recurse)
         nextTurn(roomId);
-    }, 35000);
+
+    }, 35000); // 35 seconds
 }
 
 
