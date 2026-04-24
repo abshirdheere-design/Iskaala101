@@ -274,7 +274,15 @@ io.on("connection", (socket) => {
             }
         }
     });
-
+	
+    socket.on("pauseTimerRequest", () => {
+    const room = rooms[socket.roomId];
+    if (room && room.timer) {
+        clearInterval(room.timer); // Saacadda halkan ku jooji
+        io.to(socket.roomId).emit("timerPaused", { message: "Saacadda waa la hakiyay (Dhisid socota...)" });
+      }
+    });
+	
     /* 3. ACTIONS (DRAW/PICK/PLAY) */
  socket.on("drawCard", () => {
         const room = rooms[socket.roomId];

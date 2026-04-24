@@ -1004,3 +1004,17 @@ body {
     #player-left { margin-left: -580px !important; }
     #player-right { margin-left: 580px !important; }
 }
+
+/* Meesha ay kooxuhu fariistaan miiska dhexdiisa */
+.melted-group {
+    display: flex; /* Tani waxay ka dhigaysaa inay is-garab fariistaan */
+    flex-direction: row; /* Bidix ilaa Midig */
+    gap: -20px; /* Haddii aad rabto inay wax yar is-sii saarnaadaan laakiin la arko */
+    margin: 5px;
+}
+
+.melted-card {
+    width: 40px; /* Ama cabbirka aad u isticmaasho kaararka yaryar */
+    height: auto;
+    position: relative; /* Hubi inaysan absolute ahayn si aysan isku dul fuulin */
+}

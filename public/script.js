@@ -63,6 +63,37 @@ function renderMyHand() {
     });
 }
 
+function renderMeltedGroups(groups) {
+    const tableArea = document.getElementById('table-area');
+    // Nadiifi meesha hore
+    tableArea.innerHTML = ''; 
+
+    groups.forEach(group => {
+        const groupDiv = document.createElement('div');
+        groupDiv.className = 'melted-group';
+        
+        group.forEach(card => {
+            const cardImg = document.createElement('img');
+            cardImg.src = `/cards/${card.suit}_${card.value}.png`;
+            cardImg.className = 'melted-card';
+            groupDiv.appendChild(cardImg);
+        });
+        
+        tableArea.appendChild(groupDiv);
+    });
+}
+
+function toggleCardSelection(cardElement) {
+    // Koodhkii hore ee calaamadaynta...
+    
+    const selectedCards = document.querySelectorAll('.card.selected');
+    
+    if (selectedCards.length >= 3) {
+        // Haddii 3 kaar la calaamadeeyo, u sheeg server-ka inuu saacadda joojiyo
+        socket.emit("pauseTimerRequest");
+    }
+}
+
 /* XISAABINTA DHIBCAHA (MELDS) */
 function calculateTemporaryScore() {
     const selectedCards = myHand.filter(c => c.selected);
