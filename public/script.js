@@ -238,57 +238,88 @@ function handleDhigista() {
     if (!isMyTurn) return alert("Sug doorkaaga!");
 
     let selectedCards = myHand.filter(c => c.selected);
-    if (selectedCards.length < 3) {
-        return alert("Koox kasta waa inay ugu yaraan 3 kaar noqotaa!");
+    if (selectedCards.length < 3) return alert("Dooro ugu yaraan 3 kaar!");
+
+    // Isticmaal Algorithm-ka cusub
+    const { validGroups, remaining } = findValidGroups(selectedCards);
+
+    if (remaining.length > 0) {
+        return alert("Kaarka " + remaining[0].value + remaining[0].suit + " kama mid noqon karo koox sax ah!");
     }
 
-    if (!isSerial(selectedCards) && !isSet(selectedCards)) {
-        return alert("Kaararka aad dooratay ma ahan koox sax ah (Set ama Serial).");
-    }
-
-    let currentSetScore = selectedCards.reduce((sum, c) => {
-        const val = String(c.value).toLowerCase();
-        return sum + (pointValues[val] || 0);
-    }, 0);
+    let totalScoreOfMove = selectedCards.reduce((sum, c) => sum + (pointValues[String(c.value).toLowerCase()] || 0), 0);
 
     if (!isOpened) {
-        temporaryScore += currentSetScore;
-        myOpenedSets.push([...selectedCards]);
+        temporaryScore += totalScoreOfMove;
+        myOpenedSets.push(...validGroups); // Ku dar kooxaha la kala saaray
 
         myHand = myHand.filter(c => !c.selected);
         renderMyHand();
         renderMyTableSets();
 
         if (temporaryScore >= 101) {
-            const hasFourCardGroup = myOpenedSets.some(set => set.length >= 4);
-
-            if (!hasFourCardGroup) {
-                alert("101 waad gaartay, laakiin waa inaad haysataa ugu yaraan hal koox oo 4+ kaar ah!");
+            const hasFourPlus = myOpenedSets.some(g => g.length >= 4);
+            if (!hasFourPlus) {
+                alert("Wadartaadu waa " + temporaryScore + ", laakiin waa inaad haysataa ugu yaraan hal koox oo 4+ kaar ah!");
             } else {
                 isOpened = true;
                 iHaveOpened = true;
-
-                socket.emit("playerOpens", {
-                    cards: selectedCards, 
-                    allSets: myOpenedSets,
-                    totalScore: temporaryScore
-                });
-
-                alert("Hambalyo! Waad degtay. Dhibcahaaga: " + temporaryScore);
+                socket.emit("playerOpens", { allSets: myOpenedSets, totalScore: temporaryScore });
+                alert("Waad degtay! Dhibcahaaga: " + temporaryScore);
             }
         } else {
-            alert(`Wadarta hadda: ${temporaryScore}. Sii wad ilaa 101!`);
+            alert(`Wadarta: ${temporaryScore}. Sii wad ilaa 101!`);
         }
-
     } else {
-        socket.emit("addToTable", { cards: selectedCards });
-
-        myOpenedSets.push([...selectedCards]);
+        // Haddii uu hore u degay
+        socket.emit("addToTable", { groups: validGroups });
+        myOpenedSets.push(...validGroups);
         myHand = myHand.filter(c => !c.selected);
-
         renderMyHand();
         renderMyTableSets();
     }
+}
+
+function findValidGroups(selectedCards) {
+    let validGroups = [];
+    let remaining = [...selectedCards];
+
+    // 1. Marka hore u kala saar (Sort) si loo helo isku xigitaan
+    remaining.sort((a, b) => {
+        const order = { "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "j": 11, "q": 12, "k": 13, "a": 14 };
+        return order[String(a.value).toLowerCase()] - order[String(b.value).toLowerCase()];
+    });
+
+    // 2. Algorithm-ka kala saarista (Suit-based serials)
+    const suits = ['♠', '♥', '♣', '♦'];
+    suits.forEach(s => {
+        let suitCards = remaining.filter(c => c.suit === s);
+        if (suitCards.length >= 3) {
+            // Halkan geli logic-gii 'Split-ka' ee ahaa hadday 6 yihiin ka dhig 3+3
+            if (suitCards.length > 5) {
+                let mid = Math.ceil(suitCards.length / 2);
+                validGroups.push(suitCards.slice(0, mid));
+                validGroups.push(suitCards.slice(mid));
+            } else {
+                validGroups.push(suitCards);
+            }
+            // Ka saar kuwan 'remaining'
+            let ids = suitCards.map(c => c.value + c.suit);
+            remaining = remaining.filter(c => !ids.includes(c.value + c.suit));
+        }
+    });
+
+    // 3. Hubi haddii ay jiraan Sets (Nambarro isku mid ah)
+    let values = [...new Set(remaining.map(c => c.value))];
+    values.forEach(v => {
+        let valCards = remaining.filter(c => c.value === v);
+        if (valCards.length >= 3) {
+            validGroups.push(valCards);
+            remaining = remaining.filter(c => c.value !== v);
+        }
+    });
+
+    return { validGroups, remaining };
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -437,6 +468,49 @@ socket.on("updateTableUI", (data) => {
     if (req) req.innerText = nextRequiredPoints;
 });
 
+socket.on("updateTableUI", (data) => {
+    const { players } = data; // Server-ka waa inuu soo diraa liiska players-ka oo dhan
+    
+    // 1. Hel index-kaaga
+    const myIndex = players.findIndex(p => p.id === socket.id);
+    if (myIndex === -1) return;
+
+    // 2. Nadiifi dhammaan boosaska miiska
+    ["pos-top", "pos-left", "pos-right", "pos-bottom"].forEach(id => {
+        document.getElementById(id).innerHTML = "";
+    });
+
+    // 3. Mid mid u mari ciyaartoyda oo u dhiib booskooda
+    players.forEach((p, index) => {
+        if (!p.isOpened || !p.openedSets) return;
+
+        let slotId = "";
+        const diff = (index - myIndex + 4) % 4;
+
+        if (diff === 0) slotId = "pos-bottom"; // Adiga
+        else if (diff === 1) slotId = "pos-left";
+        else if (diff === 2) slotId = "pos-top";
+        else if (diff === 3) slotId = "pos-right";
+
+        const slotArea = document.getElementById(slotId);
+        
+        p.openedSets.forEach(set => {
+            const groupDiv = document.createElement("div");
+            groupDiv.className = "melted-group";
+
+            set.forEach(card => {
+                const fileName = getCardFileName(card); // Function-kii aan horay u sameynay
+                const img = document.createElement("img");
+                img.src = `/cards/${fileName}`;
+                img.className = "melted-card";
+                groupDiv.appendChild(img);
+            });
+
+            slotArea.appendChild(groupDiv);
+        });
+    });
+});
+
 /* HELPER FUNCTIONS */
 function isSet(cards) {
     if (cards.length < 3) return false;
@@ -461,7 +535,7 @@ function isSerial(cards) {
 
     const valueOrder = {
         "6": 6, "7": 7, "8": 8, "9": 9, "10": 10,
-        "J": 11, "Q": 12, "K": 13, "A": 14
+        "j": 11, "q": 12, "k": 13, "a": 14
     };
 
     const mapped = cards.map(c => valueOrder[c.value]);
