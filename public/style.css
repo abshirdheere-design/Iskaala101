@@ -1004,20 +1004,23 @@ body {
 }
 
 /* Meesha ay kooxuhu fariistaan miiska dhexdiisa */
-.melted-group {
-    display: flex !important;
-    flex-direction: row !important; /* Koox kasta mar walba waa jiif */
-    margin: 5px;
-}
 
 .melted-card {
-    width: 32px; /* Cabir yar oo miiska ku habboon */
+    width: 35px !important; /* Cabbirka saxda ah ee miiska */
     height: auto;
-    margin-left: -20px; /* 👈 Is-dul-saarka quruxda badan */
-    border: 1px solid #444;
-    border-radius: 3px;
-    background: white;
-    transition: transform 0.2s;
+    border: 1px solid #777;
+    border-radius: 4px;
+    background: #ffffff !important; /* 👈 Kani wuxuu xallinayaa "Warqadda Cad" */
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+    display: block;
+    object-fit: contain;
+}
+
+/* Ka hortag in kooxuhu is-dhex galaan */
+.melted-group {
+    padding: 5px;
+    margin: 5px;
+    display: flex;
 }
 
 .melted-card:first-child { margin-left: 0; }

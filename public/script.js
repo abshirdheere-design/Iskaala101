@@ -280,47 +280,7 @@ function handleDhigista() {
     }
 }
 
-function findValidGroups(selectedCards) {
-    let validGroups = [];
-    let remaining = [...selectedCards];
 
-    // 1. Marka hore u kala saar (Sort) si loo helo isku xigitaan
-    remaining.sort((a, b) => {
-        const order = { "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "j": 11, "q": 12, "k": 13, "a": 14 };
-        return order[String(a.value).toLowerCase()] - order[String(b.value).toLowerCase()];
-    });
-
-    // 2. Algorithm-ka kala saarista (Suit-based serials)
-    const suits = ['♠', '♥', '♣', '♦'];
-    suits.forEach(s => {
-        let suitCards = remaining.filter(c => c.suit === s);
-        if (suitCards.length >= 3) {
-            // Halkan geli logic-gii 'Split-ka' ee ahaa hadday 6 yihiin ka dhig 3+3
-            if (suitCards.length > 5) {
-                let mid = Math.ceil(suitCards.length / 2);
-                validGroups.push(suitCards.slice(0, mid));
-                validGroups.push(suitCards.slice(mid));
-            } else {
-                validGroups.push(suitCards);
-            }
-            // Ka saar kuwan 'remaining'
-            let ids = suitCards.map(c => c.value + c.suit);
-            remaining = remaining.filter(c => !ids.includes(c.value + c.suit));
-        }
-    });
-
-    // 3. Hubi haddii ay jiraan Sets (Nambarro isku mid ah)
-    let values = [...new Set(remaining.map(c => c.value))];
-    values.forEach(v => {
-        let valCards = remaining.filter(c => c.value === v);
-        if (valCards.length >= 3) {
-            validGroups.push(valCards);
-            remaining = remaining.filter(c => c.value !== v);
-        }
-    });
-
-    return { validGroups, remaining };
-}
 
 document.addEventListener("DOMContentLoaded", () => {
     const dhigoBtn = document.getElementById("dhigoBtn");
@@ -337,29 +297,57 @@ document.addEventListener("DOMContentLoaded", () => {
 /* FUNCTION-KA KALA QAYBIYA KAARARKA (ALGORITHM) */
 function autoSplitIntoGroups(cards) {
     let groups = [];
-    let remaining = [...cards];
-    let suits = ['♠', '♥', '♣', '♦'];
-    
+    let usedIds = new Set(); // Waxaan u isticmaalaynaa ID si aanan isku dhex gelin
+
+    // Sii kaar walba ID gaar ah haddii uusan lahayn
+    let tempCards = cards.map((c, i) => ({ ...c, tempId: i }));
+
+    // 1. Marka hore raadi RUNS (Silsilad: 6,7,8 ee hal suit ah)
+    const suits = ['♠', '♥', '♣', '♦'];
     suits.forEach(suit => {
-        let suitCards = remaining.filter(c => c.suit === suit);
-        if (suitCards.length >= 3) {
-            if (isSerial(suitCards)) {
-                groups.push(suitCards);
-                remaining = remaining.filter(c => c.suit !== suit);
+        let suitCards = tempCards.filter(c => c.suit === suit && !usedIds.has(c.tempId));
+        // U kala saar lambar ahaan
+        suitCards.sort((a, b) => getCardValue(a) - getCardValue(b));
+
+        let currentRun = [];
+        for (let i = 0; i < suitCards.length; i++) {
+            if (currentRun.length === 0 || 
+                getCardValue(suitCards[i]) === getCardValue(currentRun[currentRun.length - 1]) + 1) {
+                currentRun.push(suitCards[i]);
+            } else {
+                if (currentRun.length >= 3) {
+                    groups.push(currentRun.map(({tempId, ...rest}) => rest));
+                    currentRun.forEach(c => usedIds.add(c.tempId));
+                }
+                currentRun = [suitCards[i]];
             }
+        }
+        if (currentRun.length >= 3) {
+            groups.push(currentRun.map(({tempId, ...rest}) => rest));
+            currentRun.forEach(c => usedIds.add(c.tempId));
         }
     });
 
+    // 2. Ka dib raadi SETS (Isla lambarka, suits kala duwan)
+    let remaining = tempCards.filter(c => !usedIds.has(c.tempId));
     let values = [...new Set(remaining.map(c => c.value))];
+
     values.forEach(val => {
-        let valCards = remaining.filter(c => c.value === val);
+        let valCards = remaining.filter(c => c.value === val && !usedIds.has(c.tempId));
         if (valCards.length >= 3) {
-            groups.push(valCards);
-            remaining = remaining.filter(c => c.value !== val);
+            groups.push(valCards.map(({tempId, ...rest}) => rest));
+            valCards.forEach(c => usedIds.add(c.tempId));
         }
     });
 
     return groups;
+}
+
+// Function caawiye ah oo A, J, Q, K u beddelaya lambar
+function getCardValue(card) {
+    const map = { 'a': 14, 'k': 13, 'q': 12, 'j': 11 };
+    let v = String(card.value).toLowerCase();
+    return map[v] || parseInt(v);
 }
 
 function handleSort() {
@@ -377,49 +365,79 @@ function handleSort() {
         const rankA = sortOrder[valA] || 0;
         const rankB = sortOrder[valB] || 0;
 
+        // 1. Marka hore u kala saar nooca (Suit)
         if (a.suit !== b.suit) {
             return suitOrder[b.suit] - suitOrder[a.suit];
         }
         
-        return rankB - rankA; 
+        // 2. Haddii ay isku suit yihiin, u kala saar lambarka (6 ilaa A)
+        return rankA - rankB; // Bidix ka bilow 6, midig u soco A
     });
 
+    // Nadiifi xulashada (Selection) ka hor intaanan dib u sawirin
     myHand.forEach(c => c.selected = false);
     renderMyHand();
 }
 
 function handleDragOver(e) {
-    e.preventDefault(); 
+    e.preventDefault(); // Aad bay u muhiim tahay si 'drop' u shaqeeyo!
+}
+
+function handleDragStart(e) {
+    dragStartIndex = +e.target.dataset.index;
+    // Wax yar madow ka dhig kaarka la jiidayo
+    e.target.style.opacity = "0.5";
 }
 
 function handleDrop(e) {
+    e.preventDefault(); // Jooji dhaqanka caadiga ah ee browser-ka
+    
     const dropCard = e.target.closest(".card");
     if (!dropCard || dragStartIndex === null) return;
 
     const dragEndIndex = +dropCard.dataset.index;
 
     if (dragStartIndex !== dragEndIndex) {
+        // Ka saar kaarkii meeshii uu joogay, ka dibna geli meesha cusub
         const [movedCard] = myHand.splice(dragStartIndex, 1);
         myHand.splice(dragEndIndex, 0, movedCard);
+        
+        // Halkan ayaad ku dari kartaa cod yar (sound effect) haddii aad rabto
+        console.log(`Kaarka waxaa laga raray ${dragStartIndex} lana geeyay ${dragEndIndex}`);
     }
 
     dragStartIndex = null;
-    renderMyHand();
+    renderMyHand(); // Dib u sawir gacantaada si index-yada ay u cusboonaadaan
 }
 
 function renderSets(elementId, sets) {
     const area = document.getElementById(elementId);
+    if (!area) return;
     area.innerHTML = "";
 
     sets.forEach(set => {
         const setDiv = document.createElement("div");
-        setDiv.className = "card-set";
+        setDiv.className = "melted-group"; // Class-kii saxda ahaa
 
-        set.forEach(card => {
-            const cDiv = document.createElement("div");
-            cDiv.className = "card small";
-            cDiv.innerHTML = `${card.value}${card.suit}`;
-            setDiv.appendChild(cDiv);
+        set.forEach((card, index) => {
+            const img = document.createElement("img");
+            
+            // Isticmaal isla nidaamkii sawirada (SVG)
+            const suitMap = { '♠': 's', '♥': 'h', '♦': 'd', '♣': 'c' };
+            const val = String(card.value).toLowerCase();
+            const fileName = `${val}${suitMap[card.suit] || 's'}.svg`;
+
+            img.src = `/cards/${fileName}`;
+            img.className = "melted-card";
+            img.style.position = "relative";
+            img.style.zIndex = index;
+
+            // Is-dhex galka (Overlap)
+            if (index > 0) {
+                img.style.marginLeft = "-25px";
+            }
+
+            setDiv.appendChild(img);
         });
 
         area.appendChild(setDiv);
@@ -427,88 +445,82 @@ function renderSets(elementId, sets) {
 }
 
 socket.on("updateTableUI", (data) => {
-    const { playerId, allSets, nextRequiredPoints } = data;
+    // 1. Hubi xogta soo gashay
+    const { players, nextRequiredPoints } = data;
+    if (!players) return;
 
-    const tableArea = document.getElementById("table-area");
-    if (!tableArea) return;
+    const myId = socket.id;
 
-    const safeId = playerId.replace(/[^a-zA-Z0-9_-]/g, "");
-
-    let playerTable = document.getElementById(`table-${safeId}`);
-    if (!playerTable) {
-        playerTable = document.createElement("div");
-        playerTable.id = `table-${safeId}`;
-        playerTable.classList.add("player-table");
-        tableArea.appendChild(playerTable);
-    }
-
-    playerTable.innerHTML = "";
-
-    allSets.forEach(set => {
-        const setDiv = document.createElement("div");
-        setDiv.classList.add("set");
-
-        set.forEach(card => {
-            const cardDiv = document.createElement("div");
-            cardDiv.classList.add("card", "mini-card");
-
-            const suitMap = { '♠': 's', '♥': 'h', '♦': 'd', '♣': 'c' };
-            const suitLetter = suitMap[card.suit] || 's';
-            const val = String(card.value).toLowerCase();
-            const fileName = `${val}${suitLetter}.svg`;
-
-            cardDiv.innerHTML = `<img src="/cards/${fileName}" style="width: 100%; height: 100%; border-radius: 2px;">`;
-            setDiv.appendChild(cardDiv);
-        });
-
-        playerTable.appendChild(setDiv);
+    // 2. Nadiifi dhammaan boosaska miiska (Slots)
+    const slots = ["pos-top", "pos-left", "pos-right", "pos-bottom"];
+    slots.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = "";
     });
 
-    const req = document.getElementById("requiredPoints");
-    if (req) req.innerText = nextRequiredPoints;
-});
-
-socket.on("updateTableUI", (data) => {
-    const { players } = data; // Server-ka waa inuu soo diraa liiska players-ka oo dhan
-    
-    // 1. Hel index-kaaga
-    const myIndex = players.findIndex(p => p.id === socket.id);
+    // 3. Hel halka aad adigu kaga jirto liiska (index)
+    const myIndex = players.findIndex(p => p.id === myId);
     if (myIndex === -1) return;
 
-    // 2. Nadiifi dhammaan boosaska miiska
-    ["pos-top", "pos-left", "pos-right", "pos-bottom"].forEach(id => {
-        document.getElementById(id).innerHTML = "";
-    });
-
-    // 3. Mid mid u mari ciyaartoyda oo u dhiib booskooda
+    // 4. Mid mid u mari dhammaan ciyaartoyda
     players.forEach((p, index) => {
+        // Kaliya soo bandhig ciyaaryahanka degay (isOpened)
         if (!p.isOpened || !p.openedSets) return;
 
-        let slotId = "";
+        // Xisaabi booska qofka marka adiga lagu barbardhigo (Rotation logic)
         const diff = (index - myIndex + 4) % 4;
-
-        if (diff === 0) slotId = "pos-bottom"; // Adiga
-        else if (diff === 1) slotId = "pos-left";
-        else if (diff === 2) slotId = "pos-top";
-        else if (diff === 3) slotId = "pos-right";
+        let slotId = "";
+        if (diff === 0) slotId = "pos-bottom";      // John (Adiga)
+        else if (diff === 1) slotId = "pos-right";   // Antonella
+        else if (diff === 2) slotId = "pos-top";     // Bruno
+        else if (diff === 3) slotId = "pos-left";    // Antonio
 
         const slotArea = document.getElementById(slotId);
-        
-        p.openedSets.forEach(set => {
-            const groupDiv = document.createElement("div");
-            groupDiv.className = "melted-group";
+        if (!slotArea) return;
 
-            set.forEach(card => {
-                const fileName = getCardFileName(card); // Function-kii aan horay u sameynay
+        // 5. Sawir koox kasta (Meld/Set)
+        p.openedSets.forEach(set => {
+            const setDiv = document.createElement("div");
+            setDiv.className = "melted-group"; 
+
+            // Jihada: Haddii ay dhinacyada yihiin ha u dhisnaadeen kor-iyo-hoos
+            if (slotId === "pos-left" || slotId === "pos-right") {
+                setDiv.style.flexDirection = "column";
+            } else {
+                setDiv.style.flexDirection = "row";
+            }
+
+            set.forEach((card, cardIndex) => {
                 const img = document.createElement("img");
+                const suitMap = { '♠': 's', '♥': 'h', '♦': 'd', '♣': 'c' };
+                const val = String(card.value).toLowerCase();
+                const fileName = `${val}${suitMap[card.suit] || 's'}.svg`;
+                
                 img.src = `/cards/${fileName}`;
                 img.className = "melted-card";
-                groupDiv.appendChild(img);
-            });
+                img.style.position = "relative";
+                img.style.zIndex = cardIndex; // Kan dambe ha dul saarnaado kan hore
 
-            slotArea.appendChild(groupDiv);
+                // Logic-ga overlap-ka (Si ay isku dhex galaan sidii sawirkaaga)
+                if (cardIndex > 0) {
+                    if (slotId === "pos-left" || slotId === "pos-right") {
+                        img.style.marginTop = "-38px"; 
+                        img.style.marginLeft = "0px";
+                    } else {
+                        img.style.marginLeft = "-25px"; 
+                        img.style.marginTop = "0px";
+                    }
+                }
+                
+                setDiv.appendChild(img);
+            });
+            slotArea.appendChild(setDiv);
         });
     });
+
+    // 6. Cusboonaysii dhibcaha soo socda (Haddii loo baahan yahay)
+    const req = document.getElementById("requiredPoints");
+    if (req && nextRequiredPoints) req.innerText = nextRequiredPoints;
 });
 
 /* HELPER FUNCTIONS */
