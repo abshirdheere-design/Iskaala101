@@ -285,35 +285,77 @@ io.on("connection", (socket) => {
 	
     /* 3. ACTIONS (DRAW/PICK/PLAY) */
  socket.on("drawCard", () => {
-        const room = rooms[socket.roomId];
-        if (!room || !room.gameStarted) return;
-        const p = room.players[room.activePlayerIndex];
+    const room = rooms[socket.roomId];
+    if (!room || !room.gameStarted) return;
+    const p = room.players[room.activePlayerIndex];
 
-        // 1. Hubi inuu qofka turn-kiisa yahay
-        if (p.id !== socket.id) return;
+    if (p.id !== socket.id) return;
 
-        // 2. Haddii uu qofku 15 kaar haysto, u sheeg inuu wax dhigo ama tuuro
-        if (p.hand.length >= 15) {
-            socket.emit("message", "Gacantaada waa buuxdaa (15). Fadlan dhig ama tuur kaar.");
-            return; 
-        }
+    // Haddii uu 15 haysto, micnaheedu waa horey ayuu u soo qaatay
+    if (p.hand.length >= 15 || p.hasActioned) {
+        socket.emit("message", "Horey ayaad u qaadatay kaar. Fadlan tuur hal kaar.");
+        return; 
+    }
 
-        // 3. Haddii uu horey wax u soo qaaday (hasActioned)
-        if (p.hasActioned) return;
+    const card = room.stockPile.pop();
+    p.hand.push(card);
+    p.hasActioned = true; // Hadda wuxuu geli karaa inuu "Tuuro"
+    
+    socket.emit("receiveCard", card);
+    updateRoomPlayers(socket.roomId);
+});
 
-        if (room.stockPile.length === 0) {
-            const top = room.discardPile.pop();
-            room.stockPile = shuffle(room.discardPile);
-            room.discardPile = [top];
-            io.to(socket.roomId).emit("updateDiscardPile", top);
-        }
+function dealCards(room) {
+    // 1. Isku dhex qas kaararka ka hor intaan la qaybin
+    room.deck = shuffle([...fullDeck]); 
 
-        const card = room.stockPile.pop();
-        p.hand.push(card);
-        p.hasActioned = true; // Hadda wuxuu u gudbi karaa inuu "Tuuro" kaar
-        socket.emit("receiveCard", card);
-        updateRoomPlayers(socket.roomId);
+    room.players.forEach(player => {
+        // 2. Qof kasta sii 14 kaar (Xitaa kan u horreeya)
+        player.hand = room.deck.splice(0, 14); 
+        player.hasActioned = false; 
     });
+
+    // 3. Kaarka u horreeya ee miiska yaal (Discard Pile)
+    room.discardPile = [room.deck.pop()];
+    
+    // 4. Inta hartayna waa rasada (Stock Pile)
+    room.stockPile = room.deck;
+
+    // 5. U sheeg dhammaan dadka in ciyaartu bilaabatay
+    io.to(room.id).emit("gameStarted", {
+        players: room.players.map(p => ({ id: p.id, name: p.name, handCount: 14 })),
+        discardPile: room.discardPile
+    });
+}
+
+// Function-ka maamula marka waqtigu ka dhamaado qofka (Turn Timeout)
+function handleTurnTimeout(roomId) {
+    const room = rooms[roomId];
+    const p = room.players[room.activePlayerIndex];
+
+    console.log(`Waqtiga waa ka dhamaaday: ${p.name}`);
+
+    // 1. Haddii uusan wali kaar qaadan (Gacantu waa 14)
+    if (p.hand.length === 14 && !p.hasActioned) {
+        const drawnCard = room.stockPile.pop();
+        p.hand.push(drawnCard);
+        p.hasActioned = true;
+        io.to(p.id).emit("receiveCard", drawnCard);
+    }
+
+    // 2. Hadda maadaama uu 15 haysto, waa inaan ka tuurnaa (Auto-Discard)
+    if (p.hand.length === 15) {
+        const cardToDiscard = p.hand.pop(); // Ka saar kaarkii ugu dambeeyay
+        room.discardPile.push(cardToDiscard);
+        
+        // U sheeg dhammaan ciyaartoyda in kaar qasab ah la tuuray
+        io.to(roomId).emit("updateDiscardPile", cardToDiscard);
+    }
+
+    // 3. Markasta oo uu waqtigu dhamaado, u gudbi qofka xiga
+    p.hasActioned = false; // Dib u dhis action-ka qofka cusub
+    moveToNextPlayer(roomId);
+}
 	
     socket.on("playCard", (card) => {
         const room = rooms[socket.roomId];
