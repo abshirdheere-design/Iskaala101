@@ -16,14 +16,6 @@ app.use((req, res, next) => {
 
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use(
-  "/socket.io",
-  express.static(path.join(__dirname, "node_modules/socket.io/client-dist"))
-);
-
-
-
-
 // GLOBAL STATE
 let rooms = {}; 
 let onlineUsers = 0;
@@ -342,42 +334,30 @@ function handleTurnTimeout(roomId) {
     if (!room) return;
     const p = room.players[room.activePlayerIndex];
 
-    console.log(`Waqtiga waa ka dhamaaday: ${p.name}`);
-
-    // 1. AUTO-DRAW
-    if (p.hand.length === 14 && !p.hasActioned) {
+    // 1. Haddii uu 14 haysto, sii kaar (waa inuu 15 noqdaa hadda)
+    if (p.hand.length === 14) {
         if (room.stockPile.length > 0) {
             const drawnCard = room.stockPile.pop();
             p.hand.push(drawnCard);
-            p.hasActioned = true;
-
             io.to(p.id).emit("receiveCard", drawnCard);
         }
     }
 
-    // 2. AUTO-DISCARD
+    // 2. KA HOR INTAAN LOO GUDBIN QOFKA XIGA (Force Discard)
+    // Halkan ayaa ah meesha ay cilladdu kaa haysato
     if (p.hand.length >= 15) {
-        const cardToDiscard = p.hand[p.hand.length - 1];
-
-        // Ka saar gacanta
-        p.hand = p.hand.filter(c => c.id !== cardToDiscard.id);
-
-        // Ku dar miiska
+        // Ka saar kaarka ugu dambeeya gacanta
+        const cardToDiscard = p.hand.pop(); 
         room.discardPile.push(cardToDiscard);
 
-        // U sheeg qofka ciyaaraya
-        io.to(p.id).emit("updateHand", p.hand);
+        // U sheeg John in gacantiisii ay hadda tahay 14!
+        io.to(p.id).emit("updateHand", p.hand); 
 
-        // U sheeg dhammaan ciyaartoyda
+        // U sheeg miiska oo dhan in kaar la tuuray
         io.to(roomId).emit("updateDiscardPile", cardToDiscard);
-        io.to(roomId).emit("updateTableUI", {
-            players: room.players,
-            discardPile: room.discardPile,
-            stockCount: room.stockPile.length
-        });
     }
 
-    // 3. Gudbi ciyaarta
+    // 3. Hadda ka dib u gudbi qofka xiga
     p.hasActioned = false;
     moveToNextPlayer(roomId);
 }
