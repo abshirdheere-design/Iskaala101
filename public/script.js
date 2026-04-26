@@ -94,26 +94,6 @@ function toggleCardSelection(cardElement) {
     }
 }
 
-/* XISAABINTA DHIBCAHA (MELDS) */
-function calculateTemporaryScore() {
-    const selectedCards = myHand.filter(c => c.selected);
-    if (selectedCards.length === 0) {
-        const scoreDisplay = document.getElementById("temp-score-display");
-        if (scoreDisplay) scoreDisplay.textContent = "0";
-        return 0;
-    }
-
-    let score = 0;
-    for (const c of selectedCards) {
-        score += pointValues[c.value] || 0;
-    }
-
-    const scoreDisplay = document.getElementById("temp-score-display");
-    if (scoreDisplay) scoreDisplay.textContent = score;
-
-    return score;
-}
-
 function renderMyTableSets() {
     const tableArea = document.getElementById("my-table-sets");
     if (!tableArea) return;
@@ -188,6 +168,7 @@ function processGroups(selectedCards) {
     return groups;
 }
 
+/* XISAABINTA DHIBCAHA (MELDS) */
 function calculateTemporaryScore() {
     const selectedCards = myHand.filter(c => c.selected);
     const scoreDisplay = document.getElementById("temp-score-display");
@@ -279,20 +260,6 @@ function handleDhigista() {
         renderMyTableSets();
     }
 }
-
-
-
-document.addEventListener("DOMContentLoaded", () => {
-    const dhigoBtn = document.getElementById("dhigoBtn");
-    if (dhigoBtn) {
-        dhigoBtn.onclick = handleDhigista;
-    }
-
-    const resetBtn = document.getElementById("resetBtn");
-    if (resetBtn) {
-        resetBtn.onclick = handleResetDhigista;
-    }
-});
 
 /* FUNCTION-KA KALA QAYBIYA KAARARKA (ALGORITHM) */
 function autoSplitIntoGroups(cards) {

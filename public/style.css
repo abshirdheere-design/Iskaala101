@@ -509,17 +509,6 @@ body {
     border-radius: 8px; justify-content: center;
 }
 
-/* Meesha koox kasta oo kaarar ah la dhigayo */
-.card-group {
-    display: relative;
-    margin-right: 15px; 
-    padding: 8px;
-    background: rgba(0, 0, 0, 0.2); /* Wax yar ka madowow si ay uga muuqato miiska */
-    border-radius: 6px;
-    border: 1px dashed rgba(255, 255, 255, 0.2); /* Waxay u muuqanaysaa meel gooni u ah */
-	
-}
-
 /* Kaararka ku dhex jira kooxdaas (Sets-ka miiska yaala) */
 .card-group .card {
     margin-left: -20px; /* Kaararka isku dhex jira way isku dhowaanayaan */
@@ -811,34 +800,6 @@ body {
 }
 
 /* DRAG & DROP FIX */
-
-.card {
-    position: relative;
-    width: 75px;
-    height: 110px;
-
-    background: linear-gradient(145deg, #ffffff, #f0f0f0);
-    border-radius: 8px;
-    border: 1px solid #ddd;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-
-    padding: 5px;
-    margin-left: -20px;
-
-    font-weight: bold;
-    font-size: 1.1rem;
-
-    box-shadow: -3px 0 8px rgba(0,0,0,0.4);
-    transition: all 0.2s ease;
-
-    cursor: pointer;
-    touch-action: none;
-
-    z-index: 50;
-}
 
 .card * {
     pointer-events: none;
