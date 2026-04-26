@@ -339,31 +339,49 @@ function dealCards(room) {
 // Function-ka maamula marka waqtigu ka dhamaado qofka (Turn Timeout)
 function handleTurnTimeout(roomId) {
     const room = rooms[roomId];
+    if (!room) return;
     const p = room.players[room.activePlayerIndex];
 
     console.log(`Waqtiga waa ka dhamaaday: ${p.name}`);
 
-    // 1. Haddii uusan wali kaar qaadan (Gacantu waa 14)
+    // 1. AUTO-DRAW
     if (p.hand.length === 14 && !p.hasActioned) {
-        const drawnCard = room.stockPile.pop();
-        p.hand.push(drawnCard);
-        p.hasActioned = true;
-        io.to(p.id).emit("receiveCard", drawnCard);
+        if (room.stockPile.length > 0) {
+            const drawnCard = room.stockPile.pop();
+            p.hand.push(drawnCard);
+            p.hasActioned = true;
+
+            io.to(p.id).emit("receiveCard", drawnCard);
+        }
     }
 
-    // 2. Hadda maadaama uu 15 haysto, waa inaan ka tuurnaa (Auto-Discard)
-    if (p.hand.length === 15) {
-        const cardToDiscard = p.hand.pop(); // Ka saar kaarkii ugu dambeeyay
+    // 2. AUTO-DISCARD
+    if (p.hand.length >= 15) {
+        const cardToDiscard = p.hand[p.hand.length - 1];
+
+        // Ka saar gacanta
+        p.hand = p.hand.filter(c => c.id !== cardToDiscard.id);
+
+        // Ku dar miiska
         room.discardPile.push(cardToDiscard);
-        
-        // U sheeg dhammaan ciyaartoyda in kaar qasab ah la tuuray
+
+        // U sheeg qofka ciyaaraya
+        io.to(p.id).emit("updateHand", p.hand);
+
+        // U sheeg dhammaan ciyaartoyda
         io.to(roomId).emit("updateDiscardPile", cardToDiscard);
+        io.to(roomId).emit("updateTableUI", {
+            players: room.players,
+            discardPile: room.discardPile,
+            stockCount: room.stockPile.length
+        });
     }
 
-    // 3. Markasta oo uu waqtigu dhamaado, u gudbi qofka xiga
-    p.hasActioned = false; // Dib u dhis action-ka qofka cusub
+    // 3. Gudbi ciyaarta
+    p.hasActioned = false;
     moveToNextPlayer(roomId);
 }
+
 	
     socket.on("playCard", (card) => {
         const room = rooms[socket.roomId];

@@ -737,6 +737,14 @@ socket.on("receiveCard", (card) => {
     renderMyHand();
 });
 
+// Kani waa qaybta maqan ee dhibka xalinaysa
+socket.on("updateHand", (newHand) => {
+    console.log("Gacantaada waa la cusboonaysiiyay (Robot-ka ayaa kaar tuuray)");
+    myHand = newHand.map(c => ({...c, selected: false})); // Gacanta ku cusboonaysii xogta server-ka
+    renderMyHand(); // Dib u sawir gacanta John si 14-ka u muuqdaan
+});
+
+
 let timerInterval = null;
 socket.on("discardPickedSuccess", (card) => {
     myHand.push({ ...card, selected: false });
