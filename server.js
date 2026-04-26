@@ -14,10 +14,13 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(express.static(__dirname));
+
 app.use(
   "/socket.io",
   express.static(path.join(__dirname, "node_modules/socket.io/client-dist"))
 );
+
 
 
 // GLOBAL STATE
