@@ -111,50 +111,45 @@ function nextTurn(roomId) {
     const room = rooms[roomId];
     if (!room) return;
 
-    // 1. Masax timer-kii hore
     if (room.turnTimeout) clearTimeout(room.turnTimeout);
 
-    // 2. Wareeji doorka
     room.activePlayerIndex = (room.activePlayerIndex + 1) % room.players.length;
-    
-    // 🔥 MUHIIM: Qoro waqtiga doorku bilaawday (Kani waa kan Timer-ka hagaajinaya)
     room.turnStartTime = Date.now(); 
 
-    // Nadiifi xogta doorkii hore
     room.players.forEach(p => {
         p.hasActioned = false;
         p.pickedFromDiscard = false;
     });
 
     const currentPlayer = room.players[room.activePlayerIndex];
-
-    // 3. U sheeg qofka in doorkiisa yahay
     io.to(roomId).emit('yourTurn', currentPlayer.id);
     updateRoomPlayers(roomId);
 
-    // 4. ROBOT-KA (Auto-Play Logic)
+    // ROBOT LOGIC (Haddii qofku seexdo)
     room.turnTimeout = setTimeout(() => {
-        console.log(`ROBOT: ${currentPlayer.name} waa laga maqan yahay. Robot-ka ayaa u ciyaaraya.`);
+        if (!room || !room.gameStarted) return;
+        
+        console.log(`ROBOT: Ciyaaryahan ${currentPlayer.name} waa laga daahay.`);
 
-        if (!currentPlayer.hasActioned) {
-            if (room.stockPile.length > 0) {
-                const card = room.stockPile.pop();
-                currentPlayer.hand.push(card);
-                currentPlayer.hasActioned = true;
-                io.to(currentPlayer.id).emit("receiveCard", card);
-            }
+        // 1. AUTO-DRAW: Haddii uusan weli qaadan kaar
+        if (!currentPlayer.hasActioned && room.stockPile.length > 0) {
+            const card = room.stockPile.pop();
+            currentPlayer.hand.push(card);
+            currentPlayer.hasActioned = true;
+            io.to(currentPlayer.id).emit("receiveCard", card);
         }
 
+        // 2. AUTO-DISCARD: Ka saar hal kaar (Haddii uu 15 haysto ama 14)
         if (currentPlayer.hand.length > 0) {
-            const cardToDiscard = currentPlayer.hand.pop(); 
+            const cardToDiscard = currentPlayer.hand.pop(); // Halkan ayaan ka saarnay
             room.discardPile.push(cardToDiscard);
+            
+            // 🔥 MUHIIM: U sheeg qofka in gacantiisa la beddelay (si uusan nuqul ugu harin)
+            io.to(currentPlayer.id).emit("startHand", currentPlayer.hand); 
             io.to(roomId).emit("updateDiscardPile", cardToDiscard);
-            io.to(roomId).emit("notification", `${currentPlayer.name} waa laga daahay, Robot-ka ayaa kaar u tuuray.`);
         }
 
-        // U gudbi qofka xiga
         nextTurn(roomId);
-
     }, 35000); 
 }
 
@@ -373,28 +368,38 @@ function handleTurnTimeout(roomId) {
 
 	
     socket.on("playCard", (card) => {
-        const room = rooms[socket.roomId];
-        if (!room || !room.gameStarted) return;
-        const p = room.players[room.activePlayerIndex];
-        if (p.id !== socket.id) return;
+    const room = rooms[socket.roomId];
+    if (!room || !room.gameStarted) return;
+    
+    const p = room.players[room.activePlayerIndex];
+    if (p.id !== socket.id) return;
 
-        p.hand = p.hand.filter(c => c.id !== card.id);
-        room.discardPile.push(card);
-        io.to(socket.roomId).emit("updateDiscardPile", card);
-        
-        p.hasActioned = false;
-        p.pickedFromDiscard = false;
+    // 1. Hubi in kaarka uu gacanta ugu jiro (Security Check)
+    const cardIndex = p.hand.findIndex(c => c.id === card.id);
+    if (cardIndex === -1) return; // Haddii uusan jirin, ha samayn waxba
 
-        if (p.hand.length === 0) {
-            // Game Over Logic
-            const results = room.players.map(pl => ({ name: pl.name, points: calculateHandPoints(pl.hand) }));
-            io.to(socket.roomId).emit("gameOver", { winnerName: p.name, allResults: results });
-            room.gameStarted = false;
-            if(room.turnTimeout) clearTimeout(room.turnTimeout);
-        } else {
-            nextTurn(socket.roomId);
-        }
-    });
+    // 2. KA SAAR GACANTA (Isticmaal Splice si uu u go'o)
+    p.hand.splice(cardIndex, 1);
+
+    // 3. KU DAR MIISKA
+    room.discardPile.push(card);
+    io.to(socket.roomId).emit("updateDiscardPile", card);
+    
+    p.hasActioned = false;
+    p.pickedFromDiscard = false;
+
+    // 4. HUBI GUUSHA
+    if (p.hand.length === 0) {
+        const results = room.players.map(pl => ({ name: pl.name, points: calculateHandPoints(pl.hand) }));
+        io.to(socket.roomId).emit("gameOver", { winnerName: p.name, allResults: results });
+        room.gameStarted = false;
+        if(room.turnTimeout) clearTimeout(room.turnTimeout);
+    } else {
+        // U dir qofka gacantiisa cusub si looga saaro kaarkii uu tuuray UI-ga
+        socket.emit("startHand", p.hand); 
+        nextTurn(socket.roomId);
+    }
+});
 
     /* 4. DISCONNECT (SOFT) */
     socket.on("disconnect", () => {
