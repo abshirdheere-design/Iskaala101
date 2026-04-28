@@ -4,7 +4,7 @@
     top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,0.8);
     display: flex; justify-content: center; align-items: center;
-    z-index: 10000;
+    z-index: 20000;
 }
 
 .modal-content {
@@ -54,6 +54,7 @@ body {
     margin-bottom: 20px;
     display: flex;
     gap: 10px;
+	z-index: 10000;
 }
 
 .action-buttons button {
@@ -75,7 +76,7 @@ body {
     height: calc(100vh - 60px); /* muhiim! */
     margin-top: 60px; /* space header */
     overflow: hidden;
-    z-index: 10;
+    z-index: 1;
 }
 
 /* Ku dar qaybtaan si aad u qariso walxaha aan loo baahnayn bilowga */
@@ -218,7 +219,7 @@ body {
         inset 0 0 50px rgba(0,0,0,0.6),  /* gudaha */
         0 10px 30px rgba(0,0,0,0.5);     /* dibadda */
 
-    z-index: 1;
+    z-index: 0;
 }
 
 .welcome-container {
@@ -245,15 +246,21 @@ body {
 
 #table-area {
     position: absolute;
-    top: 35% !important;   /* 👈 Hubi inuu la siman yahay miiska cagaaran (top: 35%) */
+    top: 50%;
     left: 50%;
-    width: 85%;            /* 👈 Ballaca uu kaararka ku dhex haynayo */
+    width: 85%;
     max-width: 1000px;
-    height: 50vh;          /* 👈 Dherer ku filan in kaararku vertical u fariistaan */
+    height: 50vh;
+
     transform: translate(-50%, -50%);
-    z-index: 20;
-    pointer-events: none;  /* 👈 Muhiim: Si uusan u daboolin click-ka Deck-ga */
-    background: transparent !important;
+    z-index: 10;
+
+    background: transparent;
+    pointer-events: auto; /* 🔥 muhiim: allow interaction */
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 
@@ -309,10 +316,6 @@ body {
 }
 #stock-pile:hover {
     border: 5px solid red !important;
-}
-
-#stock-pile .card-back {
-    pointer-events: none; /* Ka dhig in click-ku uu dhex maro sawirka oo uu gaaro waalidka (#stock-pile) */
 }
 
 #stock-pile .card-back {
@@ -372,12 +375,6 @@ body {
     box-shadow: 4px 4px 15px rgba(0,0,0,0.5);
 }
 
-/* (Discard Pile) uu dusha jiro */
-#discard-pile, #deck-pile {
-    position: relative;
-    z-index: 50 !important; /* Aad u sarreeya si loo arko loona riixo */
-    cursor: pointer;
-}
 
 /* ================= PLAYER SLOTS (OTHERS) ================= */
 .player-slot {
@@ -387,7 +384,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    z-index: 60;
+    z-index: 20;
 }
 
 #player-top { 
@@ -479,12 +476,6 @@ body {
 }
 
 .card:first-child { margin-left: 0; }
-
-.card:hover {
-    transform: translateY(-30px) rotate(2deg);
-    z-index: 100 !important;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-}
 
 .card.selected {
     border: 3px solid #f1c40f !important;
@@ -722,25 +713,6 @@ body {
     border-radius: 50%;
 }
 
-#deck-pile .deck-count {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 38px;
-    font-weight: 900;
-    color: yellow;
-    text-shadow: 2px 2px 4px black;
-    z-index: 200;
-    pointer-events: none;
-}
-
-
-/* Haddii aad isticmaalayso <img> tag gudaha HTML-ka */
-#deck-pile img {
-    content: url('/cards/back.png') !important;
-}
-
 #deck-indicator {
     position: absolute;
     top: 5px; /* Ka dhig inuu wax yar uun u muuqdo */
@@ -774,19 +746,6 @@ body {
     display: none; /* Haddii aadan u baahnayn, gabi ahaanba qari */
 }
 
-/* Haddii aad rabto inuu dhabarka Deck-ga uun u muuqdo */
-#deck-pile::before {
-    content: "";
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    z-index: -1;
-}
-
 /* Kaarka Blue-ga ah ee daboolaya (hadii uu yahay kii dhabarka) */
 .card-back {
     width: 100px;
@@ -814,12 +773,6 @@ body {
 .card * {
     pointer-events: none;
 }
-
-/* Hover (transform-ka waa laga saaray si drag u shaqeeyo) */
-.card:hover {
-    z-index: 100;
-}
-
 
 .card:hover {
     /* 4. Marka mouse-ka la dhex mariyo */
@@ -945,27 +898,6 @@ body {
     box-sizing: border-box;
 }
 
-/* Haddii .top-bar iyo .game-header ay isku meel yihiin, 
-   kan dambe ha lahaado z-index ka sarreeya */
-.top-bar {
-    z-index: 9000;
-}
-
-.game-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
-    display: flex;
-    justify-content: space-between; /* Midig, Bidix iyo Dhexda kala riix */
-    align-items: center;
-    padding: 0 30px;
-    background: rgba(0, 0, 0, 0.95);
-    border-bottom: 2px solid #f1c40f;
-    z-index: 9999;
-    color: white;
-}
 
 /* SHAASHADAHA WAAWEYN (Desktop Fix) */
 @media (min-width: 1100px) {
