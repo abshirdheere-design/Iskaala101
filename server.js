@@ -539,16 +539,45 @@ function updateRoomPlayers(roomId) {
     const room = rooms[roomId];
     if (!room) return;
 
+    const activePlayer = room.players[room.activePlayerIndex];
+    
     io.to(roomId).emit("playersUpdate", {
         players: room.players.map(p => ({
             id: p.id,
             name: p.name,
-            handCount: p.hand.length,
-            isOpened: p.isOpened,
+            cardCount: p.hand.length, // Hubi in magacu yahay cardCount ama handCount (Frontend-kaaga eeg)
+            isOpened: p.isOpened || false,
             online: p.online
         })),
-        activePlayerId: room.players[room.activePlayerIndex].id // Kan ayaa muhiim ah!
+        stockCount: room.stockPile.length,
+        currentTurnId: activePlayer ? activePlayer.id : null,
+        turnStartTime: room.turnStartTime 
     });
+}
+
+// 2. Sax isValidSet (Inuu aqoonsado J, Q, K, A)
+function isValidSet(set) {
+    if (!set || set.length < 3) return false;
+
+    const valueMap = { '6':6, '7':7, '8':8, '9':9, '10':10, 'J':11, 'Q':12, 'K':13, 'A':14 };
+    const sortedSet = [...set].sort((a, b) => valueMap[a.value] - valueMap[b.value]);
+    
+    const isSameColor = sortedSet.every(c => c.suit === sortedSet[0].suit); // Isticmaal suit halkii aad color ka isticmaali lahayd
+    const isSameValue = sortedSet.every(c => c.value === sortedSet[0].value);
+
+    // Run Logic (6-7-8 isku suit ah)
+    if (isSameColor) {
+        for (let i = 0; i < sortedSet.length - 1; i++) {
+            if (valueMap[sortedSet[i+1].value] !== valueMap[sortedSet[i].value] + 1) return false;
+        }
+        return true;
+    }
+    // Group Logic (7-7-7 suits kala duwan)
+    if (isSameValue) {
+        const suits = sortedSet.map(c => c.suit);
+        return new Set(suits).size === sortedSet.length;
+    }
+    return false;
 }
 
 // --- HELPER FUNCTIONS ---
