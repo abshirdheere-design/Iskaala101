@@ -789,6 +789,24 @@ socket.on("discardPickedSuccess", (card) => {
     renderMyHand();
 });
 
+socket.on("yourTurn", (playerId) => {
+    isMyTurn = (playerId === socket.id);
+    
+    if (isMyTurn) {
+        hasDrawn = false;
+        hasActioned = false; // Weliba ma uusan dhaqaaqin qofku
+        console.log("Waa markayga! Badhamada manual-ka ah soo saar.");
+        
+        // Halkan ku dar badhamada (Draw Card, Pick Discard)
+        document.getElementById("action-buttons").style.display = "block";
+    } else {
+        // Haddii uusan markuunkaagu ahayn, qari badhamada
+        document.getElementById("action-buttons").style.display = "none";
+    }
+    
+    renderMyHand();
+});
+
 socket.on("updateDiscardPile", (card) => {
     const pile = document.getElementById("discard-pile");
     if (!pile) return;

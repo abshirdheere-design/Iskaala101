@@ -199,6 +199,35 @@ io.on("connection", (socket) => {
             return; 
         }
     }
+	
+	// Marka qofka uu kaar dhuubto (Draw Card)
+    socket.on("drawCard", () => {
+        const roomId = socket.roomId;
+        const room = rooms[roomId];
+        
+        if (!room) return;
+
+        const p = room.players.find(player => player.id === socket.id);
+        
+        // Hubi inuu isagu markuunka leeyahay iyo inuu hore u dhuubtay
+        if (room.players[room.activePlayerIndex].id === socket.id && !p.hasActioned) {
+            
+            if (room.stockPile.length > 0) {
+                const card = room.stockPile.pop(); // Kaar ka qaad mishiinka
+                p.hand.push(card); // U dar gacanta server-ka
+                
+                p.hasActioned = true; // Calaamadi inuu ficil sameeyay
+
+                // 1. U dir kaarkaas qofka codsaday oo kaliya
+                socket.emit("cardDrawn", card); 
+                
+                // 2. U sheeg qof kasta in tirada kaararka p ay isbeddeshay
+                updateRoomPlayers(roomId);
+                
+                console.log(`${p.name} ayaa dhuubtay kaar.`);
+            }
+        }
+    });
 
     // 2. --- NEW PLAYER JOINING ---
     let roomId = Object.keys(rooms).find(id => 
@@ -255,19 +284,29 @@ io.on("connection", (socket) => {
 });
 
     socket.on("resetMyOpenedCards", () => {
-    const room = rooms[socket.roomId]; 
+    const roomId = socket.roomId;
+    const room = rooms[roomId]; 
     if (!room) return;
 
     const player = room.players.find(p => p.id === socket.id);
     
-    // Haddii uu hore u xidhay miiska (isOpened: true) ma celin karo
+    // Haddii uu hore u "Xidhay" (Finalized) miiska, ma celin karo
     if (!player || player.isOpened) return; 
 
-    player.openedSets = []; // Nadiifi kooxaha uu dhigay
-    player.tempScore = 0;   // Nadiifi dhibcaha kumeel-gaarka ah
+    // 1. Maadaama aan gacanta ka saarnay markii uu 'Meld' sameeyay,
+    // waa inaan dib ugu soo celinaa gacantiisa (Haddii aad gacanta ka saartay horey)
+    // Haddii gacantiisu aysan isbeddelin inta uu miiska dhigayay, talaabadan ka bood.
 
-    // U baahi miiska oo dhan in kaararkii qofkaas laga saaray
-    broadcastTableUI(socket.roomId);
+    player.openedSets = []; 
+    player.tempScore = 0;   
+
+    // 2. U sheeg qofka in gacantiisii dib u soo noqotay
+    socket.emit("startHand", player.hand); 
+
+    // 3. U baahi miiska in kaararkii laga saaray
+    broadcastTableUI(roomId);
+    
+    console.log(`RESET: ${player.name} ayaa dib u soo qaatay kaararkii uu miiska dhigay.`);
     });
 
     /* ----------------------------------
@@ -495,23 +534,21 @@ function moveToNextPlayer(roomId) {
 
     updateRoomPlayers(roomId);
 }
+
 function updateRoomPlayers(roomId) {
     const room = rooms[roomId];
     if (!room) return;
 
-    // Waxaan diyaarinaynaa xogta dadka kale loo dirayo 
-    // (Ma dirayno "hand" oo dhammaystiran si uusan qofna u arkin kaarka qofka kale)
-    const playersData = room.players.map(p => ({
-        id: p.id,
-        name: p.name,
-        cardCount: p.hand.length,      // Kaliya tirada kaararka
-        isOpened: p.isOpened,          // Haddii uu miiska furtay iyo haddii kale
-        online: p.online,              // Inuu ku jiro ciyaarta iyo inuu ka baxay
-        active: room.players[room.activePlayerIndex].id === p.id // Haddii uu isagu hadda leeyahay markoo
-    }));
-
-    // U dir qolka oo dhan xogtan la sifeeyay
-    io.to(roomId).emit("updateRoomPlayers", playersData);
+    io.to(roomId).emit("playersUpdate", {
+        players: room.players.map(p => ({
+            id: p.id,
+            name: p.name,
+            handCount: p.hand.length,
+            isOpened: p.isOpened,
+            online: p.online
+        })),
+        activePlayerId: room.players[room.activePlayerIndex].id // Kan ayaa muhiim ah!
+    });
 }
 
 // --- HELPER FUNCTIONS ---
