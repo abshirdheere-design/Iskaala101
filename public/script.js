@@ -126,11 +126,17 @@ function renderMyTableSets() {
 }
 
 function handleResetDhigista() {
-    if (iHaveOpened) {
+    if (iHaveOpened || isOpened) {
         alert("Hore ayaad u degtay, kama noqon kartid kaararka miiska!");
         return;
     }
-
+    
+    if (myOpenedSets.length === 0) {
+        alert("Ma jiraan kaarar aad miiska dhigtay.");
+        return;
+    }
+    
+    // Soo celi kaararka gacanta
     for (const set of myOpenedSets) {
         for (const card of set) {
             myHand.push({
@@ -140,18 +146,22 @@ function handleResetDhigista() {
             });
         }
     }
-
+    
     myOpenedSets = [];
     temporaryScore = 0;
-
+    
+    // Ogaysii server-ka
+    socket.emit("resetMyOpenedCards");
+    
     renderMyHand();
     renderMyTableSets();
-
+    
     const scoreDisplay = document.getElementById("temp-score-display");
     if (scoreDisplay) scoreDisplay.textContent = "0";
-
+    
     alert("Kaararkii waa lagu soo celiyay gacantaada.");
 }
+
 
 function processGroups(selectedCards) {
     // 1. Kala saar kaararka (Sort)
@@ -634,10 +644,6 @@ function switchUItoGame() {
     if (myHandSection) myHandSection.style.display = "flex";
 }
 
-socket.on("matchFound", (data) => {
-    setTimeout(switchUItoGame, 1500); 
-});
-
 socket.on("startHand", (hand) => {
     myHand = hand.map(c => ({...c, selected:false}));
     if (document.getElementById("waiting-room").style.display !== "none") {
@@ -783,42 +789,6 @@ socket.on("discardPickedSuccess", (card) => {
     renderMyHand();
 });
 
-socket.on("yourTurn", (playerId) => {
-    isMyTurn = (playerId === socket.id);
-    if (isMyTurn) hasDrawn = false; 
-
-    const statusEl = document.getElementById("turnText");
-    const qaadashadaEl = document.getElementById("stock-pile");
-
-    clearInterval(timerInterval); 
-
-    if (isMyTurn) {
-        if (qaadashadaEl) {
-            qaadashadaEl.style.pointerEvents = "auto";
-            qaadashadaEl.style.opacity = "1";
-            qaadashadaEl.style.border = "3px solid #f1c40f";
-        }
-
-        let timeLeft = 30;
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            let msg = myHand.length >= 15 ? "TUUR XABBAD!" : "DOORKAAGA!";
-            if (statusEl) statusEl.innerHTML = `<b>${msg} (${timeLeft}s)</b>`;
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                socket.emit("forceEndTurn"); 
-            }
-        }, 1500);
-    } else {
-        if (qaadashadaEl) {
-            qaadashadaEl.style.pointerEvents = "none";
-            qaadashadaEl.style.opacity = "0.6";
-        }
-        if (statusEl) statusEl.textContent = "Sugaya...";
-    }
-    renderMyHand();
-});
-
 socket.on("updateDiscardPile", (card) => {
     const pile = document.getElementById("discard-pile");
     if (!pile) return;
@@ -836,9 +806,9 @@ socket.on("updateDiscardPile", (card) => {
 });
 
 socket.on("updateOpponents", (data) => {
-    const topEl = document.getElementById("top-name");
-    const leftEl = document.getElementById("left-name");
-    const rightEl = document.getElementById("right-name");
+    const topEl = document.getElementById("name-top");   // HTML waafaqsan
+    const leftEl = document.getElementById("name-left");
+    const rightEl = document.getElementById("name-right");
 
     if (topEl)  topEl.innerText  = data.top  ? data.top.name  : "";
     if (leftEl) leftEl.innerText = data.left ? data.left.name : "";
