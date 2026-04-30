@@ -202,31 +202,26 @@ io.on("connection", (socket) => {
 	
 	// Marka qofka uu kaar dhuubto (Draw Card)
     socket.on("drawCard", () => {
-        const roomId = socket.roomId;
-        const room = rooms[roomId];
-        
-        if (!room) return;
+    const room = rooms[socket.roomId];
+    if (!room || !room.gameStarted) return;
+    
+    const p = room.players[room.activePlayerIndex];
+    if (p.id !== socket.id || p.hasActioned) return;
 
-        const p = room.players.find(player => player.id === socket.id);
-        
-        // Hubi inuu isagu markuunka leeyahay iyo inuu hore u dhuubtay
-        if (room.players[room.activePlayerIndex].id === socket.id && !p.hasActioned) {
-            
-            if (room.stockPile.length > 0) {
-                const card = room.stockPile.pop(); // Kaar ka qaad mishiinka
-                p.hand.push(card); // U dar gacanta server-ka
-                
-                p.hasActioned = true; // Calaamadi inuu ficil sameeyay
+    // --- HALKAN KU DAR ---
+    refillStockIfEmpty(socket.roomId); 
+    // ---------------------
 
-                // 1. U dir kaarkaas qofka codsaday oo kaliya
-                socket.emit("cardDrawn", card); 
-                
-                // 2. U sheeg qof kasta in tirada kaararka p ay isbeddeshay
-                updateRoomPlayers(roomId);
-                
-                console.log(`${p.name} ayaa dhuubtay kaar.`);
-            }
-        }
+    if (room.stockPile.length > 0) {
+        const card = room.stockPile.pop();
+        p.hand.push(card);
+        p.hasActioned = true;
+        
+        socket.emit("receiveCard", card);
+        updateRoomPlayers(socket.roomId);
+        } else {
+        socket.emit("message", "Ma jiro turub dambe ee la qaato!");
+          }
     });
 
     // 2. --- NEW PLAYER JOINING ---
@@ -652,6 +647,29 @@ function isValidSet(set) {
     }
 
     return false; // Haddii uusan midna ahayn
+}
+
+function refillStockIfEmpty(roomId) {
+    const room = rooms[roomId];
+    if (!room) return;
+
+    // Haddii kaararkii la dhuubanayay ay dhammaadeen (ama hal kaar u haray)
+    if (room.stockPile.length <= 0) {
+        console.log(`REFILL: QAADASHADII waa dhammaatay qolka ${roomId}. Dib u soo celinaya turubka badda lagu tuuray...`);
+
+        // 1. Keydi kaarka ugu dambeeyay ee yaalla discardPile (si uusan u lumin)
+        const topDiscard = room.discardPile.pop();
+
+        // 2. Inta kale ee discardPile-ka ah u rar stockPile
+        room.stockPile = shuffle([...room.discardPile]);
+
+        // 3. Faaruqi discardPile-kii hore, kuna reeb kaliya kaarkii ugu dambeeyay
+        room.discardPile = [topDiscard];
+
+        // 4. U sheeg qof kasta tirada cusub ee kaararka
+        io.to(roomId).emit("notification", "Waa la baandheeyay.");
+        updateRoomPlayers(roomId);
+    }
 }
 
 function broadcastTableUI(roomId) {
