@@ -558,7 +558,7 @@ function startTurnTimer(roomId) {
     }, 35000); // 35 ilbiriqsi
 }
 
-Function isValidSet(set) {
+function isValidSet(set) {
     if (!set || set.length < 3) return false;
 
     // Sifee xogta: kaararka u habee sida ay u kala horreeyaan (1, 2, 3...)
