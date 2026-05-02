@@ -274,7 +274,6 @@ body {
     margin: 0 auto;              /* ❗ Center horizontally */
     top: 0;                      /* ❗ Ha dhigin 50% */
     left: 0;                     /* ❗ Ha dhigin 50% */
-    transform: none;             /* ❗ Ka saar translate */
     z-index: 20;
     background: transparent;
     pointer-events: auto;
