@@ -267,15 +267,16 @@ body {
 }
 
 #table-area {
-    position: relative;
-    top: 35% !important;
+    position: absolute;
+    top: 35% !important;   /* 👈 Hubi inuu la siman yahay miiska cagaaran (top: 35%) */
     left: 50%;
-    width: 85%;
+    width: 85%;            /* 👈 Ballaca uu kaararka ku dhex haynayo */
     max-width: 1000px;
-    height: 50vh;
+    height: 50vh;          /* 👈 Dherer ku filan in kaararku vertical u fariistaan */
     transform: translate(-50%, -50%);
     z-index: 20;
-    pointer-events: none;
+    pointer-events: none;  /* 👈 Muhiim: Si uusan u daboolin click-ka Deck-ga */
+    background: transparent !important;
 }
 
 
