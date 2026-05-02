@@ -464,11 +464,7 @@ body {
 }
 
 /* BOTTOM PLAYER */
-#player-bottom {
-    bottom: 5%;
-    left: 50%;
-    transform: translateX(-50%);
-}
+#player-bottom { bottom: 90px; /* 👈 ka sare mari cards-ka */ left: 50%; transform: translateX(-50%); z-index: 200; /* 👈 ka sare mari hand-ka */ }
 
 
 
