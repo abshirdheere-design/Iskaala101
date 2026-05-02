@@ -536,17 +536,39 @@ function updateRoomPlayers(roomId) {
 
     const activePlayer = room.players[room.activePlayerIndex];
     
+    // 1. U dir xogta guud (Turn-ka, Tirada kaararka, iwm)
     io.to(roomId).emit("playersUpdate", {
         players: room.players.map(p => ({
             id: p.id,
             name: p.name,
-            cardCount: p.hand.length, // Hubi in magacu yahay cardCount ama handCount (Frontend-kaaga eeg)
+            cardCount: p.hand.length,
             isOpened: p.isOpened || false,
             online: p.online
         })),
         stockCount: room.stockPile.length,
         currentTurnId: activePlayer ? activePlayer.id : null,
         turnStartTime: room.turnStartTime 
+    });
+
+    // 2. 🔥 QAYBTA MAQAN: U kala saar boosaska qof kasta si uu u arko dadka ka soo horjeeda
+    room.players.forEach((player, index) => {
+        const pLen = room.players.length;
+        
+        // Habkan wuxuu xisaabinayaa booska qofka ka sreeya, ka bidix, iyo ka midig
+        const leftIdx  = (index + 1) % pLen;
+        const topIdx   = (index + 2) % pLen;
+        const rightIdx = (index + 3) % pLen;
+
+        const leftPlayer  = room.players[leftIdx];
+        const topPlayer   = room.players[topIdx];
+        const rightPlayer = room.players[rightIdx];
+
+        // U dir xogtan qofka hadda la marayo oo keliya (Private event)
+        io.to(player.id).emit("updateOpponents", {
+            left:  leftPlayer  && leftPlayer.id !== player.id  ? { name: leftPlayer.name }  : null,
+            top:   topPlayer   && topPlayer.id !== player.id   ? { name: topPlayer.name }   : null,
+            right: rightPlayer && rightPlayer.id !== player.id ? { name: rightPlayer.name } : null
+        });
     });
 }
 

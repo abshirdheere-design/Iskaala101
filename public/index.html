@@ -40,47 +40,46 @@
 <main id="game-table" style="display:none;">
 
     <div id="table-area">
-    <div class="player-wrapper top-side">
-        <div id="name-top" class="player-name-text"></div>
-        <div id="pos-top" class="player-table-pos"></div>
-    </div>
+        <!-- CIYAARTOYGA SARE -->
+        <div class="player-slot" id="player-top">
+            <div id="name-top" class="player-name-tag"></div>
+            <div id="pos-top" class="player-table-pos"></div>
+        </div>
 
-    <div class="player-wrapper left-side">
-        <div id="name-left" class="player-name-text"></div>
-        <div id="pos-left" class="player-table-pos"></div>
-    </div>
+        <!-- CIYAARTOYGA BIDIX -->
+        <div class="player-slot" id="player-left">
+            <div id="name-left" class="player-name-tag"></div>
+            <div id="pos-left" class="player-table-pos"></div>
+        </div>
 
-    <div class="player-wrapper right-side">
-        <div id="name-right" class="player-name-text"></div>
-        <div id="pos-right" class="player-table-pos"></div>
-    </div>
+        <!-- CIYAARTOYGA MIDIG -->
+        <div class="player-slot" id="player-right">
+            <div id="name-right" class="player-name-tag"></div>
+            <div id="pos-right" class="player-table-pos"></div>
+        </div>
 
-    <div class="player-wrapper bottom-side">
-        <div id="name-bottom" class="player-name-text">Adiga</div>
-        <div id="pos-bottom" class="player-table-pos">
-             <div id="my-table-sets"></div>
+        <!-- ADIGA (BOTTOM) -->
+        <div class="player-slot" id="player-bottom">
+            <div id="name-bottom" class="player-name-tag">Adiga</div>
+            <div id="pos-bottom" class="player-table-pos">
+                 <div id="my-table-sets"></div>
+            </div>
         </div>
     </div>
-</div>
 
+    <!-- CENTER AREA (STOCK & DISCARD) SIDIISII HA AHAADO -->
     <section id="center-area">
         <div class="piles-wrapper" style="display: flex; gap: 40px; align-items: center; justify-content: center;">
-            
-            <div class="pile-container" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="pile-container">
                 <div id="stock-pile" class="pile">
-                    <div class="card-back">
-                        <span id="stock-count">88</span>
-                    </div>
+                    <div class="card-back"><span id="stock-count">88</span></div>
                 </div>
                 <div class="pile-label">Qaadasho</div>
             </div>
-
-            <div class="pile-container" style="display: flex; flex-direction: column; align-items: center;">
-                <div id="discard-pile" class="pile">
-                    </div>
-                <div class="pile-label" style="color: white;">Tuurista</div>
+            <div class="pile-container">
+                <div id="discard-pile" class="pile"></div>
+                <div class="pile-label">Tuurista</div>
             </div>
-
         </div>
     </section>
 </main>
