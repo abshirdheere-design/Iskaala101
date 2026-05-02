@@ -276,9 +276,6 @@ body {
     transform: translate(-50%, -50%);
     z-index: 20;
     pointer-events: none;
-    background: transparent !important;
-
-    overflow: visible; /* 👈 IMPORTANT: ha jarin players */
 }
 
 
@@ -440,7 +437,6 @@ body {
     flex-direction: column;
     align-items: center;
     z-index: 60;
-
     max-width: 140px;
     text-align: center;
 }
@@ -462,15 +458,15 @@ body {
 /* ================= LEFT (FIXED VISIBILITY) ================= */
 #player-left {
     top: 50%;
-    left: 2%; /* 👈 u dhow geeska si uu u muuqdo */
+    left: 3%;              /* safe zone */
     transform: translateY(-50%);
 }
 
 /* ================= RIGHT (FIXED VISIBILITY) ================= */
 #player-right {
     top: 50%;
-    right: 2%; /* 👈 IMPORTANT: right isticmaal */
-    left: auto; /* 👈 ka saar left */
+    right: 3%;             /* IMPORTANT */
+    left: auto;
     transform: translateY(-50%);
 }
 
