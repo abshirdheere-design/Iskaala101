@@ -443,7 +443,7 @@ body {
 
 /* ================= TOP ================= */
 #player-top {
-    top: 200%;
+    top: 40% !important;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -455,6 +455,8 @@ body {
     transform: translateX(-50%);
     z-index: 200; /* 👈 ka sare mari hand-ka */
 }
+
+
 
 /* ================= LEFT (FIXED VISIBILITY) ================= */
 #player-left { 
