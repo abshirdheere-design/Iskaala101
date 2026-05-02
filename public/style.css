@@ -464,8 +464,8 @@ body {
 /* ================= RIGHT (FIXED VISIBILITY) ================= */
 #player-right {
     top: 50%;
-    right: 3%;             /* IMPORTANT */
-    left: auto;
+    right: 2%; /* 👈 IMPORTANT: right isticmaal */
+    left: auto; /* 👈 ka saar left */
     transform: translateY(-50%);
 }
 
@@ -840,7 +840,6 @@ body {
 
 /* ============ 17. MOBILE RESPONSIVE (HAL BLOCK KALIYA) ============ */
 @media (max-width: 600px) {
-
     /* Miiska */
     #game-table::before {
         width: 96%;
@@ -857,27 +856,10 @@ body {
     }
     .card:first-child { margin-left: 0; }
 
-    /* Ciyaartoyda (FIXED) */
-    #player-left {
-        left: 1%;
-        top: 25%;
-        font-size: 0.8rem;
-        transform: translateY(-50%);
-    }
-
-    #player-right {
-        right: 1%;
-        top: 25%;
-        font-size: 0.8rem;
-        transform: translateY(-50%);
-        left: auto;
-    }
-
-    #player-top {
-        top: 10%;
-        left: 50%;
-        transform: translateX(-50%);
-    }
+    /* Ciyaartoyda */
+    #player-left  { margin-left: -46%; top: 25%; font-size: 0.8rem; }
+    #player-right { margin-left:  46%; top: 25%; font-size: 0.8rem; }
+    #player-top   { top: 10%; }
 
     /* Deck */
     #center-area {
@@ -885,7 +867,7 @@ body {
         transform: translate(-50%, -50%) scale(0.8);
     }
 
-    /* Buttons */
+    /* Hand & Buttons */
     .player-hand-section {
         bottom: 10px;
         z-index: 10000;
