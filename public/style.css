@@ -444,29 +444,32 @@ body {
 
 /* TOP PLAYER */
 #player-top {
-    top: 15%;
+    top: 5%;
     left: 50%;
     transform: translateX(-50%);
 }
 
 /* LEFT PLAYER */
-#player-left { 
-    top: 38% !important; 
-    margin-left: -44% !important; /* U durji bidixda */
+#player-left {
+    top: 50%;
+    left: 5%;
+    transform: translateY(-50%);
 }
 
 /* RIGHT PLAYER */
-#player-right { 
-    top: 38% !important; 
-    margin-left: 44% !important;  /* U durji midigta */
+#player-right {
+    top: 50%;
+    right: 5%;
+    transform: translateY(-50%);
 }
 
 /* BOTTOM PLAYER */
 #player-bottom {
-    bottom: -5%;
+    bottom: 5%;
     left: 50%;
     transform: translateX(-50%);
 }
+
 
 
 .player-name-tag {
