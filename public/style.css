@@ -1,5 +1,5 @@
 /* ================================================================
-   TURUBKA 101 — STYLE.CSS (NADIIF)
+   TURUBKA 101 — STYLE.CSS (NADIIF, AAN DUPLICATE LAHAYN)
    ================================================================ */
 
 /* ============ 1. RESET & BASE ============ */
@@ -276,6 +276,9 @@ body {
     transform: translate(-50%, -50%);
     z-index: 20;
     pointer-events: none;
+    background: transparent !important;
+
+    overflow: visible; /* 👈 IMPORTANT: ha jarin players */
 }
 
 
@@ -437,6 +440,7 @@ body {
     flex-direction: column;
     align-items: center;
     z-index: 60;
+
     max-width: 140px;
     text-align: center;
 }
@@ -453,11 +457,12 @@ body {
     bottom: 0%;
     left: 50%;
     transform: translateX(-50%);
+}
 
 /* ================= LEFT (FIXED VISIBILITY) ================= */
 #player-left {
     top: 50%;
-    left: 3%;              /* safe zone */
+    left: 2%; /* 👈 u dhow geeska si uu u muuqdo */
     transform: translateY(-50%);
 }
 
