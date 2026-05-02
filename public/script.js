@@ -775,36 +775,25 @@ socket.on("waitingRoomUpdate", (data) => {
 });
 
 function updatePlayerNames(allPlayers, myId) {
-    // 1. Hel index-ka booskaaga (tusaale: ma waxaad tahay qofka 1aad mise kan 3aad?)
     const myIndex = allPlayers.findIndex(p => p.id === myId);
-    
-    if (myIndex === -1) return; // Haddii aan laga helin liiska, jooji
+    if (myIndex === -1) return;
 
-    // 2. Samee liis cusub oo ka bilaabma adiga (Rotation)
-    // Tani waxay hubinaysaa in qof walba uu 'Bottom' iska arko
     const rotatedPlayers = [];
     for (let i = 0; i < 4; i++) {
         rotatedPlayers.push(allPlayers[(myIndex + i) % 4]);
     }
 
-    // 3. Ku shub magacyada HTML-ka (Boosaska hadda waa kuwo go'an)
-    // rotatedPlayers[0] = Adiga (Bottom)
-    // rotatedPlayers[1] = Midka Bidix (Left)
-    // rotatedPlayers[2] = Midka Sare (Top)
-    // rotatedPlayers[3] = Midka Midig (Right)
-
     const posIds = ["name-bottom", "name-left", "name-top", "name-right"];
 
     rotatedPlayers.forEach((player, i) => {
         const el = document.getElementById(posIds[i]);
-        if (el) {
-            if (player) {
-                el.innerText = (i === 0) ? `Adiga (${player.name})` : player.name;
-                el.parentElement.style.display = "flex"; // Show slot
-            } else {
-                el.innerText = "Sugaya...";
-                // el.parentElement.style.display = "none"; // Ikhtiyaar: qari haddii uusan jirin
-            }
+        if (el && player) {
+            // Halkan ku dar: 'Adiga' haddii uu yahay John (socket.id-gaaga)
+            el.innerText = (player.id === myId) ? `Adiga (${player.name})` : player.name;
+            
+            // MUHIIM: Ku dheji ID-ga qofka 'Parent-ka' (Slot-ka) si animation-ku u helo
+            el.parentElement.setAttribute("data-player-id", player.id);
+            el.parentElement.style.display = "flex";
         }
     });
 }
@@ -812,16 +801,17 @@ function updatePlayerNames(allPlayers, myId) {
 socket.on("playersUpdate", (data) => {
     const { players, stockCount, currentTurnId, turnStartTime } = data;
 
-    isMyTurn = (currentTurnId === socket.id);
+    // 1. CUSBOONAYSIINTA MAGACYADA IYO BOOSASKA
+    // Waxaan u yeeraynaa function-kaaga si uu "Adiga" u qoro meesha saxda ah
+    updatePlayerNames(players, socket.id);
 
+    // 2. MAAREYNTA TIMER-KA IYO TURN-KA
+    isMyTurn = (currentTurnId === socket.id);
     const statusEl = document.getElementById("turnText");
     
-    // Nadiifi timer-kii hore haddii uu jiro
     if (timerInterval) clearInterval(timerInterval);
 
     if (isMyTurn) {
-        // --- XISAABI WAQTIGA HARAY ---
-        // turnStartTime waa waqtigii doorku bilaawday (ka yimid server-ka)
         const now = Date.now();
         const elapsed = Math.floor((now - turnStartTime) / 1000);
         let timeLeft = 30 - elapsed;
@@ -850,15 +840,17 @@ socket.on("playersUpdate", (data) => {
         }
     }
 
-    // Fur/Xir badhamada
-    const btns = ["dhigoBtn", "tuurBtn", "resetBtn"];
-    btns.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.disabled = !isMyTurn;
+    // 3. ANIMATION-KA DOORKA (Cagaarka birbirqaya)
+    // Waxaan ku daraynaa class-kii 'active-turn' qofka uu markuunka u yahay
+    players.forEach(p => {
+        // Maadaama updatePlayerNames uu horey u habeeyay UI-ga, 
+        // halkan waxaan ka raadinaynaa booska uu joogo qofka leh currentTurnId
+        const slot = document.querySelector(`.player-slot[data-player-id="${p.id}"]`); 
+        if (slot) {
+            if (p.id === currentTurnId) slot.classList.add("active-turn");
+            else slot.classList.remove("active-turn");
+        }
     });
-
-    const stockEl = document.getElementById("stock-count");
-    if (stockEl) stockEl.textContent = stockCount;
 });
 
 /* GAME START LISTENER */
