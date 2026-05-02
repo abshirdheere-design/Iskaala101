@@ -1,5 +1,5 @@
 /* ================================================================
-   TURUBKA 101 — STYLE.CSS (NADIIF, AAN DUPLICATE LAHAYN)
+   TURUBKA 101 — STYLE.CSS (NADIIF)
    ================================================================ */
 
 /* ============ 1. RESET & BASE ============ */
@@ -276,9 +276,6 @@ body {
     transform: translate(-50%, -50%);
     z-index: 20;
     pointer-events: none;
-    background: transparent !important;
-
-    overflow: visible; /* 👈 IMPORTANT: ha jarin players */
 }
 
 
@@ -440,7 +437,6 @@ body {
     flex-direction: column;
     align-items: center;
     z-index: 60;
-
     max-width: 140px;
     text-align: center;
 }
@@ -457,20 +453,19 @@ body {
     bottom: 0%;
     left: 50%;
     transform: translateX(-50%);
-}
 
 /* ================= LEFT (FIXED VISIBILITY) ================= */
 #player-left {
     top: 50%;
-    left: 2%; /* 👈 u dhow geeska si uu u muuqdo */
+    left: 3%;              /* safe zone */
     transform: translateY(-50%);
 }
 
 /* ================= RIGHT (FIXED VISIBILITY) ================= */
 #player-right {
     top: 50%;
-    right: 2%; /* 👈 IMPORTANT: right isticmaal */
-    left: auto; /* 👈 ka saar left */
+    right: 3%;             /* IMPORTANT */
+    left: auto;
     transform: translateY(-50%);
 }
 
@@ -845,6 +840,7 @@ body {
 
 /* ============ 17. MOBILE RESPONSIVE (HAL BLOCK KALIYA) ============ */
 @media (max-width: 600px) {
+
     /* Miiska */
     #game-table::before {
         width: 96%;
@@ -861,10 +857,27 @@ body {
     }
     .card:first-child { margin-left: 0; }
 
-    /* Ciyaartoyda */
-    #player-left  { margin-left: -46%; top: 25%; font-size: 0.8rem; }
-    #player-right { margin-left:  46%; top: 25%; font-size: 0.8rem; }
-    #player-top   { top: 10%; }
+    /* Ciyaartoyda (FIXED) */
+    #player-left {
+        left: 1%;
+        top: 25%;
+        font-size: 0.8rem;
+        transform: translateY(-50%);
+    }
+
+    #player-right {
+        right: 1%;
+        top: 25%;
+        font-size: 0.8rem;
+        transform: translateY(-50%);
+        left: auto;
+    }
+
+    #player-top {
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+    }
 
     /* Deck */
     #center-area {
@@ -872,7 +885,7 @@ body {
         transform: translate(-50%, -50%) scale(0.8);
     }
 
-    /* Hand & Buttons */
+    /* Buttons */
     .player-hand-section {
         bottom: 10px;
         z-index: 10000;
