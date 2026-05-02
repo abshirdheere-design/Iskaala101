@@ -443,14 +443,14 @@ body {
 
 /* ================= TOP ================= */
 #player-top {
-    top: 40%;
+    top: 70%;
     left: 50%;
     transform: translateX(-50%);
 }
 
 /* ================= BOTTOM ================= */
 #player-bottom {
-    bottom: 5%;
+    bottom: 1%;
     left: 50%;
     transform: translateX(-50%);
 }
