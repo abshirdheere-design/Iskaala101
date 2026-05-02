@@ -443,16 +443,17 @@ body {
 
 /* ================= TOP ================= */
 #player-top {
-    top: 70%;
+    top: 200%;
     left: 50%;
     transform: translateX(-50%);
 }
 
 /* ================= BOTTOM ================= */
 #player-bottom {
-    bottom: 1%;
+    bottom: 90px; /* 👈 ka sare mari cards-ka */
     left: 50%;
     transform: translateX(-50%);
+    z-index: 200; /* 👈 ka sare mari hand-ka */
 }
 
 /* ================= LEFT (FIXED VISIBILITY) ================= */
