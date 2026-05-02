@@ -447,6 +447,7 @@ body {
 /* TOP PLAYER */
 #player-top { 
     top: 12% !important; 
+    transform: translateX(-50%); /* ❗ ka saar Y */
 }
 
 /* LEFT PLAYER */
@@ -463,9 +464,8 @@ body {
 
 /* BOTTOM PLAYER */
 #player-bottom {
-    bottom: 120px;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 88% !important;   /* hagaaji ilaa uu si fiican ugu ekaado */
+    transform: translate(-50%, -50%);
 }
 
 .player-name-tag {
