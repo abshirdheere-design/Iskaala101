@@ -268,7 +268,7 @@ body {
 
 #table-area {
     position: absolute;
-    top: 35% !important;   /* 👈 Hubi inuu la siman yahay miiska cagaaran (top: 35%) */
+    top: 55% !important;   /* 👈 Hubi inuu la siman yahay miiska cagaaran (top: 35%) */
     left: 50%;
     width: 85%;            /* 👈 Ballaca uu kaararka ku dhex haynayo */
     max-width: 1000px;
