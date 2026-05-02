@@ -447,7 +447,8 @@ body {
 /* TOP PLAYER */
 #player-top { 
     top: 12% !important; 
-    transform: translateX(-50%); /* ❗ ka saar Y */
+    transform: translateX(-50%); /* ✔️ sax */
+    z-index: 999; /* ✔️ ok haddii uu wax ka dul baxayo */
 }
 
 /* LEFT PLAYER */
@@ -464,8 +465,10 @@ body {
 
 /* BOTTOM PLAYER */
 #player-bottom {
-    top: 88% !important;   /* hagaaji ilaa uu si fiican ugu ekaado */
-    transform: translate(-50%, -50%);
+    bottom: 140px; /* 👈 ka sare mari cards-ka */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200; /* 👈 ka sare mari hand-ka */
 }
 
 .player-name-tag {
