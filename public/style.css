@@ -443,31 +443,28 @@ body {
 
 /* ================= TOP ================= */
 #player-top {
-    top: 0%;
+    top: 40%;
     left: 50%;
     transform: translateX(-50%);
 }
 
 /* ================= BOTTOM ================= */
 #player-bottom {
-    bottom: 0%;
+    bottom: 5%;
     left: 50%;
     transform: translateX(-50%);
 }
 
 /* ================= LEFT (FIXED VISIBILITY) ================= */
-#player-left {
-    top: 50%;
-    left: 3%;              /* safe zone */
-    transform: translateY(-50%);
+#player-left { 
+    top: 38% !important; 
+    margin-left: -44% !important; /* U durji bidixda */
 }
 
 /* ================= RIGHT (FIXED VISIBILITY) ================= */
-#player-right {
-    top: 50%;
-    right: 3%;             /* IMPORTANT */
-    left: auto;
-    transform: translateY(-50%);
+#player-right { 
+    top: 38% !important; 
+    margin-left: 44% !important;  /* U durji midigta */
 }
 
 /* ================= NAME TAG ================= */
