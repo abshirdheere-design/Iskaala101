@@ -99,6 +99,40 @@ function updatePlayerTurnUI(allPlayers, myId, activePlayerId) {
     }
 }
 
+socket.on("turnUpdate", (activePlayerId) => {
+    // 1. Ka saar class-ka 'active-turn' dhamaan boosaska (slots)
+    document.querySelectorAll('.player-slot').forEach(slot => {
+        slot.classList.remove('active-turn');
+    });
+
+    // 2. Hubi inaan hayno liiska ciyaartoyda iyo ID-gaaga
+    if (typeof allPlayers !== 'undefined' && typeof socket !== 'undefined') {
+        const myId = socket.id;
+        
+        // 3. Adeegso nidaamka wareegga (Rotation) si loo helo booska saxda ah
+        const rotatedPlayers = [];
+        const myIndex = allPlayers.findIndex(p => p.id === myId);
+        
+        if (myIndex !== -1) {
+            for (let i = 0; i < 4; i++) {
+                rotatedPlayers.push(allPlayers[(myIndex + i) % 4]);
+            }
+
+            // 4. Raadi qofka hadda doorku u joogo booskiisa miiska
+            const posIds = ["player-bottom", "player-left", "player-top", "player-right"];
+            
+            rotatedPlayers.forEach((player, index) => {
+                if (player && player.id === activePlayerId) {
+                    const activeSlot = document.getElementById(posIds[index]);
+                    if (activeSlot) {
+                        activeSlot.classList.add('active-turn');
+                    }
+                }
+            });
+        }
+    }
+});
+
 function renderMeltedGroups(groups) {
     const tableArea = document.getElementById('table-area');
     if (!tableArea) return;

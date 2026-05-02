@@ -74,64 +74,62 @@ function updateRoomPlayers(roomId) {
     const activePlayer = room.players[room.activePlayerIndex];
     const currentTurnId = activePlayer ? activePlayer.id : null;
 
-    const playersData = room.players.map(p => ({
-        id: p.id,
-        name: p.name,
-        cardCount: p.hand.length,
-        isOpened: p.isOpened || false
-    }));
-
-    // DIR PLAYERSUPDATE (Halkan ayaan ku daray turnStartTime)
+    // A. U dir xogta guud qof kasta (Tirada kaararka & Timer)
     io.to(roomId).emit("playersUpdate", {
-        players: playersData,
+        players: room.players.map(p => ({
+            id: p.id,
+            name: p.name,
+            cardCount: p.hand.length,
+            isOpened: p.isOpened || false,
+            online: p.online
+        })),
         stockCount: room.stockPile.length,
         currentTurnId: currentTurnId,
-        turnStartTime: room.turnStartTime // 🔥 MUHIIM: Kani waa kan Timer-ka hagaajinaya
+        turnStartTime: room.turnStartTime
     });
 
-    // DIR UPDATEOPPONENTS (Sidii aad u qortay waa sax)
+    // B. U kala saar boosaska (Opponents) si gaar ah qof kasta
     room.players.forEach((player, index) => {
-        const left  = room.players[(index + 1) % room.players.length];
-        const top   = room.players[(index + 2) % room.players.length];
-        const right = room.players[(index + 3) % room.players.length];
+        const pLen = room.players.length;
+        const leftIdx  = (index + 1) % pLen;
+        const topIdx   = (index + 2) % pLen;
+        const rightIdx = (index + 3) % pLen;
 
         io.to(player.id).emit("updateOpponents", {
-            left:  left  ? { name: left.name } : null,
-            top:   top   ? { name: top.name } : null,
-            right: right ? { name: right.name } : null
+            left:  room.players[leftIdx]  ? { name: room.players[leftIdx].name }  : null,
+            top:   room.players[topIdx]   ? { name: room.players[topIdx].name }   : null,
+            right: room.players[rightIdx] ? { name: room.players[rightIdx].name } : null
         });
     });
 }
-
-
-
-
 
 function nextTurn(roomId) {
     const room = rooms[roomId];
     if (!room) return;
 
+    // Jooji saacaddii hore
     if (room.turnTimeout) clearTimeout(room.turnTimeout);
 
+    // Wareeji doorka
     room.activePlayerIndex = (room.activePlayerIndex + 1) % room.players.length;
     room.turnStartTime = Date.now(); 
 
-    room.players.forEach(p => {
-        p.hasActioned = false;
-        p.pickedFromDiscard = false;
-    });
-
     const currentPlayer = room.players[room.activePlayerIndex];
-    io.to(roomId).emit('yourTurn', currentPlayer.id);
+    
+    // Dib u deji xaaladda qofka cusub
+    currentPlayer.hasActioned = false;
+    currentPlayer.pickedFromDiscard = false;
+
+    // U sheeg qof kasta in turn-ka la beddelay
     updateRoomPlayers(roomId);
 
-    // ROBOT LOGIC (Haddii qofku seexdo)
+    // ROBOT: Haddii qofku seexdo (35 ilbiriqsi)
     room.turnTimeout = setTimeout(() => {
-        if (!room || !room.gameStarted) return;
+        if (!room.gameStarted) return;
         
-        console.log(`ROBOT: Ciyaaryahan ${currentPlayer.name} waa laga daahay.`);
+        console.log(`ROBOT: ${currentPlayer.name} waa laga daahay.`);
 
-        // 1. AUTO-DRAW: Haddii uusan weli qaadan kaar
+        // Auto-Draw haddii uusan waxba qaadan
         if (!currentPlayer.hasActioned && room.stockPile.length > 0) {
             const card = room.stockPile.pop();
             currentPlayer.hand.push(card);
@@ -139,21 +137,17 @@ function nextTurn(roomId) {
             io.to(currentPlayer.id).emit("receiveCard", card);
         }
 
-        // 2. AUTO-DISCARD: Ka saar hal kaar (Haddii uu 15 haysto ama 14)
+        // Auto-Discard (Mid tuur si ciyaartu u socoto)
         if (currentPlayer.hand.length > 0) {
-            const cardToDiscard = currentPlayer.hand.pop(); // Halkan ayaan ka saarnay
+            const cardToDiscard = currentPlayer.hand.pop();
             room.discardPile.push(cardToDiscard);
-            
-            // 🔥 MUHIIM: U sheeg qofka in gacantiisa la beddelay (si uusan nuqul ugu harin)
-            io.to(currentPlayer.id).emit("startHand", currentPlayer.hand); 
             io.to(roomId).emit("updateDiscardPile", cardToDiscard);
+            io.to(currentPlayer.id).emit("startHand", currentPlayer.hand);
         }
 
-        nextTurn(roomId);
-    }, 35000); 
+        nextTurn(roomId); // U gudbi qofka xiga
+    }, 35000);
 }
-
-
 
 io.on("connection", (socket) => {
     onlineUsers++;
@@ -572,58 +566,25 @@ function updateRoomPlayers(roomId) {
     });
 }
 
-socket.on("turnUpdate", (activePlayerId) => {
-    // 1. Ka saar class-ka 'active-turn' dhamaan boosaska (slots)
-    document.querySelectorAll('.player-slot').forEach(slot => {
-        slot.classList.remove('active-turn');
-    });
-
-    // 2. Hubi inaan hayno liiska ciyaartoyda iyo ID-gaaga
-    if (typeof allPlayers !== 'undefined' && typeof socket !== 'undefined') {
-        const myId = socket.id;
-        
-        // 3. Adeegso nidaamka wareegga (Rotation) si loo helo booska saxda ah
-        const rotatedPlayers = [];
-        const myIndex = allPlayers.findIndex(p => p.id === myId);
-        
-        if (myIndex !== -1) {
-            for (let i = 0; i < 4; i++) {
-                rotatedPlayers.push(allPlayers[(myIndex + i) % 4]);
-            }
-
-            // 4. Raadi qofka hadda doorku u joogo booskiisa miiska
-            const posIds = ["player-bottom", "player-left", "player-top", "player-right"];
-            
-            rotatedPlayers.forEach((player, index) => {
-                if (player && player.id === activePlayerId) {
-                    const activeSlot = document.getElementById(posIds[index]);
-                    if (activeSlot) {
-                        activeSlot.classList.add('active-turn');
-                    }
-                }
-            });
-        }
-    }
-});
-
 // 2. Sax isValidSet (Inuu aqoonsado J, Q, K, A)
 function isValidSet(set) {
     if (!set || set.length < 3) return false;
 
     const valueMap = { '6':6, '7':7, '8':8, '9':9, '10':10, 'J':11, 'Q':12, 'K':13, 'A':14 };
+    // Hubi in kaararku ay leeyihiin values sax ah
     const sortedSet = [...set].sort((a, b) => valueMap[a.value] - valueMap[b.value]);
     
-    const isSameColor = sortedSet.every(c => c.suit === sortedSet[0].suit); // Isticmaal suit halkii aad color ka isticmaali lahayd
+    const isSameSuit = sortedSet.every(c => c.suit === sortedSet[0].suit);
     const isSameValue = sortedSet.every(c => c.value === sortedSet[0].value);
 
-    // Run Logic (6-7-8 isku suit ah)
-    if (isSameColor) {
+    // Run Logic (e.g., 7♦, 8♦, 9♦)
+    if (isSameSuit) {
         for (let i = 0; i < sortedSet.length - 1; i++) {
             if (valueMap[sortedSet[i+1].value] !== valueMap[sortedSet[i].value] + 1) return false;
         }
         return true;
     }
-    // Group Logic (7-7-7 suits kala duwan)
+    // Group Logic (e.g., 7♦, 7♥, 7♠) - Suits kala duwan
     if (isSameValue) {
         const suits = sortedSet.map(c => c.suit);
         return new Set(suits).size === sortedSet.length;
