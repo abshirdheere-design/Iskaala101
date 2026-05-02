@@ -448,7 +448,7 @@ body {
 
 /* TOP PLAYER */
 #player-top {
-    top: 5px;
+    top: -40px; /* 👈 ka saar gudaha miiska */
     left: 50%;
     transform: translateX(-50%);
 }
@@ -456,8 +456,9 @@ body {
 /* LEFT PLAYER */
 #player-left {
     top: 50%;
-    left: 20px;
+    left: 10px; /* ka yar dhig */
     transform: translateY(-50%);
+    max-width: 100px; /* si uusan u fidin */
 }
 
 /* RIGHT PLAYER */
