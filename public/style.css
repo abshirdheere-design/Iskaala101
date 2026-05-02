@@ -446,26 +446,26 @@ body {
 
 /* TOP PLAYER */
 #player-top { 
-    top: 40% !important; 
+    top: 12% !important; 
     transform: translate(-50%, 0) !important; /* ❗ ka saar Y */
     z-index: 999;
 }
 
 /* LEFT PLAYER */
 #player-left { 
-    top: 38% !important; 
+    top: 45% !important; /* hore waxay u ahayd 38% */
     margin-left: -44% !important; /* U durji bidixda */
 }
 
 /* RIGHT PLAYER */
 #player-right { 
-    top: 38% !important; 
+    top: 45% !important; 
     margin-left: 44% !important;  /* U durji midigta */
 }
 
 /* BOTTOM PLAYER */
 #player-bottom {
-    bottom: 90px; /* 👈 ka sare mari cards-ka */
+    bottom: 80px; /* 👈 ka sare mari cards-ka */
     left: 50%;
     transform: translateX(-50%);
     z-index: 200; /* 👈 ka sare mari hand-ka */
