@@ -267,16 +267,18 @@ body {
 }
 
 #table-area {
-    position: absolute;
-    top: 35% !important;   /* 👈 Hubi inuu la siman yahay miiska cagaaran (top: 35%) */
+    position: relative;
+    top: 35% !important;
     left: 50%;
-    width: 85%;            /* 👈 Ballaca uu kaararka ku dhex haynayo */
+    width: 85%;
     max-width: 1000px;
-    height: 50vh;          /* 👈 Dherer ku filan in kaararku vertical u fariistaan */
+    height: 50vh;
     transform: translate(-50%, -50%);
     z-index: 20;
-    pointer-events: none;  /* 👈 Muhiim: Si uusan u daboolin click-ka Deck-ga */
+    pointer-events: none;
     background: transparent !important;
+
+    overflow: hidden; /* 👈 muhiim: ka hor istaagaya in wax baxaan */
 }
 
 
@@ -431,47 +433,51 @@ body {
 
 .deck-indicator-card { display: none; }
 
-/* ============ 9. PLAYER SLOTS (OTHERS) ============ */
-/* PLAYER SLOTS */
+/* ================= PLAYER SLOT BASE ================= */
 .player-slot {
     position: absolute;
-    left: 50% !important; /* Bartamaha ka bilow si uusan u lumin */
-    transform: translate(-50%, -50%);
+    left: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
     z-index: 60;
+
+    max-width: 140px; /* 👈 si magacyadu uusan u fidin */
+    text-align: center;
 }
 
-#player-top { 
-    top: 12% !important; 
+/* ================= TOP PLAYER ================= */
+#player-top {
+    top: 0%;
+    transform: translateX(-50%);
 }
 
-#player-left { 
-    top: 38% !important; 
-    margin-left: -44% !important; /* U durji bidixda */
+/* ================= BOTTOM PLAYER ================= */
+#player-bottom {
+    bottom: 0%;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
-#player-right { 
-    top: 38% !important; 
-    margin-left: 44% !important;  /* U durji midigta */
+/* ================= LEFT PLAYER ================= */
+#player-left {
+    top: 50%;
+    left: 8%; /* 👈 gudaha miiska */
+    transform: translateY(-50%);
 }
 
-
-.player-name-tag {
-    background: #333; padding: 5px 15px; border-radius: 15px;
-    font-size: 0.9rem; border: 1px solid #555;
+/* ================= RIGHT PLAYER ================= */
+#player-right {
+    top: 50%;
+    left: 92%; /* 👈 gudaha miiska */
+    transform: translateY(-50%);
 }
 
-/* BOTTOM PLAYER */
-#player-bottom { bottom: 90px; /* 👈 ka sare mari cards-ka */ left: 50%; transform: translateX(-50%); z-index: 200; /* 👈 ka sare mari hand-ka */ }
-
-
-
+/* ================= NAME TAG ================= */
 .player-name-tag {
     background: rgba(40, 40, 40, 0.9);
     color: #ffffff;
-    padding: 6px 14px; /* Wax yar ka dhig mid weyn si loo arko */
+    padding: 6px 14px;
     border-radius: 10px;
     border: 1px solid #555;
     font-size: 0.9rem;
