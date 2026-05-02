@@ -63,6 +63,42 @@ function renderMyHand() {
     });
 }
 
+function updatePlayerTurnUI(allPlayers, myId, activePlayerId) {
+    if (!allPlayers || !myId) return;
+
+    // 1. Hel index-kaaga si loo wareejiyo miiska
+    const myIndex = allPlayers.findIndex(p => p.id === myId);
+    if (myIndex === -1) return;
+
+    // 2. Diyaari boosaska miiska (waafaqsan ID-yada HTML-kaaga)
+    const posIds = ["player-bottom", "player-left", "player-top", "player-right"];
+    
+    // 3. Marka hore ka saar 'active-turn' dhamaan si loo cusubaysiiyo
+    document.querySelectorAll('.player-slot').forEach(slot => {
+        slot.classList.remove('active-turn');
+    });
+
+    // 4. Wareeji liiska oo ku dar class-ka qofka doorka leh
+    for (let i = 0; i < 4; i++) {
+        const player = allPlayers[(myIndex + i) % 4];
+        const slotId = posIds[i];
+        const slotElement = document.getElementById(slotId);
+
+        if (player && slotElement) {
+            // Haddii qofkani uu yahay kan doorku u joogo (Active Player)
+            if (player.id === activePlayerId) {
+                slotElement.classList.add('active-turn');
+            }
+            
+            // Sidoo kale halkan waxaad ku cusubaysiin kartaa magaca haddii loo baahdo
+            const nameTag = slotElement.querySelector('.player-name-tag');
+            if (nameTag) {
+                nameTag.innerText = (i === 0) ? `Adiga (${player.name})` : player.name;
+            }
+        }
+    }
+}
+
 function renderMeltedGroups(groups) {
     const tableArea = document.getElementById('table-area');
     if (!tableArea) return;
@@ -704,6 +740,41 @@ socket.on("waitingRoomUpdate", (data) => {
     }
 });
 
+function updatePlayerNames(allPlayers, myId) {
+    // 1. Hel index-ka booskaaga (tusaale: ma waxaad tahay qofka 1aad mise kan 3aad?)
+    const myIndex = allPlayers.findIndex(p => p.id === myId);
+    
+    if (myIndex === -1) return; // Haddii aan laga helin liiska, jooji
+
+    // 2. Samee liis cusub oo ka bilaabma adiga (Rotation)
+    // Tani waxay hubinaysaa in qof walba uu 'Bottom' iska arko
+    const rotatedPlayers = [];
+    for (let i = 0; i < 4; i++) {
+        rotatedPlayers.push(allPlayers[(myIndex + i) % 4]);
+    }
+
+    // 3. Ku shub magacyada HTML-ka (Boosaska hadda waa kuwo go'an)
+    // rotatedPlayers[0] = Adiga (Bottom)
+    // rotatedPlayers[1] = Midka Bidix (Left)
+    // rotatedPlayers[2] = Midka Sare (Top)
+    // rotatedPlayers[3] = Midka Midig (Right)
+
+    const posIds = ["name-bottom", "name-left", "name-top", "name-right"];
+
+    rotatedPlayers.forEach((player, i) => {
+        const el = document.getElementById(posIds[i]);
+        if (el) {
+            if (player) {
+                el.innerText = (i === 0) ? `Adiga (${player.name})` : player.name;
+                el.parentElement.style.display = "flex"; // Show slot
+            } else {
+                el.innerText = "Sugaya...";
+                // el.parentElement.style.display = "none"; // Ikhtiyaar: qari haddii uusan jirin
+            }
+        }
+    });
+}
+
 socket.on("playersUpdate", (data) => {
     const { players, stockCount, currentTurnId, turnStartTime } = data;
 
@@ -824,13 +895,22 @@ socket.on("updateDiscardPile", (card) => {
 });
 
 socket.on("updateOpponents", (data) => {
-    const topEl = document.getElementById("name-top");   // HTML waafaqsan
-    const leftEl = document.getElementById("name-left");
-    const rightEl = document.getElementById("name-right");
+    // data.allPlayers waa inuu noqdaa liis ay ku jiraan dhammaan 4-ta ciyaaryahan
+    // Haddii server-kaagu soo diro data.allPlayers, isticmaal kan:
+    if (data.allPlayers) {
+        updatePlayerNames(data.allPlayers, socket.id);
+    } else {
+        // Haddii server-kaagu wali u soo diro qaabkii hore (top, left, right):
+        const topEl = document.getElementById("name-top");
+        const leftEl = document.getElementById("name-left");
+        const rightEl = document.getElementById("name-right");
+        const bottomEl = document.getElementById("name-bottom");
 
-    if (topEl)  topEl.innerText  = data.top  ? data.top.name  : "";
-    if (leftEl) leftEl.innerText = data.left ? data.left.name : "";
-    if (rightEl) rightEl.innerText = data.right ? data.right.name : "";
+        if (topEl)    topEl.innerText    = data.top    ? data.top.name    : "Sugaya...";
+        if (leftEl)   leftEl.innerText   = data.left   ? data.left.name   : "Sugaya...";
+        if (rightEl)  rightEl.innerText  = data.right  ? data.right.name  : "Sugaya...";
+        if (bottomEl) bottomEl.innerText = "Adiga"; 
+    }
 });
 
 const stockPile = document.getElementById("stock-pile");
