@@ -433,7 +433,7 @@ body {
 .deck-indicator-card { display: none; }
 
 /* ============ 9. PLAYER SLOTS (OTHERS) ============ */
-/* ============ 9. PLAYER SLOTS (OTHERS) ============ */
+/* PLAYER SLOTS */
 .player-slot {
     position: absolute;
     display: flex;
@@ -441,35 +441,35 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 100;
-    width: fit-content;
-    /* Waxaan ku daray kala fogaansho yar si uusan darbiga ugu dhegin */
-    transition: all 0.3s ease; 
+    transition: all 0.3s ease;
+    max-width: 120px;
+    text-align: center;
 }
 
-/* 1. Qofka Sare (Bruno/Top) */
+/* TOP PLAYER */
 #player-top {
-    top: 20px;
+    top: 5px;
     left: 50%;
-    transform: translateX(-50%); /* Kani halkiisa ha joogo */
+    transform: translateX(-50%);
 }
 
-/* 2. Qofka Bidix (Antonio/Left) - HALKAN AYAA LA SAXAY */
+/* LEFT PLAYER */
 #player-left {
     top: 50%;
-    left: 40px; 
-    transform: translateY(-50%); /* Kani halkiisa ha joogo */
-}
-
-/* 3. Qofka Midig (Antonella/Right) */
-#player-right {
-    top: 50%;
-    right: 30px; /* Sidoo kale kan midig ka fogee geesta */
+    left: 20px;
     transform: translateY(-50%);
 }
 
-/* 4. Adiga (John/Bottom) */
+/* RIGHT PLAYER */
+#player-right {
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+}
+
+/* BOTTOM PLAYER */
 #player-bottom {
-    bottom: 120px; /* Waxaad sheegtay inuu gacantaada ka sareeyo, halkan ka soco */
+    bottom: 120px;
     left: 50%;
     transform: translateX(-50%);
 }
