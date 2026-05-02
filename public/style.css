@@ -278,7 +278,7 @@ body {
     pointer-events: none;
     background: transparent !important;
 
-    overflow: hidden; /* 👈 muhiim: ka hor istaagaya in wax baxaan */
+    overflow: visible; /* 👈 IMPORTANT: ha jarin players */
 }
 
 
@@ -436,40 +436,41 @@ body {
 /* ================= PLAYER SLOT BASE ================= */
 .player-slot {
     position: absolute;
-    left: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
     z-index: 60;
 
-    max-width: 140px; /* 👈 si magacyadu uusan u fidin */
+    max-width: 140px;
     text-align: center;
 }
 
-/* ================= TOP PLAYER ================= */
+/* ================= TOP ================= */
 #player-top {
     top: 0%;
+    left: 50%;
     transform: translateX(-50%);
 }
 
-/* ================= BOTTOM PLAYER ================= */
+/* ================= BOTTOM ================= */
 #player-bottom {
     bottom: 0%;
     left: 50%;
     transform: translateX(-50%);
 }
 
-/* ================= LEFT PLAYER ================= */
+/* ================= LEFT (FIXED VISIBILITY) ================= */
 #player-left {
     top: 50%;
-    left: 8%; /* 👈 gudaha miiska */
+    left: 2%; /* 👈 u dhow geeska si uu u muuqdo */
     transform: translateY(-50%);
 }
 
-/* ================= RIGHT PLAYER ================= */
+/* ================= RIGHT (FIXED VISIBILITY) ================= */
 #player-right {
     top: 50%;
-    left: 92%; /* 👈 gudaha miiska */
+    right: 2%; /* 👈 IMPORTANT: right isticmaal */
+    left: auto; /* 👈 ka saar left */
     transform: translateY(-50%);
 }
 
