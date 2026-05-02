@@ -14,9 +14,9 @@ body {
 
 /* ============ 2. ANIMATIONS ============ */
 @keyframes active-glow {
-    0%   { transform: translate(-50%, -50%) scale(1);    box-shadow: 0 0 5px currentColor;  opacity: 1; }
-    50%  { transform: translate(-50%, -50%) scale(1.05); box-shadow: 0 0 20px currentColor; opacity: 0.8; }
-    100% { transform: translate(-50%, -50%) scale(1);    box-shadow: 0 0 5px currentColor;  opacity: 1; }
+    0%   { transform: scale(1);    box-shadow: 0 0 5px #2ecc71; opacity: 1; }
+    50%  { transform: scale(1.08); box-shadow: 0 0 20px #2ecc71; opacity: 0.9; }
+    100% { transform: scale(1);    box-shadow: 0 0 5px #2ecc71; opacity: 1; }
 }
 
 @keyframes blink {
@@ -433,40 +433,43 @@ body {
 .deck-indicator-card { display: none; }
 
 /* ============ 9. PLAYER SLOTS (OTHERS) ============ */
+/* ============ 9. PLAYER SLOTS (OTHERS) ============ */
 .player-slot {
     position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 100; /* Inay kaararka ka sarreeyaan */
+    z-index: 100;
     width: fit-content;
+    /* Waxaan ku daray kala fogaansho yar si uusan darbiga ugu dhegin */
+    transition: all 0.3s ease; 
 }
 
 /* 1. Qofka Sare (Bruno/Top) */
 #player-top {
-    top: 5%;
+    top: 20px;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%); /* Kani halkiisa ha joogo */
 }
 
-/* 2. Qofka Bidix (Antonio/Left) */
+/* 2. Qofka Bidix (Antonio/Left) - HALKAN AYAA LA SAXAY */
 #player-left {
     top: 50%;
-    left: 5%;
-    transform: translateY(-50%);
+    left: 40px; 
+    transform: translateY(-50%); /* Kani halkiisa ha joogo */
 }
 
 /* 3. Qofka Midig (Antonella/Right) */
 #player-right {
     top: 50%;
-    right: 5%;
+    right: 30px; /* Sidoo kale kan midig ka fogee geesta */
     transform: translateY(-50%);
 }
 
 /* 4. Adiga (John/Bottom) */
 #player-bottom {
-    bottom: 22%; /* Wax yar kor u qaad si uusan gacantaada gacanta u gelin */
+    bottom: 120px; /* Waxaad sheegtay inuu gacantaada ka sareeyo, halkan ka soco */
     left: 50%;
     transform: translateX(-50%);
 }
@@ -474,26 +477,20 @@ body {
 .player-name-tag {
     background: rgba(40, 40, 40, 0.9);
     color: #ffffff;
-    padding: 4px 12px;
+    padding: 6px 14px; /* Wax yar ka dhig mid weyn si loo arko */
     border-radius: 10px;
     border: 1px solid #555;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: bold;
     white-space: nowrap;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    text-align: center;
 }
 
-.player-name-tag.active {
-    background: #27ae60;
-    border-color: #2ecc71;
-    box-shadow: 0 0 10px #2ecc71;
-}
-
-/* Marka uu doorka qofka kale yahay */
+/* Marka uu doorka qofka yahay (Active Glow) */
 .player-slot.active-turn .player-name-tag {
     background: #27ae60 !important;
     border-color: #2ecc71 !important;
-    color: #ffffff !important; /* Waxaan ka dhignay cadaan si loo akhriyo */
     animation: active-glow 1.5s infinite ease-in-out;
 }
 
@@ -503,6 +500,7 @@ body {
     background: rgba(0, 0, 0, 0.6);
     padding: 5px 10px;
     border-radius: 15px;
+    margin-top: 5px; /* Wax yar ka fogee magaca */
 }
 
 #timer-container {
