@@ -433,12 +433,12 @@ body {
 /* ================= PLAYER SLOT BASE ================= */
 .player-slot {
     position: absolute;
+    left: 50% !important; /* Bartamaha ka bilow si uusan u lumin */
+    transform: translate(-50%, -50%);
     display: flex;
     flex-direction: column;
     align-items: center;
     z-index: 60;
-    max-width: 140px;
-    text-align: center;
 }
 
 /* ================= TOP ================= */
