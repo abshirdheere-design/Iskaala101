@@ -432,43 +432,43 @@ body {
 .deck-indicator-card { display: none; }
 
 /* ================= PLAYER SLOT BASE ================= */
+/* ✅ BASE — KA SAAR left:50% !important */
 .player-slot {
     position: absolute;
-    left: 50% !important; /* Bartamaha ka bilow si uusan u lumin */
-    transform: translate(-50%, -50%);
     display: flex;
     flex-direction: column;
     align-items: center;
     z-index: 60;
 }
 
-/* ================= TOP ================= */
+/* ✅ TOP — bartanka sare */
 #player-top {
-    top: 40% !important;
+    top: 40px;
     left: 50%;
     transform: translateX(-50%);
 }
 
-/* ================= BOTTOM ================= */
+/* ✅ BOTTOM — bartanka hoose */
 #player-bottom {
-    bottom: 90px; /* 👈 ka sare mari cards-ka */
+    bottom: 90px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 200; /* 👈 ka sare mari hand-ka */
+    z-index: 200;
 }
 
-
-
-/* ================= LEFT (FIXED VISIBILITY) ================= */
-#player-left { 
-    top: 38% !important; 
-    margin-left: -44% !important; /* U durji bidixda */
+/* ✅ LEFT — dhinaca bidix (ma isticmaalo left:50%) */
+#player-left {
+    top: 50%;
+    left: 5%;
+    transform: translateY(-50%);
 }
 
-/* ================= RIGHT (FIXED VISIBILITY) ================= */
-#player-right { 
-    top: 38% !important; 
-    margin-left: 44% !important;  /* U durji midigta */
+/* ✅ RIGHT — dhinaca midig (ma isticmaalo left:50%) */
+#player-right {
+    top: 50%;
+    right: 5%;
+    left: auto;
+    transform: translateY(-50%);
 }
 
 /* ================= NAME TAG ================= */
@@ -834,16 +834,18 @@ body {
 }
 
 /* ============ 16. DESKTOP LARGE SCREENS ============ */
+/* ============ DESKTOP ============ */
 @media (min-width: 1100px) {
-    #player-top   { top: 60px !important; }
-    #player-left  { margin-left: -580px !important; }
-    #player-right { margin-left:  580px !important; }
+    #player-top    { top: 70px; }
+    #player-left   { left: 8%; }
+    #player-right  { right: 8%; left: auto; }
 }
+
 
 /* ============ 17. MOBILE RESPONSIVE (HAL BLOCK KALIYA) ============ */
 @media (max-width: 600px) {
 
-    /* Miiska */
+    /* ===== Miiska ===== */
     #game-table::before {
         width: 96%;
         height: 32vh;
@@ -851,41 +853,48 @@ body {
         border-radius: 50px;
     }
 
-    /* Kaararka */
+    /* ===== Kaararka ===== */
     .card {
         width: 45px;
         height: 70px;
         margin-left: -20px;
     }
-    .card:first-child { margin-left: 0; }
-
-    /* Ciyaartoyda (FIXED) */
-    #player-left {
-        left: 1%;
-        top: 25%;
-        font-size: 0.8rem;
-        transform: translateY(-50%);
+    .card:first-child {
+        margin-left: 0;
     }
 
-    #player-right {
-        right: 1%;
-        top: 25%;
-        font-size: 0.8rem;
-        transform: translateY(-50%);
-        left: auto;
-    }
-
+    /* ===== Ciyaartoyda ===== */
     #player-top {
         top: 10%;
         left: 50%;
         transform: translateX(-50%);
     }
 
-    /* Deck */
+    #player-left {
+        top: 30%;
+        left: 2%;
+        transform: translateY(-50%);
+        font-size: 0.8rem;
+    }
+
+    #player-right {
+        top: 30%;
+        right: 2%;
+        left: auto;
+        transform: translateY(-50%);
+        font-size: 0.8rem;
+    }
+
+    #player-bottom {
+        bottom: 60px;
+    }
+
+    /* ===== Deck / Center ===== */
     #center-area {
         top: 22%;
         transform: translate(-50%, -50%) scale(0.8);
     }
+}
 
     /* Buttons */
     .player-hand-section {
