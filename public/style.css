@@ -443,30 +443,30 @@ body {
 
 /* ✅ TOP — bartanka sare */
 #player-top {
-    top: 90px;
-    left: 50%;
+    top: 40px;
+    left: 90%;
     transform: translateX(-50%);
 }
 
 /* ✅ BOTTOM — bartanka hoose */
 #player-bottom {
-    bottom: 40px;
-    left: 50%;
+    bottom: 90px;
+    left: 25%;
     transform: translateX(-50%);
     z-index: 200;
 }
 
 /* ✅ LEFT — dhinaca bidix (ma isticmaalo left:50%) */
 #player-left {
-    top: 35%;
-    left: 5%;
+    top: 50%;
+    left: 35%;
     transform: translateY(-50%);
 }
 
 /* ✅ RIGHT — dhinaca midig (ma isticmaalo left:50%) */
 #player-right {
-    top: 35%;
-    right: 5%;
+    top: 50%;
+    right: 35%;
     left: auto;
     transform: translateY(-50%);
 }
