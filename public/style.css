@@ -444,31 +444,31 @@ body {
 /* ✅ TOP — bartanka sare */
 #player-top {
     top: 40px;
-    left: 90%;
+    left: 50%;
     transform: translateX(-50%);
 }
 
 /* ✅ BOTTOM — bartanka hoose */
 #player-bottom {
     bottom: 90px;
-    left: 25%;
+    left: 50%;
     transform: translateX(-50%);
     z-index: 200;
 }
 
 /* ✅ LEFT — dhinaca bidix (ma isticmaalo left:50%) */
 #player-left {
-    top: 50%;
-    left: 35%;
-    transform: translateY(-50%);
+    top: 35%;
+    left: 5%;
+    transform: none;
 }
 
 /* ✅ RIGHT — dhinaca midig (ma isticmaalo left:50%) */
 #player-right {
-    top: 50%;
-    right: 35%;
+    top: 35%;
+    right: 5%;
     left: auto;
-    transform: translateY(-50%);
+    transform: none;
 }
 
 /* ================= NAME TAG ================= */
@@ -871,17 +871,17 @@ body {
     }
 
     #player-left {
-        top: 30%;
+        top: 28%;
         left: 2%;
-        transform: translateY(-50%);
+        transform: none;
         font-size: 0.8rem;
     }
 
     #player-right {
-        top: 30%;
+        top: 28%;
         right: 2%;
         left: auto;
-        transform: translateY(-50%);
+        transform: none;
         font-size: 0.8rem;
     }
 
