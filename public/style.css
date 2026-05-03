@@ -438,48 +438,48 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    z-index: 100; /* Inay ka sarraystaan miiska */
+    z-index: 1000; /* Inay mar walba ka korreeyaan wax kasta */
 }
 
-/* 1. KAN SARE (Bruno) */
+/* 1. MAGACA SARE (Bruno) - Kor u qaad si uu miiska cagaaran geeskiisa u tago */
 #player-top {
-    top: 20px;       /* Aad ugu dhowee cirifka sare ee miiska */
+    top: 50px;       /* Haddii uu weli dhexda u dhow yahay, ka dhig 30px */
     left: 50%;
     transform: translateX(-50%);
 }
 
-/* 2. KAN HOOSE (John) */
+/* 2. MAGACAAGA (Adiga) - Kor u qaad si aanu kaararka u hoos gelin */
 #player-bottom {
-    bottom: 120px;   /* Kor uga yara qaad kaararka gacanta */
+    bottom: 180px;   /* Qiimahan kordhi haddii uu weli kaararka u dhow yahay */
     left: 50%;
     transform: translateX(-50%);
 }
 
-/* 3. KAN BIDIX (Antonio) */
+/* 3. KAN BIDIX (Antonio) - Sidii uu ahaa waa ku fiican yahay */
 #player-left {
     top: 50%;
-    left: 20px;      /* Aad ugu dhowee geesta bidix ee shaashadda */
+    left: 30px;
     transform: translateY(-50%);
 }
 
-/* 4. KAN MIDIG (Antonella) */
+/* 4. KAN MIDIG (Antonella) - Sidii uu ahaa waa ku fiican yahay */
 #player-right {
     top: 50%;
-    right: 20px;     /* Aad ugu dhowee geesta midig ee shaashadda */
+    right: 30px;
     transform: translateY(-50%);
 }
 
-/* Magacyada Naqshaddooda */
+/* Naqshadda Magacyada si ay u muuqdaan (Optional: Wax yar ka dhig yar si ay u qurxonaadaan) */
 .player-name-tag {
-    background: rgba(0, 0, 0, 0.8);
-    color: #f1c40f; /* Midab dahab ah si uu u muuqdo */
-    padding: 8px 20px;
-    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.85);
+    color: #f1c40f;
+    padding: 6px 15px;
+    border-radius: 15px;
     border: 2px solid #f1c40f;
+    font-size: 13px;
     font-weight: bold;
-    min-width: 100px;
+    min-width: 80px;
     text-align: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
 /* Marka uu doorka qofka yahay (Active Glow) */
