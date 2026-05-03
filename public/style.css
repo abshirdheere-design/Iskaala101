@@ -443,14 +443,14 @@ body {
 
 /* ✅ TOP — bartanka sare */
 #player-top {
-    top: 40px;
+    top: 90px;
     left: 50%;
     transform: translateX(-50%);
 }
 
 /* ✅ BOTTOM — bartanka hoose */
 #player-bottom {
-    bottom: 90px;
+    bottom: 35px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 200;
