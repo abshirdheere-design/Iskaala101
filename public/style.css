@@ -443,14 +443,14 @@ body {
 
 /* 1. KAN SARE (Bruno) - Meeshiisa waa sax, wax yar uun soo deji */
 #player-top {
-    top: 60px; 
+    top: 100px; 
     left: 50%;
     transform: translateX(-50%);
 }
 
 /* 2. ADIGA (Bottom) - Kor u qaad si uu kaararka uga sareeyo */
 #player-bottom {
-    bottom: 220px; /* Haddii uu weli hoos ku jiro, ka dhig 240px */
+    bottom: 250px; /* Haddii uu weli hoos ku jiro, ka dhig 240px */
     left: 50%;
     transform: translateX(-50%);
 }
