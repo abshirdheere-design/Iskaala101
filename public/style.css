@@ -443,30 +443,32 @@ body {
 
 /* ✅ TOP — bartanka sare */
 #player-top {
-    top: 40px;
+    top: 90px;
     left: 50%;
     transform: translateX(-50%);
 }
 
 /* ✅ BOTTOM — bartanka hoose */
 #player-bottom {
-    bottom: 90px;
+    bottom: 40px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 90;
+    z-index: 200;
 }
 
 /* ✅ LEFT — dhinaca bidix (ma isticmaalo left:50%) */
-#player-left { 
-    top: 38% !important; 
-    margin-left: -44% !important; /* U durji bidixda */
+#player-left {
+    top: 35%;
+    left: 5%;
+    transform: translateY(-50%);
 }
 
-
 /* ✅ RIGHT — dhinaca midig (ma isticmaalo left:50%) */
-#player-right { 
-    top: 38% !important; 
-    margin-left: 44% !important;  /* U durji midigta */
+#player-right {
+    top: 35%;
+    right: 5%;
+    left: auto;
+    transform: translateY(-50%);
 }
 
 /* ================= NAME TAG ================= */
