@@ -453,22 +453,20 @@ body {
     bottom: 90px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 200;
+    z-index: 90;
 }
 
 /* ✅ LEFT — dhinaca bidix (ma isticmaalo left:50%) */
-#player-left {
-    top: 50%;
-    left: 5%;
-    transform: translateY(-50%);
+#player-left { 
+    top: 38% !important; 
+    margin-left: -44% !important; /* U durji bidixda */
 }
 
+
 /* ✅ RIGHT — dhinaca midig (ma isticmaalo left:50%) */
-#player-right {
-    top: 50%;
-    right: 5%;
-    left: auto;
-    transform: translateY(-50%);
+#player-right { 
+    top: 38% !important; 
+    margin-left: 44% !important;  /* U durji midigta */
 }
 
 /* ================= NAME TAG ================= */
