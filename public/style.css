@@ -438,48 +438,49 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    z-index: 1000; /* Inay mar walba ka korreeyaan wax kasta */
+    z-index: 1000;
 }
 
-/* 1. MAGACA SARE (Bruno) - Kor u qaad si uu miiska cagaaran geeskiisa u tago */
+/* 1. KAN SARE (Bruno) - Meeshiisa waa sax, wax yar uun soo deji */
 #player-top {
-    top: 50px;       /* Haddii uu weli dhexda u dhow yahay, ka dhig 30px */
+    top: 60px; 
     left: 50%;
     transform: translateX(-50%);
 }
 
-/* 2. MAGACAAGA (Adiga) - Kor u qaad si aanu kaararka u hoos gelin */
+/* 2. ADIGA (Bottom) - Kor u qaad si uu kaararka uga sareeyo */
 #player-bottom {
-    bottom: 180px;   /* Qiimahan kordhi haddii uu weli kaararka u dhow yahay */
+    bottom: 220px; /* Haddii uu weli hoos ku jiro, ka dhig 240px */
     left: 50%;
     transform: translateX(-50%);
 }
 
-/* 3. KAN BIDIX (Antonio) - Sidii uu ahaa waa ku fiican yahay */
+/* 3. KAN BIDIX (Antonio) - U dhowee geesta bidix ee shaashadda */
 #player-left {
-    top: 50%;
-    left: 30px;
+    top: 45%;
+    left: 5%; /* 5% waxay ka dhigaysaa inuu geesta bidix ku fariisto */
     transform: translateY(-50%);
 }
 
-/* 4. KAN MIDIG (Antonella) - Sidii uu ahaa waa ku fiican yahay */
+/* 4. KAN MIDIG (Antonella) - U dhowee geesta midig ee shaashadda */
 #player-right {
-    top: 50%;
-    right: 30px;
+    top: 45%;
+    right: 5%; /* 5% waxay ka dhigaysaa inuu geesta midig ku fariisto */
     transform: translateY(-50%);
 }
 
-/* Naqshadda Magacyada si ay u muuqdaan (Optional: Wax yar ka dhig yar si ay u qurxonaadaan) */
+/* Naqshadda Magacyada (Style-ka) */
 .player-name-tag {
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(20, 20, 20, 0.9);
     color: #f1c40f;
-    padding: 6px 15px;
-    border-radius: 15px;
+    padding: 8px 18px;
+    border-radius: 20px;
     border: 2px solid #f1c40f;
-    font-size: 13px;
     font-weight: bold;
-    min-width: 80px;
+    font-size: 14px;
+    min-width: 90px;
     text-align: center;
+    box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
 }
 
 /* Marka uu doorka qofka yahay (Active Glow) */
