@@ -450,21 +450,21 @@ body {
 
 /* 2. ADIGA (Bottom) - Kor u qaad si uu kaararka uga sareeyo */
 #player-bottom {
-    bottom: 290px; /* Haddii uu weli hoos ku jiro, ka dhig 240px */
+    bottom: 280px; /* Haddii uu weli hoos ku jiro, ka dhig 240px */
     left: 50%;
     transform: translateX(-50%);
 }
 
 /* 3. KAN BIDIX (Antonio) - U dhowee geesta bidix ee shaashadda */
 #player-left {
-    top: 15%;
+    top: 35%;
     left: 50%; /* 5% waxay ka dhigaysaa inuu geesta bidix ku fariisto */
     transform: translateY(-50%);
 }
 
 /* 4. KAN MIDIG (Antonella) - U dhowee geesta midig ee shaashadda */
 #player-right {
-    top: 15%;
+    top: 35%;
     right: 50%; /* 5% waxay ka dhigaysaa inuu geesta midig ku fariisto */
     transform: translateY(-50%);
 }
