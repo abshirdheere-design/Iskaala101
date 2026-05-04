@@ -449,16 +449,30 @@ body {
 
 /* Magaca hoose — wuxuu ku fadhiisanayaa geeska hoose ee miiska */
 #player-bottom {
-    bottom: 290px;
+    bottom: 280px;      /* Meesha uu miiska kaga jiro */
     left: 50%;
     transform: translateX(-50%);
+    position: absolute;
+    
+    /* Halkan waa furaha yareynta: */
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    width: 100px;        /* Ballaca sanduuqa yaree */
+    min-height: auto;    /* Ha siin dherer go'an si uusan u weynaan */
+    padding: 5px;
+    
+    /* Border-ka yaree ama ka saar si uusan u dhibin muuqaalka */
+    border: 1px solid rgba(0, 255, 0, 0.2); 
+    border-radius: 8px;
 }
 
 /* Magaca bidix — hadda wuxuu ku fadhiisanayaa geeska miiska, kama baxayo fog */
 #player-left {
-    top: 35%;
-    left: max(7.5%, calc(50% - 550px));
-    transform: translate(-50%, -50%);
+    top: 50%; /* Ka dhig 50% si uu dhexda u yimaado */
+    left: 80px; /* U soo dhowey miiska dhankiisa bidix */
+    position: absolute;
+    transform: translateY(-50%);
 }
 
 /* Magaca midig — hadda wuxuu ku fadhiisanayaa geeska miiska, kama baxayo fog */
@@ -767,11 +781,13 @@ body {
 .player-table-pos {
     position: relative; 
     display: flex;
+	background: transparent !important;
     flex-wrap: wrap;   
     gap: 5px;
+	border: none !important; /* Wax kasta oo border ah ka saar */
     justify-content: center;
     align-items: center;
-    min-height: 80px;  
+    min-height: 50px;  
     min-width: 100px;   
     margin-top: 10px;  
     z-index: 10;
