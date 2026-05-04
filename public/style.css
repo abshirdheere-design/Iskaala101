@@ -443,7 +443,7 @@ body {
 
 /* 1. KAN SARE (Bruno) - Meeshiisa waa sax, wax yar uun soo deji */
 #player-top {
-    top: 180px; 
+    top: 220px; 
     left: 50%;
     transform: translateX(-50%);
 }
@@ -457,14 +457,14 @@ body {
 
 /* 3. KAN BIDIX (Antonio) - U dhowee geesta bidix ee shaashadda */
 #player-left {
-    top: 45%;
+    top: 35%;
     left: 50%; /* 5% waxay ka dhigaysaa inuu geesta bidix ku fariisto */
     transform: translateY(-50%);
 }
 
 /* 4. KAN MIDIG (Antonella) - U dhowee geesta midig ee shaashadda */
 #player-right {
-    top: 45%;
+    top: 35%;
     right: 50%; /* 5% waxay ka dhigaysaa inuu geesta midig ku fariisto */
     transform: translateY(-50%);
 }
