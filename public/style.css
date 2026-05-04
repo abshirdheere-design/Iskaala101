@@ -267,16 +267,15 @@ body {
 }
 
 #table-area {
-    position: absolute;
-    top: 35% !important;   /* 👈 Hubi inuu la siman yahay miiska cagaaran (top: 35%) */
-    left: 50%;
-    width: 85%;            /* 👈 Ballaca uu kaararka ku dhex haynayo */
-    max-width: 1000px;
-    height: 50vh;          /* 👈 Dherer ku filan in kaararku vertical u fariistaan */
-    transform: translate(-50%, -50%);
-    z-index: 20;
-    pointer-events: none;  /* 👈 Muhiim: Si uusan u daboolin click-ka Deck-ga */
-    background: transparent !important;
+  top: 50%;        /* bartamaha miiska, ma aha 35% */
+  left: 50%;
+  width: 85%;
+  max-width: 1000px;
+  height: 45vh;    /* xoogaa ka yar miiska si geeska looga ilaaliyo */
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  pointer-events: none;
+  background: transparent !important;
 }
 
 
@@ -449,7 +448,7 @@ body {
 
 /* Magaca hoose — wuxuu ku fadhiisanayaa geeska hoose ee miiska */
 #player-bottom {
-    bottom: 290px;
+    bottom: 300px;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -469,8 +468,6 @@ body {
     transform: translate(50%, -50%);
 }
 
-
-/* Naqshadda Magacyada (Style-ka) */
 .player-name-tag {
     background: rgba(20, 20, 20, 0.9);
     color: #f1c40f;
@@ -765,16 +762,9 @@ body {
 
 /* ============ 15. PLAYER TABLE POSITIONS ============ */
 .player-table-pos {
-    position: relative; 
+    position: absolute;
     display: flex;
-    flex-wrap: wrap;   
-    gap: 5px;
-    justify-content: center;
-    align-items: center;
-    min-height: 80px;  
-    min-width: 100px;   
-    margin-top: 10px;  
-    z-index: 10;
+    gap: 10px;
 }
 
 /* Top & Bottom (Horizontal) */
