@@ -442,28 +442,28 @@ body {
 
 /* Magaca kore — wuxuu ku fadhiisanayaa geeska kore ee miiska */
 #player-top {
-    top: 55px;
+    top: 65px;
     left: 50%;
     transform: translateX(-50%);
 }
 
 /* Magaca hoose — wuxuu ku fadhiisanayaa geeska hoose ee miiska */
 #player-bottom {
-    bottom: 300px;
+    bottom: 280px;
     left: 50%;
     transform: translateX(-50%);
 }
 
 /* Magaca bidix — hadda wuxuu ku fadhiisanayaa geeska miiska, kama baxayo fog */
 #player-left {
-    top: 35%;
+    top: 40%;
     left: max(7.5%, calc(50% - 550px));
     transform: translate(-50%, -50%);
 }
 
 /* Magaca midig — hadda wuxuu ku fadhiisanayaa geeska miiska, kama baxayo fog */
 #player-right {
-    top: 35%;
+    top: 40%;
     right: max(7.5%, calc(50% - 550px));
     left: auto;
     transform: translate(50%, -50%);
