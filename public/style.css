@@ -449,30 +449,16 @@ body {
 
 /* Magaca hoose — wuxuu ku fadhiisanayaa geeska hoose ee miiska */
 #player-bottom {
-    bottom: 280px;      /* Meesha uu miiska kaga jiro */
+    bottom: 290px;
     left: 50%;
     transform: translateX(-50%);
-    position: absolute;
-    
-    /* Halkan waa furaha yareynta: */
-    display: flex;
-    flex-direction: column; 
-    align-items: center;
-    width: 100px;        /* Ballaca sanduuqa yaree */
-    min-height: auto;    /* Ha siin dherer go'an si uusan u weynaan */
-    padding: 5px;
-    
-    /* Border-ka yaree ama ka saar si uusan u dhibin muuqaalka */
-    border: 1px solid rgba(0, 255, 0, 0.2); 
-    border-radius: 8px;
 }
 
 /* Magaca bidix — hadda wuxuu ku fadhiisanayaa geeska miiska, kama baxayo fog */
 #player-left {
-    top: 50%; /* Ka dhig 50% si uu dhexda u yimaado */
-    left: 80px; /* U soo dhowey miiska dhankiisa bidix */
-    position: absolute;
-    transform: translateY(-50%);
+    top: 35%;
+    left: max(7.5%, calc(50% - 550px));
+    transform: translate(-50%, -50%);
 }
 
 /* Magaca midig — hadda wuxuu ku fadhiisanayaa geeska miiska, kama baxayo fog */
@@ -781,65 +767,80 @@ body {
 .player-table-pos {
     position: relative; 
     display: flex;
-	background: transparent !important;
     flex-wrap: wrap;   
     gap: 5px;
-	border: none !important; /* Wax kasta oo border ah ka saar */
     justify-content: center;
     align-items: center;
-    min-height: 50px;  
+    min-height: 80px;  
     min-width: 100px;   
     margin-top: 10px;  
     z-index: 10;
 }
 
-/* --- Top & Bottom (Horizontal) --- */
-#pos-top, #pos-bottom {
-    display: flex;
+/* Top & Bottom (Horizontal) */
+.pos-top, #pos-top {
+    top: 0; left: 50%;
+    transform: translateX(-50%);
     flex-direction: row;
     justify-content: center;
-    width: auto;
-    min-width: 200px;
+    width: 100%;
 }
 
+.pos-bottom, #pos-bottom {
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+}
+
+.pos-top .card-group img,
+.pos-bottom .card-group img,
 #pos-top .card-group img,
 #pos-bottom .card-group img {
     margin-left: -35px;
 }
 
+.pos-top .card-group img:first-child,
+.pos-bottom .card-group img:first-child,
 #pos-top .card-group img:first-child,
 #pos-bottom .card-group img:first-child {
     margin-left: 0;
 }
 
-/* --- Left & Right (Dhinacyada) --- */
+/* Left & Right (Vertical) */
+.pos-left, .pos-right,
 #pos-left, #pos-right {
-    position: absolute;
     display: flex;
-    flex-direction: row; /* Waxaan ka dhigay row si ay dhinac u baxaan */
+    flex-direction: column;
     align-items: center;
-    top: 50%;
-    transform: translateY(-50%);
-    width: max-content;
+    width: 100px;
+    height: 200px;
 }
 
-#pos-left { 
-    left: 115px; /* Masaafada Antonio */
+#pos-left  { left: 30px; }
+#pos-right { right: 30px; }
+
+.pos-left .card-group,
+.pos-right .card-group,
+#pos-left .card-group,
+#pos-right .card-group {
+    flex-direction: column;
+    margin-bottom: 15px;
 }
 
-#pos-right { 
-    right: 115px; /* Masaafada Antonella */
-    flex-direction: row-reverse;
-}
-
+.pos-left .card-group img,
+.pos-right .card-group img,
 #pos-left .card-group img,
 #pos-right .card-group img {
-    margin-left: -35px;
+    margin-top: -60px;
 }
 
+.pos-left .card-group img:first-child,
+.pos-right .card-group img:first-child,
 #pos-left .card-group img:first-child,
 #pos-right .card-group img:first-child {
-    margin-left: 0;
+    margin-top: 0;
 }
 
 /* ============ 16. DESKTOP LARGE SCREENS ============ */
