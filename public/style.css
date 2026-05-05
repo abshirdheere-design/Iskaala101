@@ -408,16 +408,23 @@ body {
 }
 
 .card-back {
-    width: 100px;
-    height: 140px;
-    background-image: url('/cards/back.png');
+    width: 60px;
+    height: 90px;
+    background-image: url('path/to/your/back-card-image.png'); /* Dhabarka kaarka */
     background-size: cover;
-    background-position: center;
-    border-radius: 8px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: absolute;
+    transition: all 0.5s ease-in-out; /* Xawaaraha socodka kaarka */
+    z-index: 100;
+}
+
+#dealing-zone {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 120px;
+    border: 1px dashed rgba(255,255,255,0.3); /* Booska dhigista */
 }
 
 #deck-indicator {
@@ -441,9 +448,10 @@ body {
 
 /* Magaca kore — wuxuu ku fadhiisanayaa geeska kore ee miiska */
 #player-top {
-    top: 55px;
+    top: 20px;   /* hadda 55px → 20px */
     left: 50%;
     transform: translateX(-50%);
+	z-index: 1500; /* magaca ha sare u taagnaado */
 }
 
 /* Magaca hoose — wuxuu ku fadhiisanayaa geeska hoose ee miiska */
@@ -456,19 +464,22 @@ body {
 /* Magaca bidix — hadda wuxuu ku fadhiisanayaa geeska miiska, kama baxayo fog */
 #player-left {
     top: 35%;
-    left: max(7.5%, calc(50% - 550px));
+    left: 80px;          /* gaar joogto ah, ma aha calc awal sidaan max(7.5%, calc(50% - 550px)); */
     transform: translate(-50%, -50%);
+	z-index: 1500;
 }
 
 /* Magaca midig — hadda wuxuu ku fadhiisanayaa geeska miiska, kama baxayo fog */
 #player-right {
     top: 35%;
-    right: max(7.5%, calc(50% - 550px));
+    right: 80px; /* awal sidaan max(7.5%, calc(50% - 550px)); */
     left: auto;
     transform: translate(50%, -50%);
+	z-index: 1500;
 }
 
 .player-name-tag {
+	position: relative; /* waa lagu daray si sare loogu qaado magaca */
     background: rgba(20, 20, 20, 0.9);
     color: #f1c40f;
     padding: 8px 18px;
@@ -726,7 +737,8 @@ body {
 
 .card-group {
     display: flex;
-    flex-direction: row;
+    flex-direction: row;      /* Kaararka ha isku xigaan */
+    justify-content: center;   /* Bartamaha ha isugu yimaadaan */
 }
 
 .card-group img {
@@ -767,28 +779,40 @@ body {
     gap: 10px;
 }
 
-/* Top & Bottom (Horizontal) */
+/* --- Top & Bottom (Horizontal) --- */
 .pos-top, #pos-top {
-    top: 0; left: 50%;
+    position: absolute;
+    top: 60px; /* Waxaan ka soo fogeynay magaca kore */
+    left: 50%;
     transform: translateX(-50%);
+    display: flex;
     flex-direction: row;
     justify-content: center;
-    width: 100%;
+    width: auto; /* Ha ka dhigin 100% si ay xogtu u urursanaato */
+    z-index: 10;
 }
 
 .pos-bottom, #pos-bottom {
-    bottom: 0; left: 50%;
+    position: absolute;
+    bottom: 85px; /* Kor uga soo qaad magacaaga hoose */
+    left: 50%;
     transform: translateX(-50%);
+    display: flex;
     flex-direction: row;
     justify-content: center;
-    width: 100%;
+    width: auto;
+    z-index: 10;
 }
 
+/* Isku-fuuqista kaararka (Overlap) ee Top/Bottom */
 .pos-top .card-group img,
 .pos-bottom .card-group img,
 #pos-top .card-group img,
 #pos-bottom .card-group img {
-    margin-left: -35px;
+    width: 70px;       /* Cabirka kaarka */
+    margin-left: -45px; /* Isku soo dhawayn si 14 xabo ay u degaan */
+    border-radius: 5px;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.3);
 }
 
 .pos-top .card-group img:first-child,
@@ -798,32 +822,36 @@ body {
     margin-left: 0;
 }
 
-/* Left & Right (Vertical) */
-.pos-left, .pos-right,
-#pos-left, #pos-right {
+/* --- Left & Right (Vertical) --- */
+.pos-left, #pos-left,
+.pos-right, #pos-right {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100px;
-    height: 200px;
+    width: 80px; 
+    z-index: 10;
 }
 
-#pos-left  { left: 30px; }
-#pos-right { right: 30px; }
+#pos-left  { 
+    left: 115px; /* Ka fogey magaca bidix ku yaal */
+} 
 
-.pos-left .card-group,
-.pos-right .card-group,
-#pos-left .card-group,
-#pos-right .card-group {
-    flex-direction: column;
-    margin-bottom: 15px;
+#pos-right { 
+    right: 115px; /* Ka fogey magaca midig ku yaal */
 }
 
+/* Isku-fuuqista kaararka (Overlap) ee Left/Right */
 .pos-left .card-group img,
 .pos-right .card-group img,
 #pos-left .card-group img,
 #pos-right .card-group img {
-    margin-top: -60px;
+    width: 70px;
+    margin-top: -65px; /* Kaararka kor iyo hoos isku riix */
+    border-radius: 5px;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.3);
 }
 
 .pos-left .card-group img:first-child,

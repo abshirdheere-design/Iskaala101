@@ -20,6 +20,52 @@ const pointValues = {
     'j': 10, 'q': 10, 'k': 10, 'a': 11 
 };
 
+async function bilowQaybintaIskala() {
+    const players = ['bottom', 'left', 'top', 'right']; // Boosaska ciyaartoyda ee tusaale_7.jpg
+    const totalCards = 14;
+    const batchSize = 2; // Waxaad ka dhigi kartaa 2 ama 3 markiiba
+    const dealingZone = document.getElementById('dealing-zone');
+
+    for (let i = 0; i < totalCards; i += batchSize) {
+        for (let player of players) {
+            // 1. Samee kaararka oo dhig Booska Dhigista (Center)
+            let tempCards = [];
+            for (let b = 0; b < batchSize; b++) {
+                let card = document.createElement('div');
+                card.className = 'card-back';
+                dealingZone.appendChild(card);
+                tempCards.push(card);
+            }
+
+            // 2. Sug ilbiriqsi si loo arko in kaarku bartamaha yaallo
+            await new Promise(r => setTimeout(r, 400));
+
+            // 3. Kaararka u rar dhanka ciyaaryahanka
+            tempCards.forEach((card, index) => {
+                const playerPos = document.querySelector(`.player-${player}`).getBoundingClientRect();
+                const centerPos = dealingZone.getBoundingClientRect();
+                
+                let moveX = playerPos.left - centerPos.left;
+                let moveY = playerPos.top - centerPos.top;
+
+                card.style.transform = `translate(${moveX}px, ${moveY}px) scale(0.5)`;
+                card.style.opacity = "0"; // Kaarku wuxuu ku milmayaa gacanta ciyaaryahanka
+            });
+
+            // 4. Nadiifi booska dhigista ka hor intaan qofka xiga la siin
+            await new Promise(r => setTimeout(r, 500));
+            tempCards.forEach(c => c.remove());
+            
+            // Cusboonaysii tirada kaarka u muuqata qofka (Counter)
+            updatePlayerCardCount(player, batchSize);
+        }
+    }
+    
+    // Markay dhamaato, banay booska dhigista si loogu ciyaaro
+    dealingZone.style.display = 'none';
+    console.log("Qaybintii 14-ka xabo waa dhamaatay.");
+}
+
 // Hubinta xeerka 101 iyo in ugu yaraan hal koox ay tahay 4+ kaar
 function karaaInuuDego(sets) {
     const hasFourOrMore = sets.some(set => set.length >= 4);
@@ -33,29 +79,42 @@ function renderMyHand() {
     area.innerHTML = ""; 
 
     myHand.forEach((card, index) => {
+        // 1. Khariidadda calaamadaha (Suit Map)
+        const suitMap = { '♠': 's', '♥': 'h', '♦': 'd', '♣': 'c' };
+        const suitLetter = suitMap[card.suit];
+
+        // 2. 🔥 SAXITAANKA: Hubi haddii xogta kaarku ay dhiman tahay
+        // Tani waxay joojinaysaa ciladda cards/undefineds.svg (404)
+        if (!suitLetter || !card.value) {
+            console.error("Card khaldan (Undefined data):", card);
+            return; // Ha render-in kaarkan si uusan 404 u dhicin
+        }
+
+        // 3. SameyntafileName-ka saxda ah
+        const val = String(card.value).toLowerCase();
+        const fileName = `${val}${suitLetter}.svg`;
+
         const cardDiv = document.createElement("div");
         cardDiv.className = `card ${card.selected ? 'selected' : ''}`;
         cardDiv.dataset.index = index;
         cardDiv.draggable = true;
-
-        const suitMap = { '♠': 's', '♥': 'h', '♦': 'd', '♣': 'c' };
-        const suitLetter = suitMap[card.suit] || 's';
-
-        const val = String(card.value).toLowerCase();
-        const fileName = `${val}${suitLetter}.svg`;
 
         cardDiv.innerHTML = `
             <img src="/cards/${fileName}" 
                  style="width: 100%; height: 100%; pointer-events: none; border-radius: 5px;">
         `;
 
+        // 4. Dhacdooyinka (Events)
         cardDiv.onclick = () => {
             card.selected = !card.selected;
             renderMyHand();
             if (typeof calculateTemporaryScore === "function") calculateTemporaryScore();
         };
 
-        cardDiv.addEventListener("dragstart", (e) => { dragStartIndex = index; e.target.style.opacity = "0.5"; });
+        cardDiv.addEventListener("dragstart", (e) => { 
+            dragStartIndex = index; 
+            e.target.style.opacity = "0.5"; 
+        });
         cardDiv.addEventListener("dragover", (e) => e.preventDefault());
         cardDiv.addEventListener("drop", handleDrop);
 
