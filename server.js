@@ -242,9 +242,9 @@ socket.on("forceEndTurn", () => {
             return;
         }
 
-        refillStockIfEmpty(socket.roomId); 
+        if (typeof refillStockIfEmpty === "function") refillStockIfEmpty(socket.roomId); 
 
-        if (room.stockPile.length > 0) {
+        if (room.stockPile && room.stockPile.length > 0) {
             const card = room.stockPile.pop();
             p.hand.push(card);
             p.hasActioned = true;
@@ -260,37 +260,33 @@ socket.on("forceEndTurn", () => {
     const room = rooms[socket.roomId];
     if (!room || !room.gameStarted) return;
 
-    // 1. Hubi inuu yahay markii qofkan (Turn Security)
-    if (room.players[room.activePlayerIndex].id !== socket.id) {
-        console.log("Cilad: Qof aan markuusu ahayn ayaa isku dayey inuu kaar qaato.");
-        return;
-    }
+    // Hubi turn-ka
+    if (room.players[room.activePlayerIndex].id !== socket.id) return;
 
     const player = room.players[room.activePlayerIndex];
 
-    // 2. Hubi inuusan horay wax u soo qaadan (Double Action Prevention)
-    if (player.hasActioned) {
-        console.log("Cilad: Qofka mar hore ayuu wax soo qaatay.");
-        return;
-    }
+    // Hubi haddii uu hore wax u soo qaatay
+    if (player.hasActioned) return;
 
-    // 3. Hubi in Pile-ka wax yaallaan
-    if (room.discardPile.length > 0) {
+    if (room.discardPile && room.discardPile.length > 0) {
         const pickedCard = room.discardPile.pop();
         player.hand.push(pickedCard);
 
-        // --- CALAAMADAYNTA FICILKA ---
-        player.hasActioned = true;        // Hadda wax buu soo qaatay, mar kale ma qaadan karo
-        player.pickedFromDiscard = true; // Waxaan calaamadaynay inuu discard ka qaatay
+        player.hasActioned = true;
+        player.pickedFromDiscard = true;
 
-        // 4. U sheeg Client-ka
+        // Farriimaha
         socket.emit("discardPickedSuccess", { card: pickedCard });
         socket.emit("updateHand", { hand: player.hand });
 
-        // 5. U sheeg dadka kale in kaarkii meesha yaallay la qaatay
-        broadcastTableUI(socket.roomId);
+        // Cusboonaysii dadka kale
+        if (typeof broadcastTableUI === "function") {
+            broadcastTableUI(socket.roomId);
+        } else {
+            io.to(socket.roomId).emit("updateDiscardPile", room.discardPile.at(-1));
+        }
     }
-});
+}); 
 
     socket.on("playCard", (card) => {
     const room = rooms[socket.roomId];
