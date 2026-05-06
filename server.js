@@ -67,50 +67,35 @@ function prepareGame(playerCount) {
 }
 
 
-function nextTurn(roomId) {
+function nextTurn(roomId, forceNext = false) {
     const room = rooms[roomId];
-    if (!room) return;
+    if (!room || !room.gameStarted) return;
 
-    // Jooji saacaddii hore
-    if (room.turnTimeout) clearTimeout(room.turnTimeout);
+    // 1. JOOJI TIMER-KASTA OO HORE U JIRAY (Muhiim)
+    if (room.turnTimeout) {
+        clearTimeout(room.turnTimeout);
+        room.turnTimeout = null; // Nadiifi variable-ka
+    }
 
-    // Wareeji doorka
-    room.activePlayerIndex = (room.activePlayerIndex + 1) % room.players.length;
-    room.turnStartTime = Date.now(); 
+    if (forceNext) {
+        room.activePlayerIndex = (room.activePlayerIndex + 1) % room.players.length;
+    }
+
+    // ... (logic-ga boodista dadka offline-ka ah) ...
 
     const currentPlayer = room.players[room.activePlayerIndex];
-    
-    // Dib u deji xaaladda qofka cusub
-    currentPlayer.hasActioned = false;
-    currentPlayer.pickedFromDiscard = false;
 
-    // U sheeg qof kasta in turn-ka la beddelay
-    updateRoomPlayers(roomId);
-
-    // ROBOT: Haddii qofku seexdo (35 ilbiriqsi)
+    // 2. BILAABO TIMER CUSUB
     room.turnTimeout = setTimeout(() => {
-        if (!room.gameStarted) return;
-        
-        console.log(`ROBOT: ${currentPlayer.name} waa laga daahay.`);
-
-        // Auto-Draw haddii uusan waxba qaadan
-        if (!currentPlayer.hasActioned && room.stockPile.length > 0) {
-            const card = room.stockPile.pop();
-            currentPlayer.hand.push(card);
-            currentPlayer.hasActioned = true;
-            io.to(currentPlayer.id).emit("receiveCard", card);
+        if (rooms[roomId] && rooms[roomId].gameStarted) {
+            console.log(`[AUTO-SKIP] Waqtigu waa ka dhamaaday: ${currentPlayer.name}`);
+            nextTurn(roomId, true);
         }
+    }, 30000);
 
-        // Auto-Discard (Mid tuur si ciyaartu u socoto)
-        if (currentPlayer.hand.length > 0) {
-            const cardToDiscard = currentPlayer.hand.pop();
-            room.discardPile.push(cardToDiscard);
-            io.to(roomId).emit("updateDiscardPile", cardToDiscard);
-            io.to(currentPlayer.id).emit("startHand", currentPlayer.hand);
-        }
-
-        nextTurn(roomId); // U gudbi qofka xiga
-    }, 35000);
+    // 3. Emit xogta
+    io.to(roomId).emit("turnUpdate", { currentPlayerId: currentPlayer.id });
+    io.to(currentPlayer.id).emit("yourTurn");
 }
 
 io.on("connection", (socket) => {
@@ -206,6 +191,43 @@ io.on("connection", (socket) => {
         }
     }); // ✅ JOINRANDOM HALKAN AYUU KU XIDHMAY (BANAANKA AYAY KA NOQONAYAAN KUWA KALE)
 
+socket.on("updatePenaltyScore", (data) => {
+    const { playerId, points } = data;
+
+    // 1. Hel qolka uu hadda ciyaaryahanku ku jiro
+    const room = rooms[socket.roomId];
+
+    // 2. Hubi in qolku jiro, ka dibna raadi ciyaaryahanka (Safe Navigation ?. ayaa loo baahan yahay)
+    let player = room?.players.find(p => p.id === playerId);
+    
+    if (player) {
+        // 3. Ku dar 101 dhibcood (Penalty)
+        player.points = (player.points || 0) + points;
+        
+        console.log(`[FOORO] ${player.name} dhibcihiisa waxaa lagu daray ${points}.`);
+
+        // 4. U sheeg dhammaan dadka qolkaas ku jira in dhibcihii isbeddeleen
+        io.to(socket.roomId).emit("scoreUpdated", { 
+            playerId: player.id, 
+            newTotal: player.points 
+        });
+    } else {
+        console.log("Error: Ciyaaryahan lama helin markii foorada la xisaabinayay.");
+    }
+});
+
+socket.on("forceEndTurn", () => {
+    const room = rooms[socket.roomId];
+    if (!room) return;
+
+    // Hubi in qofka codsaday uu yahay qofka doorka leh
+    if (room.players[room.activePlayerIndex].id !== socket.id) return;
+
+    console.log(`[TURN] ${socket.id} ayaa doortay inuu turn-ka dhameeyo.`);
+    
+    // Mar haddii nextTurn la waco, timer-kii hore waa la tirtirayaa
+    nextTurn(socket.roomId, true);
+});
     /* ----------------------------------
        2. ACTIONS (DRAW / PICK / PLAY)
     ---------------------------------- */
@@ -235,73 +257,107 @@ io.on("connection", (socket) => {
     });
 
     socket.on("pickDiscard", () => {
-        const room = rooms[socket.roomId];
-        if (!room || !room.gameStarted) return;
-        const p = room.players[room.activePlayerIndex];
-        if (p.id !== socket.id || p.hasActioned) return;
-        if (room.discardPile.length === 0) return;
-        
-        const card = room.discardPile.pop();
-        p.hand.push(card);
-        p.hasActioned = true;
-        p.pickedFromDiscard = true;
-        
-        socket.emit("discardPickedSuccess", card);
-        io.to(socket.roomId).emit("updateDiscardPile", room.discardPile.at(-1) || null);
-        updateRoomPlayers(socket.roomId);
-    });
+    const room = rooms[socket.roomId];
+    if (!room || !room.gameStarted) return;
+
+    // 1. Hubi inuu yahay markii qofkan (Turn Security)
+    if (room.players[room.activePlayerIndex].id !== socket.id) {
+        console.log("Cilad: Qof aan markuusu ahayn ayaa isku dayey inuu kaar qaato.");
+        return;
+    }
+
+    const player = room.players[room.activePlayerIndex];
+
+    // 2. Hubi inuusan horay wax u soo qaadan (Double Action Prevention)
+    if (player.hasActioned) {
+        console.log("Cilad: Qofka mar hore ayuu wax soo qaatay.");
+        return;
+    }
+
+    // 3. Hubi in Pile-ka wax yaallaan
+    if (room.discardPile.length > 0) {
+        const pickedCard = room.discardPile.pop();
+        player.hand.push(pickedCard);
+
+        // --- CALAAMADAYNTA FICILKA ---
+        player.hasActioned = true;        // Hadda wax buu soo qaatay, mar kale ma qaadan karo
+        player.pickedFromDiscard = true; // Waxaan calaamadaynay inuu discard ka qaatay
+
+        // 4. U sheeg Client-ka
+        socket.emit("discardPickedSuccess", { card: pickedCard });
+        socket.emit("updateHand", { hand: player.hand });
+
+        // 5. U sheeg dadka kale in kaarkii meesha yaallay la qaatay
+        broadcastTableUI(socket.roomId);
+    }
+});
 
     socket.on("playCard", (card) => {
-        const room = rooms[socket.roomId];
-        if (!room || !room.gameStarted) return;
+    const room = rooms[socket.roomId];
+    if (!room || !room.gameStarted) return;
+    
+    const p = room.players[room.activePlayerIndex];
+    if (p.id !== socket.id) return;
+
+    const cardIndex = p.hand.findIndex(c => c.id === card.id);
+    if (cardIndex === -1) return;
+
+    // 1. Ka saar kaarka gacanta
+    p.hand.splice(cardIndex, 1);
+    room.discardPile.push(card);
+    
+    // 2. U sheeg qof kasta in discard pile-ku isbeddelay
+    io.to(socket.roomId).emit("updateDiscardPile", card);
+    
+    // 3. Cusboonaysii gacanta qofka tuuray kaarka (si uu u arko inuu ka go'ay)
+    socket.emit("updateHand", { hand: p.hand });
+
+    if (p.hand.length === 0) {
+        // CIYAARTU WAA DHAMMAADAY
+        const results = room.players.map(pl => ({ 
+            name: pl.name, 
+            points: calculateHandPoints(pl.hand) 
+        }));
         
-        const p = room.players[room.activePlayerIndex];
-        if (p.id !== socket.id) return;
-
-        const cardIndex = p.hand.findIndex(c => c.id === card.id);
-        if (cardIndex === -1) return;
-
-        p.hand.splice(cardIndex, 1);
-        room.discardPile.push(card);
-        io.to(socket.roomId).emit("updateDiscardPile", card);
-        
-        p.hasActioned = false;
-        p.pickedFromDiscard = false;
-
-        if (p.hand.length === 0) {
-            const results = room.players.map(pl => ({ name: pl.name, points: calculateHandPoints(pl.hand) }));
-            io.to(socket.roomId).emit("gameOver", { winnerName: p.name, allResults: results });
-            room.gameStarted = false;
-            if(room.turnTimeout) clearTimeout(room.turnTimeout);
-        } else {
-            socket.emit("startHand", p.hand); 
-            if (typeof nextTurn === "function") nextTurn(socket.roomId);
-            else moveToNextPlayer(socket.roomId);
-        }
-    });
+        io.to(socket.roomId).emit("gameOver", { winnerName: p.name, allResults: results });
+        room.gameStarted = false;
+        if(room.turnTimeout) clearTimeout(room.turnTimeout);
+    } else {
+        // CIYAARTU WAY SOCOTAA - U GUDUB QOFKA XIGA
+        // SAXITAANKA: true ayaa lagu daray halkan
+        nextTurn(socket.roomId, true); 
+    }
+});
 
     /* ----------------------------------
        3. MELDING & SYNC
     ---------------------------------- */
     socket.on("meldSets", (sets) => {
-        const room = rooms[socket.roomId];
-        if (!room || !room.gameStarted) return;
-        const p = room.players.find(player => player.id === socket.id);
-        if (!p) return;
+    const room = rooms[socket.roomId];
+    if (!room || !room.gameStarted) return;
+    const p = room.players.find(player => player.id === socket.id);
+    if (!p) return;
 
-        let cardsToRemoveIds = [];
-        sets.forEach(set => {
-            set.forEach(card => cardsToRemoveIds.push(card.id));
-        });
-
-        p.hand = p.hand.filter(card => !cardsToRemoveIds.includes(card.id));
-        p.isOpened = true;
-        p.openedSets.push(...sets);
-
-        socket.emit("startHand", p.hand); 
-        broadcastTableUI(socket.roomId);
-        updateRoomPlayers(socket.roomId);
+    let cardsToRemoveIds = [];
+    sets.forEach(set => {
+        set.forEach(card => cardsToRemoveIds.push(card.id));
     });
+
+    p.hand = p.hand.filter(card => !cardsToRemoveIds.includes(card.id));
+    p.isOpened = true;
+    p.openedSets.push(...sets);
+
+    // --- ISBEDDELKA HALKAN KA BILOW ---
+    
+    // 1. Beddel "startHand" una beddel "updateHand"
+    // 2. Kaarka u dir sidii Object: { hand: p.hand }
+    socket.emit("updateHand", { hand: p.hand }); 
+
+    // --- ISBEDDELKA HALKAN KU DHAMMAADAY ---
+
+    broadcastTableUI(socket.roomId);
+    updateRoomPlayers(socket.roomId);
+});
 
     socket.on("resetMyOpenedCards", () => {
         const room = rooms[socket.roomId]; 
@@ -362,34 +418,47 @@ io.on("connection", (socket) => {
        5. DISCONNECT
     ---------------------------------- */
     socket.on("disconnect", () => {
-        onlineUsers--;
-        io.emit("updateOnlineCount", onlineUsers);
+    onlineUsers--;
+    io.emit("updateOnlineCount", onlineUsers);
 
-        const room = rooms[socket.roomId];
-        if (!room) return;
+    const room = rooms[socket.roomId];
+    if (!room) return;
 
-        const player = room.players.find(p => p.id === socket.id);
-        if (!player) return;
+    const playerIndex = room.players.findIndex(p => p.id === socket.id);
+    if (playerIndex === -1) return;
 
-        if (!room.gameStarted) {
-            room.players = room.players.filter(p => p.id !== socket.id);
-        } else {
-            player.online = false;
-            const currentPlayer = room.players[room.activePlayerIndex];
-            if (currentPlayer && currentPlayer.id === socket.id) {
-                if (room.turnTimeout) clearTimeout(room.turnTimeout);
-                moveToNextPlayer(socket.roomId);
-            }
-        }
+    const player = room.players[playerIndex];
 
-        const onlineCount = room.players.filter(p => p.online).length;
-        if (onlineCount === 0) {
+    if (!room.gameStarted) {
+        // Haddii ciyaartu aysan bilaaban, qofka gabi ahaanba ka saar qolka
+        room.players = room.players.filter(p => p.id !== socket.id);
+    } else {
+        // Haddii ciyaartu socoto, ha saarin (si uu dhibcihiisa u garto hadduu dib u soo galo)
+        player.online = false;
+
+        // --- QAYBTA MUHIIMKA AH ---
+        // Haddii qofka baxay uu ahaa qofka markuusu hadda taagnaa
+        if (room.activePlayerIndex === playerIndex) {
+            console.log(`[DISCONNECT] ${player.name} baa baxay isagoo markuusu lahaa.`);
+            
+            // 1. Jooji timer-ka hadda socda
             if (room.turnTimeout) clearTimeout(room.turnTimeout);
-            delete rooms[socket.roomId];
-        } else {
-            updateRoomPlayers(socket.roomId);
+            
+            // 2. U gudbi qofka xiga (nextTurn oo leh 'forceNext = true')
+            // Xusuusnow: haddii aad haysato moveToNextPlayer, hubi inay u wacdo nextTurn si sax ah
+            nextTurn(socket.roomId, true); 
         }
-    });
+    }
+
+    // Haddii qolka uu cidlo noqdo, tirtir
+    const onlineCount = room.players.filter(p => p.online).length;
+    if (onlineCount === 0) {
+        if (room.turnTimeout) clearTimeout(room.turnTimeout);
+        delete rooms[socket.roomId];
+        console.log(`[ROOM] Qolka ${socket.roomId} waa la tirtiray waayo qofna kuma harin.`);
+    } else {
+        updateRoomPlayers(socket.roomId);
+    }
 });
 
 /* ----------------------------------
@@ -414,13 +483,13 @@ function moveToNextPlayer(roomId) {
     }
 
     io.to(roomId).emit("matchFound", {
-        roomId: roomId,
-        topDiscard: room.discardPile.at(-1),
-        currentTurn: nextP.id
-    });
-
-    updateRoomPlayers(roomId);
-}
+    roomId: roomId,
+    // Hubi in discardPile uusan madhnayn
+    topDiscard: room.discardPile.length > 0 ? room.discardPile.at(-1) : null,
+    currentTurn: room.players[room.activePlayerIndex].id,
+    // Sidoo kale u dir liiska ciyaartoyda si UI-ga loogu qoro magacyada kuwa kale
+    players: room.players.map(p => ({ id: p.id, name: p.name, online: p.online }))
+});
 
 function updateRoomPlayers(roomId) {
     const room = rooms[roomId];
@@ -464,28 +533,34 @@ function updateRoomPlayers(roomId) {
 }
 
 // 2. Sax isValidSet (Inuu aqoonsado J, Q, K, A)
+/* --- KAN KELIYA EE HARAYA (KII HORE) --- */
 function isValidSet(set) {
-    if (!set || set.length < 3) return false;
+    if (set.length < 3) return false;
 
-    const valueMap = { '6':6, '7':7, '8':8, '9':9, '10':10, 'J':11, 'Q':12, 'K':13, 'A':14 };
-    // Hubi in kaararku ay leeyihiin values sax ah
-    const sortedSet = [...set].sort((a, b) => valueMap[a.value] - valueMap[b.value]);
-    
-    const isSameSuit = sortedSet.every(c => c.suit === sortedSet[0].suit);
-    const isSameValue = sortedSet.every(c => c.value === sortedSet[0].value);
+    // 1. Ma yihiin isku Lambar (Suits kala duwan)? - Tusaale: 7♥, 7♦, 7♠
+    const allSameValue = set.every(c => c.value === set[0].value);
+    if (allSameValue) {
+        const suits = set.map(c => c.suit);
+        return new Set(suits).size === suits.length; // Suits waa inay kala duwanaadaan
+    }
 
-    // Run Logic (e.g., 7♦, 8♦, 9♦)
-    if (isSameSuit) {
-        for (let i = 0; i < sortedSet.length - 1; i++) {
-            if (valueMap[sortedSet[i+1].value] !== valueMap[sortedSet[i].value] + 1) return false;
+    // 2. Ma yihiin Isku xigta (Isku Suit)? - Tusaale: 4♣, 5♣, 6♣
+    const allSameSuit = set.every(c => c.suit === set[0].suit);
+    if (allSameSuit) {
+        const values = set.map(c => {
+            if (c.value === 'A') return 14; // Ace waa sare
+            if (c.value === 'K') return 13;
+            if (c.value === 'Q') return 12;
+            if (c.value === 'J') return 11;
+            return parseInt(c.value);
+        }).sort((a, b) => a - b);
+
+        for (let i = 0; i < values.length - 1; i++) {
+            if (values[i + 1] !== values[i] + 1) return false;
         }
         return true;
     }
-    // Group Logic (e.g., 7♦, 7♥, 7♠) - Suits kala duwan
-    if (isSameValue) {
-        const suits = sortedSet.map(c => c.suit);
-        return new Set(suits).size === sortedSet.length;
-    }
+
     return false;
 }
 
@@ -533,56 +608,25 @@ function startTurnTimer(roomId) {
     }, 35000); // 35 ilbiriqsi
 }
 
-function isValidSet(set) {
-    if (!set || set.length < 3) return false;
-
-    // Sifee xogta: kaararka u habee sida ay u kala horreeyaan (1, 2, 3...)
-    const sortedSet = [...set].sort((a, b) => a.value - b.value);
-    
-    const isSameColor = sortedSet.every(c => c.color === sortedSet[0].color);
-    const isSameValue = sortedSet.every(c => c.value === sortedSet[0].value);
-
-    // 1. Sharciga "Run" (Sida: 6, 7, 8 oo isku midab ah)
-    if (isSameColor) {
-        for (let i = 0; i < sortedSet.length - 1; i++) {
-            if (sortedSet[i + 1].value !== sortedSet[i].value + 1) {
-                return false; // Haddii ay kala go'an yihiin (e.g. 6, 7, 9)
-            }
-        }
-        return true;
-    }
-
-    // 2. Sharciga "Group" (Sida: 7-Casaan, 7-Madow, 7-Buluug)
-    if (isSameValue) {
-        // Hubi in midabyadu ay kala duwan yihiin (uusan jirin laba madow ah)
-        const colors = sortedSet.map(c => c.color);
-        const uniqueColors = new Set(colors);
-        return uniqueColors.size === sortedSet.length;
-    }
-
-    return false; // Haddii uusan midna ahayn
-}
-
 function refillStockIfEmpty(roomId) {
     const room = rooms[roomId];
-    if (!room) return;
-
-    // Haddii kaararkii la dhuubanayay ay dhammaadeen (ama hal kaar u haray)
-    if (room.stockPile.length <= 0) {
-        console.log(`REFILL: QAADASHADII waa dhammaatay qolka ${roomId}. Dib u soo celinaya turubka badda lagu tuuray...`);
-
-        // 1. Keydi kaarka ugu dambeeyay ee yaalla discardPile (si uusan u lumin)
+    if (room.stock.length === 0 && room.discardPile.length > 1) {
+        // 1. Badbaadi kaarka ugu sareeya ee hadda la tuuray
         const topDiscard = room.discardPile.pop();
 
-        // 2. Inta kale ee discardPile-ka ah u rar stockPile
-        room.stockPile = shuffle([...room.discardPile]);
+        // 2. Inta kale ee haray ku celi Stock-ka
+        room.stock = room.discardPile;
+        
+        // 3. Baandhey (Shuffle) stock-ka cusub
+        shuffle(room.stock);
 
-        // 3. Faaruqi discardPile-kii hore, kuna reeb kaliya kaarkii ugu dambeeyay
+        // 4. Kaarkii top-ka ahaa dib ugu soo celi discardPile-ka
         room.discardPile = [topDiscard];
 
-        // 4. U sheeg qof kasta tirada cusub ee kaararka
-        io.to(roomId).emit("notification", "Waa la baandheeyay.");
-        updateRoomPlayers(roomId);
+        console.log(`[STOCK] Stock-kii waa dhammaaday. ${room.stock.length} kaar ayaa dib loogu celiyay.`);
+        
+        // U sheeg dhammaan ciyaartoyda in miisku isbeddelay
+        broadcastTableUI(roomId);
     }
 }
 
@@ -598,6 +642,51 @@ function broadcastTableUI(roomId) {
         })),
         nextRequiredPoints: room.lastOpenPoints // Halkan hadda waa sax (101)
     });
+}
+
+function dealCards(roomId) {
+    const room = rooms[roomId];
+    if (!room) return;
+
+    // 1. Qas kaararka adigoo isticmaalaya function-kaaga shuffle
+    shuffle(room.stock); 
+
+    // 2. Gacmaha u qaybi ciyaartoyda (14 kaar qof kasta)
+    room.players.forEach((player, index) => {
+        player.hand = []; 
+        for (let i = 0; i < 14; i++) {
+            if (room.stock.length > 0) {
+                player.hand.push(room.stock.pop());
+            }
+        }
+
+        // 3. SAXITAANKA: Player #0 sii kaarka 15-aad oo xir hasActioned
+        if (index === 0) {
+            if (room.stock.length > 0) {
+                player.hand.push(room.stock.pop());
+            }
+            player.hasActioned = true; //
+        } else {
+            player.hasActioned = false; 
+        }
+    });
+
+    // 4. Bilaabo Discard Pile-ka (Kaarka kowaad ee miiska)
+    room.discardPile = [room.stock.pop()];
+
+    // 5. U dir xogta qof kasta (Individual Hand Update)
+    room.players.forEach(p => {
+        io.to(p.id).emit("updateHand", { hand: p.hand });
+    });
+
+    // 6. U sheeg qolka in ciyaartu bilaabatay
+    io.to(roomId).emit("matchFound", {
+        players: room.players.map(p => ({ id: p.id, name: p.name })),
+        discardTop: room.discardPile[room.discardPile.length - 1]
+    });
+
+    room.gameStarted = true;
+    nextTurn(roomId, false); //
 }
 
 const PORT = process.env.PORT || 3000;

@@ -66,6 +66,166 @@ async function bilowQaybintaIskala() {
     console.log("Qaybintii 14-ka xabo waa dhamaatay.");
 }
 
+/* --- XEERKA FOORADA (DYNAMIC VERSION) --- */
+function applyFooroLogic(winnerId, providerId, allPlayers) {
+    let totalPlayers = allPlayers.length;
+    // Hel booska qofka kaarka bixiyay (provider)
+    let providerIndex = allPlayers.findIndex(p => p.id === providerId);
+
+    // 1. XEERKA GAMBASHADA: 
+    // Ka bilow qofka kaarka bixiyay, u gudbi midka ku xiga ilaa laga helo qof aan degganayn.
+    for (let i = 0; i < totalPlayers; i++) {
+        let currentIndex = (providerIndex + i) % totalPlayers;
+        let currentPlayer = allPlayers[currentIndex];
+
+        // Qofka guulaystay foorada ma qaadi karo
+        if (currentPlayer.id === winnerId) continue;
+
+        // Haddii qofkani uusan weli degganayn (isOpened/hasOpened)
+        if (!currentPlayer.isOpened && !currentPlayer.iHaveOpened) {
+            console.log(`DHAGAX: ${currentPlayer.name} ma degganayn, fooradii baa ku dhacday!`);
+            return currentPlayer; // Qofka foorada qaadaya
+        }
+        console.log(`GAMBASHO: ${currentPlayer.name} wuu degganaa, dhagaxii wuu dusha maray...`);
+    }
+
+    // 2. XEERKA DHIBCAHA UGU BADAN:
+    // Haddii dhammaan la wada deggan yahay, qofka dhibcaha ugu badan gacanta ku haysta ayaa qaadaya.
+    let maxPoints = -1;
+    let targetPlayer = null;
+
+    allPlayers.forEach(player => {
+        if (player.id === winnerId) return; // Qofka guulaystay looma xisaabinayo
+
+        let handPoints = calculateHandPoints(player.hand || []);
+        if (handPoints > maxPoints) {
+            maxPoints = handPoints;
+            targetPlayer = player;
+        }
+    });
+
+    return targetPlayer;
+}
+
+function calculateHandPoints(hand) {
+    if (!hand || hand.length === 0) return 0;
+    
+    return hand.reduce((total, card) => {
+        const val = String(card.value).toLowerCase();
+        if (val === 'a') return total + 11;
+        if (['k', 'q', 'j', '10'].includes(val)) return total + 10;
+        return total + (parseInt(val) || 0);
+    }, 0);
+}
+
+/ 1. Shaqada maamulaysa cidda foorada dusha loo saarayo
+function calculateFooroTarget(winnerId, providerId, allPlayers) {
+    // allPlayers waa liiska ciyaartoyda miiska fadhida (Array)
+    let totalPlayers = allPlayers.length;
+    let providerIndex = allPlayers.findIndex(p => p.id === providerId);
+
+    // --- XEERKA GAMBASHADA ---
+    // Waxaan ka bilaabaynaa qofka kaarka bixiyay, waxaan u wareegaynaa midka xiga
+    for (let i = 0; i < totalPlayers; i++) {
+        let currentIndex = (providerIndex + i) % totalPlayers;
+        let currentPlayer = allPlayers[currentIndex];
+
+        // Haddii uu qofkani weli degganayn (Not Opened)
+        if (currentPlayer.points < 101 && !currentPlayer.hasOpened) {
+            console.log(`${currentPlayer.name} ma degganayn, dhagaxii baa ku dhacay!`);
+            return currentPlayer.id; // Qofkan ayaa foorada qaadaya
+        }
+        
+        console.log(`${currentPlayer.name} wuu degganaa, wuu ka gambaday dhagaxa...`);
+    }
+
+    // --- XEERKA DHIBCAHA UGU BADAN ---
+    // Haddii la wada deggan yahay, qofka dhibcaha ugu badan gacanta ku haysta ayaa qaadaya
+    let maxPoints = -1;
+    let fooroTargetId = null;
+
+    allPlayers.forEach(player => {
+        let handValue = calculateHandValue(player.hand);
+        if (handValue > maxPoints) {
+            maxPoints = handValue;
+            fooroTargetId = player.id;
+        }
+    });
+
+    return fooroTargetId;
+}
+
+// 2. Shaqada xisaabinaysa qiimaha kaararka (A=11, K/Q/J=10, 6=6)
+function calculateHandValue(hand) {
+    let total = 0;
+    hand.forEach(card => {
+        // card.value waa nambarka ama xarafka kaarka
+        if (card.value === 'A') {
+            total += 11;
+        } else if (['K', 'Q', 'J', '10'].includes(card.value)) {
+            total += 10;
+        } else {
+            // Kaararka kale (9, 8, 7, 6) waxay leeyihiin qiimahooda nambar
+            total += parseInt(card.value) || 0;
+        }
+    });
+    return total;
+}
+// 1. Shaqada raadinaysa qofka foorada qaadaya (The Target)
+function findFooroTarget(cardProviderName, playersList) {
+    let order = ["John", "Antonio", "Antonella", "Bruno"]; // Wareegga miiska
+    let startIndex = order.indexOf(cardProviderName);
+    
+    // Silsiladda gambashada: ka bilow qofka kaarka bixiyay
+    for (let i = 0; i < order.length; i++) {
+        let currentIndex = (startIndex + i) % order.length;
+        let currentPlayer = playersList[order[currentIndex]];
+
+        // Haddii la helo qof aan weli degin (Not Opened), dhagaxu isaguu ku dhacayaa
+        if (!currentPlayer.hasOpened) {
+            return order[currentIndex]; 
+        }
+    }
+
+    // 2. Haddii qof kasta uu wada deggan yahay (All Opened)
+    // Waxaan raadinaynaa qofka dhibcaha ugu badan gacanta ku haysta
+    let highestScore = -1;
+    let targetPlayer = null;
+
+    for (let name in playersList) {
+        let currentPoints = calculateHandPoints(playersList[name].hand);
+        if (currentPoints > highestScore) {
+            highestScore = currentPoints;
+            targetPlayer = name;
+        }
+    }
+    return targetPlayer;
+}
+
+// 3. Shaqada xisaabinaysa dhibcaha gacanta (A=11, K/Q/J=10, 6=6)
+function calculateHandPoints(hand) {
+    let total = 0;
+    hand.forEach(card => {
+        if (card.value === 'A') total += 11;
+        else if (['K', 'Q', 'J'].includes(card.value)) total += 10;
+        else total += parseInt(card.value) || 0;
+    });
+    return total;
+}
+
+function executeFooroVisuals(targetName) {
+    // Muuji fariin digniin ah
+    alert(`FOORO! Dhagaxii wuxuu ku dhacay: ${targetName}`);
+
+    // Cusboonaysii dhibcaha shaashadda (UI)
+    let scoreElement = document.querySelector(`#score-${targetName}`);
+    let currentScore = parseInt(scoreElement.innerText);
+    scoreElement.innerText = currentScore + 101;
+
+    // Animation: ka dhig magaca qofka mid casaan bilig-biligleynaya
+    document.querySelector(`#name-${targetName}`).classList.add('flash-red');
+}
+
 // Hubinta xeerka 101 iyo in ugu yaraan hal koox ay tahay 4+ kaar
 function karaaInuuDego(sets) {
     const hasFourOrMore = sets.some(set => set.length >= 4);
@@ -158,37 +318,42 @@ function updatePlayerTurnUI(allPlayers, myId, activePlayerId) {
     }
 }
 
-socket.on("turnUpdate", (activePlayerId) => {
-    // 1. Ka saar class-ka 'active-turn' dhamaan boosaska (slots)
+socket.on("turnUpdate", (data) => {
+    // 1. Soo saar ID-ga qofka markuusu yahay
+    const activePlayerId = data.currentPlayerId;
+
+    // 2. Ka saar class-ka 'active-turn' dhamaan boosaska
     document.querySelectorAll('.player-slot').forEach(slot => {
         slot.classList.remove('active-turn');
     });
 
-    // 2. Hubi inaan hayno liiska ciyaartoyda iyo ID-gaaga
-    if (typeof allPlayers !== 'undefined' && typeof socket !== 'undefined') {
+    // 3. Hubi inaan hayno liiska ciyaartoyda
+    if (typeof allPlayers !== 'undefined' && activePlayerId) {
         const myId = socket.id;
-        
-        // 3. Adeegso nidaamka wareegga (Rotation) si loo helo booska saxda ah
-        const rotatedPlayers = [];
         const myIndex = allPlayers.findIndex(p => p.id === myId);
         
         if (myIndex !== -1) {
-            for (let i = 0; i < 4; i++) {
-                rotatedPlayers.push(allPlayers[(myIndex + i) % 4]);
-            }
-
-            // 4. Raadi qofka hadda doorku u joogo booskiisa miiska
             const posIds = ["player-bottom", "player-left", "player-top", "player-right"];
             
-            rotatedPlayers.forEach((player, index) => {
-                if (player && player.id === activePlayerId) {
-                    const activeSlot = document.getElementById(posIds[index]);
+            // 4. Adeegso nidaamka wareegga si loo helo booska saxda ah
+            for (let i = 0; i < 4; i++) {
+                const playerAtPos = allPlayers[(myIndex + i) % 4];
+                
+                if (playerAtPos && playerAtPos.id === activePlayerId) {
+                    const activeSlot = document.getElementById(posIds[i]);
                     if (activeSlot) {
                         activeSlot.classList.add('active-turn');
                     }
                 }
-            });
+            }
         }
+    }
+
+    // 5. Haddii aysan markayga ahayn, hubi inaanan badhamada arkin
+    if (activePlayerId !== socket.id) {
+        isMyTurn = false;
+        const actionButtons = document.getElementById("action-buttons");
+        if (actionButtons) actionButtons.style.display = "none";
     }
 });
 
@@ -914,12 +1079,29 @@ socket.on("playersUpdate", (data) => {
 
 /* GAME START LISTENER */
 socket.on("matchFound", (data) => {
+    // data.players waxaa laga yaabaa inay ku jirto liiska magacyada
+    
     setTimeout(() => {
+        // 1. Beddel UI-ga (Qari Lobby, muuji Game)
         switchUItoGame();
-        const nameInput = document.getElementById("nameInput");
+
+        // 2. Muuji Header-ka haddii uu qarsoonaa
+        const header = document.getElementById("main-header");
+        if (header) header.style.display = "flex";
+
+        // 3. Deji magaca (si ka ammaan badan nameInput)
         const displayName = document.getElementById("display-name");
-        if (displayName && nameInput) displayName.textContent = nameInput.value;
+        const nameInput = document.getElementById("nameInput");
+        
+        if (displayName) {
+            // Haddii nameInput uu madhan yahay (Refresh ka dib), ha isticmaalin
+            displayName.textContent = (nameInput && nameInput.value) ? nameInput.value : "Player";
+        }
+
+        // 4. Sawir gacantaada
         renderMyHand();
+        
+        console.log("Ciyaartii waa bilaabatay qolka:", data.roomId);
     }, 1500);
 });
 
@@ -938,28 +1120,33 @@ socket.on("updateHand", (newHand) => {
 
 
 let timerInterval = null;
-socket.on("discardPickedSuccess", (card) => {
-    myHand.push({ ...card, selected: false });
-    hasDrawn = true;
-    pickedFromDiscard = true;
-    renderMyHand();
+socket.on("discardPickedSuccess", (data) => {
+    // data waa Object, ee ma ahan kaarka tooskiisa. 
+    // Markaa waa inaan niraahdaa data.card
+    if (data && data.card) {
+        myHand.push({ ...data.card, selected: false });
+        hasDrawn = true;
+        pickedFromDiscard = true;
+        renderMyHand();
+        
+        console.log("Kaarkii waa lagu daray gacantaada:", data.card);
+    }
 });
 
-socket.on("yourTurn", (playerId) => {
-    isMyTurn = (playerId === socket.id);
+socket.on("yourTurn", () => {
+    isMyTurn = true; // Maaddaama farriintan adiga uun kugu soo dhacday
+    hasDrawn = false;
+    hasDiscarded = false; // Xaqiiji in qofku uusan weli kaar tuurin
     
-    if (isMyTurn) {
-        hasDrawn = false;
-        hasActioned = false; // Weliba ma uusan dhaqaaqin qofku
-        console.log("Waa markayga! Badhamada manual-ka ah soo saar.");
-        
-        // Halkan ku dar badhamada (Draw Card, Pick Discard)
-        document.getElementById("action-buttons").style.display = "block";
-    } else {
-        // Haddii uusan markuunkaagu ahayn, qari badhamada
-        document.getElementById("action-buttons").style.display = "none";
+    console.log("Waa markayga! Badhamada manual-ka ah soo saar.");
+    
+    // Muuji badhamada ficilka
+    const actionButtons = document.getElementById("action-buttons");
+    if (actionButtons) {
+        actionButtons.style.display = "block";
     }
     
+    // Cusboonaysii gacanta si aad u arki karto kaararka la dooran karo
     renderMyHand();
 });
 
@@ -1023,7 +1210,43 @@ if (tuurBtn) {
     tuurBtn.onclick = handleTuurista;
 }
 
-socket.on("gameOver", ({ winnerName }) => {
-    alert("Ciyaarta waxaa ku guuleystay: " + winnerName);
-    location.reload();
+ocket.on("scoreUpdated", (data) => {
+    // 1. Hel ID-ga qofka dhibcaha loogu daray
+    const { playerId, newTotal } = data;
+
+    // 2. Cusboonaysii UI-ga (Tusaale: dhibcaha miiska u qoran)
+    // Waxaad u baahan tahay inaad haysato Element leh id-gan oo kale
+    const scoreElement = document.querySelector(`#score-${playerId}`);
+    if (scoreElement) {
+        scoreElement.innerText = newTotal;
+    }
+    
+    console.log(`Dhibcaha waa la cusboonaysiiyay: Player ${playerId} = ${newTotal}`);
+});
+
+socket.on("gameOver", (data) => {
+    // 1. data waxay ka koobantahay { winnerId, winnerName, providerId, allPlayers }
+    const { winnerId, winnerName, providerId, allPlayers } = data;
+
+    // 2. Xisaabi qofka dhagaxu (fooradu) ku dhacayo (Logic-gii ahaa Gambashada)
+    const penaltyTarget = applyFooroLogic(winnerId, providerId, allPlayers);
+    
+    if (penaltyTarget) {
+        // Muuji fariin ah qofka foorada qaaday iyo haddii qof kale laga gambaday
+        if (penaltyTarget.id !== providerId) {
+            let providerName = allPlayers.find(p => p.id === providerId).name;
+            alert(`FOORO! ${providerName} wuu ka gambaday, fooradii waxay ku dhacday: ${penaltyTarget.name}`);
+        } else {
+            alert(`FOORO! Fooradii waxay ku dhacday: ${penaltyTarget.name}`);
+        }
+
+        // 3. U sheeg server-ka inuu qofkaas 101 dhibcood u daro rasmiga ah
+        socket.emit("updatePenaltyScore", { playerId: penaltyTarget.id, points: 101 });
+    }
+
+    // 4. Sug 4 ilbiriqsi si loo arko animation-ka iyo dhibcaha ka hor intaan ciyaarta cusub bilaaban
+    setTimeout(() => {
+        alert("Ciyaarta waxaa ku guuleystay: " + winnerName);
+        location.reload(); 
+    }, 4000); 
 });
