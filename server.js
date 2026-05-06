@@ -458,11 +458,13 @@ socket.on("forceEndTurn", () => {
 });
 
 /* ----------------------------------
-   GLOBAL HELPERS
+    GLOBAL HELPERS
 ---------------------------------- */
+
 function calculateHandPoints(hand) {
     return hand.reduce((sum, c) => sum + (c.points || 0), 0);
 }
+
 function moveToNextPlayer(roomId) {
     const room = rooms[roomId];
     if (!room) return;
@@ -473,19 +475,18 @@ function moveToNextPlayer(roomId) {
     nextP.hasActioned = false;
     nextP.pickedFromDiscard = false;
 
-    // Dib u bilaw saacadda haddii function-kaas uu kuu jiro
+    // Dib u bilaw saacadda
     if (typeof startTurnTimer === "function") {
         startTurnTimer(roomId);
     }
 
     io.to(roomId).emit("matchFound", {
-    roomId: roomId,
-    // Hubi in discardPile uusan madhnayn
-    topDiscard: room.discardPile.length > 0 ? room.discardPile.at(-1) : null,
-    currentTurn: room.players[room.activePlayerIndex].id,
-    // Sidoo kale u dir liiska ciyaartoyda si UI-ga loogu qoro magacyada kuwa kale
-    players: room.players.map(p => ({ id: p.id, name: p.name, online: p.online }))
-});
+        roomId: roomId,
+        topDiscard: room.discardPile.length > 0 ? room.discardPile.at(-1) : null,
+        currentTurnId: nextP.id,
+        players: room.players.map(p => ({ id: p.id, name: p.name, online: p.online }))
+    });
+} // <--- Halkan ayaa xidhaan ka dhimnaa
 
 function updateRoomPlayers(roomId) {
     const room = rooms[roomId];
@@ -493,7 +494,6 @@ function updateRoomPlayers(roomId) {
 
     const activePlayer = room.players[room.activePlayerIndex];
     
-    // 1. U dir xogta guud (Turn-ka, Tirada kaararka, iwm)
     io.to(roomId).emit("playersUpdate", {
         players: room.players.map(p => ({
             id: p.id,
@@ -502,15 +502,13 @@ function updateRoomPlayers(roomId) {
             isOpened: p.isOpened || false,
             online: p.online
         })),
-        stockCount: room.stockPile.length,
+        stockCount: room.stockPile ? room.stockPile.length : 0,
         currentTurnId: activePlayer ? activePlayer.id : null,
         turnStartTime: room.turnStartTime 
     });
 
-    // 2. U kala saar boosaska qof kasta si uu u arko dadka ka soo horjeeda
     room.players.forEach((player, index) => {
         const pLen = room.players.length;
-        
         const leftIdx  = (index + 1) % pLen;
         const topIdx   = (index + 2) % pLen;
         const rightIdx = (index + 3) % pLen;
@@ -519,7 +517,6 @@ function updateRoomPlayers(roomId) {
         const topPlayer   = room.players[topIdx];
         const rightPlayer = room.players[rightIdx];
 
-        // U dir xogtan qofka hadda la marayo oo keliya (Private event)
         io.to(player.id).emit("updateOpponents", {
             left:  leftPlayer  && leftPlayer.id !== player.id  ? { name: leftPlayer.name }  : null,
             top:   topPlayer   && topPlayer.id !== player.id   ? { name: topPlayer.name }   : null,
@@ -528,23 +525,19 @@ function updateRoomPlayers(roomId) {
     });
 }
 
-// 2. Sax isValidSet (Inuu aqoonsado J, Q, K, A)
-/* --- KAN KELIYA EE HARAYA (KII HORE) --- */
 function isValidSet(set) {
     if (set.length < 3) return false;
 
-    // 1. Ma yihiin isku Lambar (Suits kala duwan)? - Tusaale: 7♥, 7♦, 7♠
     const allSameValue = set.every(c => c.value === set[0].value);
     if (allSameValue) {
         const suits = set.map(c => c.suit);
-        return new Set(suits).size === suits.length; // Suits waa inay kala duwanaadaan
+        return new Set(suits).size === suits.length;
     }
 
-    // 2. Ma yihiin Isku xigta (Isku Suit)? - Tusaale: 4♣, 5♣, 6♣
     const allSameSuit = set.every(c => c.suit === set[0].suit);
     if (allSameSuit) {
         const values = set.map(c => {
-            if (c.value === 'A') return 14; // Ace waa sare
+            if (c.value === 'A') return 14;
             if (c.value === 'K') return 13;
             if (c.value === 'Q') return 12;
             if (c.value === 'J') return 11;
@@ -556,11 +549,9 @@ function isValidSet(set) {
         }
         return true;
     }
-
     return false;
 }
 
-// --- HELPER FUNCTIONS ---
 function startTurnTimer(roomId) {
     const room = rooms[roomId];
     if (!room) return;
@@ -574,13 +565,10 @@ function startTurnTimer(roomId) {
         if (!room.gameStarted) return;
 
         const currentPlayer = room.players[room.activePlayerIndex];
-        if (!currentPlayer) return; // Hubinta amniga
+        if (!currentPlayer) return;
 
-        console.log(`ROBOT: ${currentPlayer.name} waa laga daahay.`);
-
-        // 1. Haddii uusan waxba qaadan, u qaad kaar
         if (!currentPlayer.hasActioned) {
-            if (room.stockPile.length > 0) {
+            if (room.stockPile && room.stockPile.length > 0) {
                 const card = room.stockPile.pop();
                 currentPlayer.hand.push(card);
                 currentPlayer.hasActioned = true;
@@ -588,40 +576,25 @@ function startTurnTimer(roomId) {
             }
         }
 
-        // 2. Haddii uu haysto 15, mid ka tuur (si markuunka u wareego)
         if (currentPlayer.hand.length > 14) {
             const cardToDiscard = currentPlayer.hand.pop(); 
             room.discardPile.push(cardToDiscard);
             io.to(roomId).emit("updateDiscardPile", cardToDiscard);
-            
-            // U sheeg ciyaaryahanka in kaar laga tuuray si gacantiisu u sync noqoto
-            io.to(currentPlayer.id).emit("startHand", currentPlayer.hand);
+            io.to(currentPlayer.id).emit("updateHand", { hand: currentPlayer.hand });
         }
 
-        // 3. U wareeji qofka xiga
         moveToNextPlayer(roomId); 
         
-    }, 35000); // 35 ilbiriqsi
+    }, 35000);
 }
 
 function refillStockIfEmpty(roomId) {
     const room = rooms[roomId];
-    if (room.stock.length === 0 && room.discardPile.length > 1) {
-        // 1. Badbaadi kaarka ugu sareeya ee hadda la tuuray
+    if (room.stockPile && room.stockPile.length === 0 && room.discardPile.length > 1) {
         const topDiscard = room.discardPile.pop();
-
-        // 2. Inta kale ee haray ku celi Stock-ka
-        room.stock = room.discardPile;
-        
-        // 3. Baandhey (Shuffle) stock-ka cusub
-        shuffle(room.stock);
-
-        // 4. Kaarkii top-ka ahaa dib ugu soo celi discardPile-ka
+        room.stockPile = room.discardPile;
+        shuffle(room.stockPile);
         room.discardPile = [topDiscard];
-
-        console.log(`[STOCK] Stock-kii waa dhammaaday. ${room.stock.length} kaar ayaa dib loogu celiyay.`);
-        
-        // U sheeg dhammaan ciyaartoyda in miisku isbeddelay
         broadcastTableUI(roomId);
     }
 }
@@ -636,7 +609,7 @@ function broadcastTableUI(roomId) {
             isOpened: p.isOpened,
             openedSets: p.openedSets || []
         })),
-        nextRequiredPoints: room.lastOpenPoints // Halkan hadda waa sax (101)
+        nextRequiredPoints: room.lastOpenPoints || 101
     });
 }
 
@@ -644,10 +617,8 @@ function dealCards(roomId) {
     const room = rooms[roomId];
     if (!room) return;
 
-    // 1. Qas kaararka adigoo isticmaalaya function-kaaga shuffle
     shuffle(room.stock); 
 
-    // 2. Gacmaha u qaybi ciyaartoyda (14 kaar qof kasta)
     room.players.forEach((player, index) => {
         player.hand = []; 
         for (let i = 0; i < 14; i++) {
@@ -656,34 +627,31 @@ function dealCards(roomId) {
             }
         }
 
-        // 3. SAXITAANKA: Player #0 sii kaarka 15-aad oo xir hasActioned
         if (index === 0) {
             if (room.stock.length > 0) {
                 player.hand.push(room.stock.pop());
             }
-            player.hasActioned = true; //
+            player.hasActioned = true;
         } else {
             player.hasActioned = false; 
         }
     });
 
-    // 4. Bilaabo Discard Pile-ka (Kaarka kowaad ee miiska)
     room.discardPile = [room.stock.pop()];
 
-    // 5. U dir xogta qof kasta (Individual Hand Update)
     room.players.forEach(p => {
         io.to(p.id).emit("updateHand", { hand: p.hand });
     });
 
-    // 6. U sheeg qolka in ciyaartu bilaabatay
-    io.to(roomId).emit("matchFound", {
-        players: room.players.map(p => ({ id: p.id, name: p.name })),
-        discardTop: room.discardPile[room.discardPile.length - 1]
-    });
-
     room.gameStarted = true;
-    nextTurn(roomId, false); //
+    
+    // Bilaabista turn-ka koowaad si sax ah
+    updateRoomPlayers(roomId);
+    startTurnTimer(roomId);
 }
+
+// XIDHAANKA DHAMMAADKA EE MUHIIMKA AH (Haddii koodhkaagu uu ku dhex jiray io.on)
+// }); // Ku dar kan haddii function-adani ay ku dhex jiraan io.on("connection")
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
