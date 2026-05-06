@@ -399,17 +399,7 @@ socket.on("forceEndTurn", () => {
     socket.on("ping_keep_alive", () => {
         socket.emit("pong_alive");
     });
-
-    socket.on("forceEndTurn", () => {
-        const room = rooms[socket.roomId];
-        if (!room) return;
-        const p = room.players[room.activePlayerIndex];
-        if (p.id !== socket.id) return;
-        
-        if (typeof nextTurn === "function") nextTurn(socket.roomId);
-        else moveToNextPlayer(socket.roomId);
-    });
-
+});
     /* ----------------------------------
        5. DISCONNECT
     ---------------------------------- */
