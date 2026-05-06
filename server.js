@@ -461,28 +461,38 @@ function moveToNextPlayer(roomId) {
     const room = rooms[roomId];
     if (!room) return;
 
-    room.activePlayerIndex = (room.activePlayerIndex + 1) % room.players.length;
+    room.activePlayerIndex =
+        (room.activePlayerIndex + 1) % room.players.length;
 
     const nextP = room.players[room.activePlayerIndex];
 
-    nextP.hasActioned = false;
-    nextP.pickedFromDiscard = false;
+    // reset ALL flags cleanly
+    room.players.forEach(p => {
+        p.hasActioned = false;
+        p.pickedFromDiscard = false;
+    });
 
-    // restart timer ONLY
     startTurnTimer(roomId);
 
-    // 🔥 FIX: use proper event, NOT matchFound
     io.to(roomId).emit("playersUpdate", {
-        roomId,
+        players: room.players,
+        stockCount: room.stockPile.length,
         currentTurnId: nextP.id,
-        turnStartTime: room.turnStartTime,
-        players: room.players.map(p => ({
-            id: p.id,
-            name: p.name,
-            online: p.online
-        })),
-        discardPileTop: room.discardPile.at(-1) || null
+        turnStartTime: room.turnStartTime
     });
+}
+
+function safeMoveNext(roomId) {
+    const room = rooms[roomId];
+    if (!room || room.turnInProgress) return;
+
+    room.turnInProgress = true;
+
+    moveToNextPlayer(roomId);
+
+    setTimeout(() => {
+        room.turnInProgress = false;
+    }, 200);
 }
 
 function updateRoomPlayers(roomId) {
@@ -553,55 +563,36 @@ function startTurnTimer(roomId) {
     const room = rooms[roomId];
     if (!room) return;
 
-    // 1. Clear old timer
     if (room.turnTimeout) clearTimeout(room.turnTimeout);
 
-    // 2. Reset current player action state (IMPORTANT FIX)
-    const currentPlayer = room.players[room.activePlayerIndex];
-    if (currentPlayer) {
-        currentPlayer.hasActioned = false;
-    }
-
-    // 3. Set fresh start time
     room.turnStartTime = Date.now();
-
-    // 4. Send update to clients immediately
     updateRoomPlayers(roomId);
 
-    // 5. SAFE timeout
     room.turnTimeout = setTimeout(() => {
         if (!room.gameStarted) return;
 
         const player = room.players[room.activePlayerIndex];
         if (!player) return;
 
-        // ===== AUTO ACTION (SAFE) =====
-
-        // If no action → draw card
         if (!player.hasActioned && room.stockPile.length > 0) {
             const card = room.stockPile.pop();
             player.hand.push(card);
             player.hasActioned = true;
-
             io.to(player.id).emit("receiveCard", card);
         }
 
-        // If hand overflow → auto discard
         if (player.hand.length > 14) {
             const discarded = player.hand.pop();
             room.discardPile.push(discarded);
-
             io.to(roomId).emit("updateDiscardPile", discarded);
-            io.to(player.id).emit("updateHand", { hand: player.hand });
         }
 
-        // 6. NEXT TURN
         moveToNextPlayer(roomId);
 
-        // 7. restart timer cleanly
-        startTurnTimer(roomId);
+        // ❌ REMOVE RESTART TIMER HERE
+        // startTurnTimer(roomId);
 
-    }, 30000); // 🔥 30s stable (NOT 35s mismatch)
+    }, 30000);
 }
 
 function refillStockIfEmpty(roomId) {

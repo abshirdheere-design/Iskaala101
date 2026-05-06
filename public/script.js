@@ -1023,48 +1023,29 @@ function updatePlayerNames(allPlayers, myId) {
 }
 
 socket.on("playersUpdate", (data) => {
-    const { players, stockCount, currentTurnId, turnStartTime } = data;
+    const { players, currentTurnId } = data;
 
     updatePlayerNames(players, socket.id);
 
     isMyTurn = (currentTurnId === socket.id);
 
-    const statusEl = document.getElementById("turnText");
+    // 🔥 HALKAN: remove blink from all players first
+    document.querySelectorAll(".player").forEach(el => {
+        el.classList.remove("active-turn-blink");
+    });
 
-    if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
+    // 🔥 HALKAN: add blink to current player
+    const currentPlayerEl = document.querySelector(`[data-id="${currentTurnId}"]`);
+    if (currentPlayerEl) {
+        currentPlayerEl.classList.add("active-turn-blink");
     }
 
-    const getTimeLeft = () => {
-        if (!turnStartTime) return 30;
-        const elapsed = Math.floor((Date.now() - turnStartTime) / 1000);
-        return Math.max(0, 30 - elapsed);
-    };
+    const statusEl = document.getElementById("turnText");
 
     if (isMyTurn) {
-        const render = () => {
-            const timeLeft = getTimeLeft();
-
-            if (statusEl) {
-                statusEl.innerHTML =
-                    `<b style="color:#2ecc71">DOORKAAGA! (${timeLeft}s)</b>`;
-            }
-
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-                socket.emit("forceEndTurn");
-            }
-        };
-
-        render();
-        timerInterval = setInterval(render, 500);
-
+        statusEl.innerHTML = `<b style="color:#2ecc71">DOORKAAGA!</b>`;
     } else {
-        if (statusEl) {
-            statusEl.textContent = "Sugaya...";
-        }
+        statusEl.textContent = "Sugaya...";
     }
 });
 
