@@ -1036,26 +1036,21 @@ socket.on("playersUpdate", (data) => {
         timerInterval = null;
     }
 
-    function getTimeLeft() {
+    const getTimeLeft = () => {
         if (!turnStartTime) return 30;
         const elapsed = Math.floor((Date.now() - turnStartTime) / 1000);
-        return Math.max(0, 30 - elapsed); // 🔥 IMPORTANT: never negative
-    }
+        return Math.max(0, 30 - elapsed);
+    };
 
     if (isMyTurn) {
-
         const render = () => {
             const timeLeft = getTimeLeft();
 
-            let msg = (myHand && myHand.length >= 15)
-                ? "TUUR XABBAD!"
-                : "DOORKAAGA!";
-
             if (statusEl) {
-                statusEl.innerHTML = `<b style="color:#2ecc71">${msg} (${timeLeft}s)</b>`;
+                statusEl.innerHTML =
+                    `<b style="color:#2ecc71">DOORKAAGA! (${timeLeft}s)</b>`;
             }
 
-            // 🔥 STOP at 0 ONCE ONLY
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 timerInterval = null;
@@ -1064,41 +1059,26 @@ socket.on("playersUpdate", (data) => {
         };
 
         render();
-
-        timerInterval = setInterval(render, 500); // 👈 IMPORTANT: not 1000 drift
+        timerInterval = setInterval(render, 500);
 
     } else {
         if (statusEl) {
             statusEl.textContent = "Sugaya...";
-            statusEl.style.color = "#f1c40f";
         }
     }
-
-    const btns = ["dhigoBtn", "tuurBtn", "resetBtn"];
-    btns.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.disabled = !isMyTurn;
-    });
-
-    const stockEl = document.getElementById("stock-count");
-    if (stockEl) stockEl.textContent = stockCount;
 });
 
 function updateTurnVisuals(currentTurnId) {
-    // 1. Ka saar class-ka 'active-turn' dhammaan boosaska ciyaartoyda
-    const allSlots = document.querySelectorAll('.player-slot');
-    allSlots.forEach(slot => {
+    document.querySelectorAll('.player-slot').forEach(slot => {
         slot.classList.remove('active-turn');
-        slot.style.border = "2px solid transparent"; // Hubi inay caadi ku soo noqdaan
     });
 
-    // 2. Hel booska qofka markuunka leh oo sii class-ka cagaarka ah
-    const activeSlot = document.querySelector(`.player-slot[data-player-id="${currentTurnId}"]`);
+    const activeSlot = document.querySelector(
+        `.player-slot[data-player-id="${currentTurnId}"]`
+    );
+
     if (activeSlot) {
         activeSlot.classList.add('active-turn');
-        // Waxaad toos ugu dari kartaa style haddii CSS-kaagu maqan yahay
-        activeSlot.style.border = "3px solid #2ecc71";
-        activeSlot.style.boxShadow = "0 0 15px #2ecc71";
     }
 }
 
