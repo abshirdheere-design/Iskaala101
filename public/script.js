@@ -118,7 +118,7 @@ function calculateHandPoints(hand) {
     }, 0);
 }
 
-/ 1. Shaqada maamulaysa cidda foorada dusha loo saarayo
+// 1. Shaqada maamulaysa cidda foorada dusha loo saarayo
 function calculateFooroTarget(winnerId, providerId, allPlayers) {
     // allPlayers waa liiska ciyaartoyda miiska fadhida (Array)
     let totalPlayers = allPlayers.length;
@@ -1210,7 +1210,7 @@ if (tuurBtn) {
     tuurBtn.onclick = handleTuurista;
 }
 
-ocket.on("scoreUpdated", (data) => {
+socket.on("scoreUpdated", (data) => {
     // 1. Hel ID-ga qofka dhibcaha loogu daray
     const { playerId, newTotal } = data;
 
