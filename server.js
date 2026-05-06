@@ -462,23 +462,28 @@ function moveToNextPlayer(roomId) {
     if (!room) return;
 
     room.activePlayerIndex = (room.activePlayerIndex + 1) % room.players.length;
+
     const nextP = room.players[room.activePlayerIndex];
-    
+
     nextP.hasActioned = false;
     nextP.pickedFromDiscard = false;
 
-    // Dib u bilaw saacadda
-    if (typeof startTurnTimer === "function") {
-        startTurnTimer(roomId);
-    }
+    // restart timer ONLY
+    startTurnTimer(roomId);
 
-    io.to(roomId).emit("matchFound", {
-        roomId: roomId,
-        topDiscard: room.discardPile.length > 0 ? room.discardPile.at(-1) : null,
+    // 🔥 FIX: use proper event, NOT matchFound
+    io.to(roomId).emit("playersUpdate", {
+        roomId,
         currentTurnId: nextP.id,
-        players: room.players.map(p => ({ id: p.id, name: p.name, online: p.online }))
+        turnStartTime: room.turnStartTime,
+        players: room.players.map(p => ({
+            id: p.id,
+            name: p.name,
+            online: p.online
+        })),
+        discardPileTop: room.discardPile.at(-1) || null
     });
-} // <--- Halkan ayaa xidhaan ka dhimnaa
+}
 
 function updateRoomPlayers(roomId) {
     const room = rooms[roomId];
@@ -547,37 +552,56 @@ function isValidSet(set) {
 function startTurnTimer(roomId) {
     const room = rooms[roomId];
     if (!room) return;
-    
+
+    // 1. Clear old timer
     if (room.turnTimeout) clearTimeout(room.turnTimeout);
-    
+
+    // 2. Reset current player action state (IMPORTANT FIX)
+    const currentPlayer = room.players[room.activePlayerIndex];
+    if (currentPlayer) {
+        currentPlayer.hasActioned = false;
+    }
+
+    // 3. Set fresh start time
     room.turnStartTime = Date.now();
+
+    // 4. Send update to clients immediately
     updateRoomPlayers(roomId);
 
+    // 5. SAFE timeout
     room.turnTimeout = setTimeout(() => {
         if (!room.gameStarted) return;
 
-        const currentPlayer = room.players[room.activePlayerIndex];
-        if (!currentPlayer) return;
+        const player = room.players[room.activePlayerIndex];
+        if (!player) return;
 
-        if (!currentPlayer.hasActioned) {
-            if (room.stockPile && room.stockPile.length > 0) {
-                const card = room.stockPile.pop();
-                currentPlayer.hand.push(card);
-                currentPlayer.hasActioned = true;
-                io.to(currentPlayer.id).emit("receiveCard", card);
-            }
+        // ===== AUTO ACTION (SAFE) =====
+
+        // If no action → draw card
+        if (!player.hasActioned && room.stockPile.length > 0) {
+            const card = room.stockPile.pop();
+            player.hand.push(card);
+            player.hasActioned = true;
+
+            io.to(player.id).emit("receiveCard", card);
         }
 
-        if (currentPlayer.hand.length > 14) {
-            const cardToDiscard = currentPlayer.hand.pop(); 
-            room.discardPile.push(cardToDiscard);
-            io.to(roomId).emit("updateDiscardPile", cardToDiscard);
-            io.to(currentPlayer.id).emit("updateHand", { hand: currentPlayer.hand });
+        // If hand overflow → auto discard
+        if (player.hand.length > 14) {
+            const discarded = player.hand.pop();
+            room.discardPile.push(discarded);
+
+            io.to(roomId).emit("updateDiscardPile", discarded);
+            io.to(player.id).emit("updateHand", { hand: player.hand });
         }
 
-        moveToNextPlayer(roomId); 
-        
-    }, 35000);
+        // 6. NEXT TURN
+        moveToNextPlayer(roomId);
+
+        // 7. restart timer cleanly
+        startTurnTimer(roomId);
+
+    }, 30000); // 🔥 30s stable (NOT 35s mismatch)
 }
 
 function refillStockIfEmpty(roomId) {
