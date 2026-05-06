@@ -1024,47 +1024,62 @@ function updatePlayerNames(allPlayers, myId) {
 
 socket.on("playersUpdate", (data) => {
     const { players, stockCount, currentTurnId, turnStartTime } = data;
+
     updatePlayerNames(players, socket.id);
 
     isMyTurn = (currentTurnId === socket.id);
+
     const statusEl = document.getElementById("turnText");
+
+    // ❗ IMPORTANT: HA RESET-GAREYN TIMER-KA HADDII UU HORE U SOCDO
     if (timerInterval) clearInterval(timerInterval);
 
+    function getTimeLeft() {
+        if (!turnStartTime) return 30;
+        const elapsed = Math.floor((Date.now() - turnStartTime) / 1000);
+        return Math.max(0, 30 - elapsed);
+    }
+
     if (isMyTurn) {
-        // Xisaabi waqtiga hartay isla markaba
-        const calculateTime = () => {
-            const elapsed = Math.floor((Date.now() - turnStartTime) / 1000);
-            return Math.max(0, 30 - elapsed);
-        };
+        let timeLeft = getTimeLeft();
 
-        let timeLeft = calculateTime();
-        
-        // Isla markiiba qor (ha sugin 1s)
-        const updateUI = (time) => {
+        const render = () => {
             let msg = (myHand && myHand.length >= 15) ? "TUUR XABBAD!" : "DOORKAAGA!";
-            if (statusEl) statusEl.innerHTML = `<b style="color:#2ecc71">${msg} (${time}s)</b>`;
+            if (statusEl) {
+                statusEl.innerHTML = `<b style="color:#2ecc71">${msg} (${timeLeft}s)</b>`;
+            }
         };
 
-        updateUI(timeLeft);
+        render();
 
         timerInterval = setInterval(() => {
-            timeLeft = calculateTime();
-            updateUI(timeLeft);
+            timeLeft--;
+
+            render();
 
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
+                timerInterval = null; // 🔥 muhiim
                 socket.emit("forceEndTurn");
             }
         }, 1000);
+
     } else {
         if (statusEl) {
             statusEl.textContent = "Sugaya...";
             statusEl.style.color = "#f1c40f";
         }
     }
-    
-    // 3. Animation-ka Turn-ka
-    updateTurnVisuals(currentTurnId);
+
+    // Buttons
+    const btns = ["dhigoBtn", "tuurBtn", "resetBtn"];
+    btns.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.disabled = !isMyTurn;
+    });
+
+    const stockEl = document.getElementById("stock-count");
+    if (stockEl) stockEl.textContent = stockCount;
 });
 
 function updateTurnVisuals(currentTurnId) {
