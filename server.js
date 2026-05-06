@@ -399,7 +399,7 @@ socket.on("forceEndTurn", () => {
     socket.on("ping_keep_alive", () => {
         socket.emit("pong_alive");
     });
-});
+
     /* ----------------------------------
        5. DISCONNECT
     ---------------------------------- */
@@ -444,8 +444,10 @@ socket.on("forceEndTurn", () => {
         console.log(`[ROOM] Qolka ${socket.roomId} waa la tirtiray waayo qofna kuma harin.`);
     } else {
         updateRoomPlayers(socket.roomId);
-    }
-});
+    
+	}
+	});
+	});
 
 /* ----------------------------------
     GLOBAL HELPERS
