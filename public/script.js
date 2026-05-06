@@ -1067,6 +1067,24 @@ socket.on("playersUpdate", (data) => {
     updateTurnVisuals(currentTurnId);
 });
 
+function updateTurnVisuals(currentTurnId) {
+    // 1. Ka saar class-ka 'active-turn' dhammaan boosaska ciyaartoyda
+    const allSlots = document.querySelectorAll('.player-slot');
+    allSlots.forEach(slot => {
+        slot.classList.remove('active-turn');
+        slot.style.border = "2px solid transparent"; // Hubi inay caadi ku soo noqdaan
+    });
+
+    // 2. Hel booska qofka markuunka leh oo sii class-ka cagaarka ah
+    const activeSlot = document.querySelector(`.player-slot[data-player-id="${currentTurnId}"]`);
+    if (activeSlot) {
+        activeSlot.classList.add('active-turn');
+        // Waxaad toos ugu dari kartaa style haddii CSS-kaagu maqan yahay
+        activeSlot.style.border = "3px solid #2ecc71";
+        activeSlot.style.boxShadow = "0 0 15px #2ecc71";
+    }
+}
+
 /* GAME START LISTENER */
 socket.on("matchFound", (data) => {
     // data.players waxaa laga yaabaa inay ku jirto liiska magacyada
