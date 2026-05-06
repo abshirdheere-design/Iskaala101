@@ -1031,38 +1031,41 @@ socket.on("playersUpdate", (data) => {
 
     const statusEl = document.getElementById("turnText");
 
-    // ❗ IMPORTANT: HA RESET-GAREYN TIMER-KA HADDII UU HORE U SOCDO
-    if (timerInterval) clearInterval(timerInterval);
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
 
     function getTimeLeft() {
         if (!turnStartTime) return 30;
         const elapsed = Math.floor((Date.now() - turnStartTime) / 1000);
-        return Math.max(0, 30 - elapsed);
+        return Math.max(0, 30 - elapsed); // 🔥 IMPORTANT: never negative
     }
 
     if (isMyTurn) {
-        let timeLeft = getTimeLeft();
 
         const render = () => {
-            let msg = (myHand && myHand.length >= 15) ? "TUUR XABBAD!" : "DOORKAAGA!";
+            const timeLeft = getTimeLeft();
+
+            let msg = (myHand && myHand.length >= 15)
+                ? "TUUR XABBAD!"
+                : "DOORKAAGA!";
+
             if (statusEl) {
                 statusEl.innerHTML = `<b style="color:#2ecc71">${msg} (${timeLeft}s)</b>`;
+            }
+
+            // 🔥 STOP at 0 ONCE ONLY
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                socket.emit("forceEndTurn");
             }
         };
 
         render();
 
-        timerInterval = setInterval(() => {
-            timeLeft--;
-
-            render();
-
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                timerInterval = null; // 🔥 muhiim
-                socket.emit("forceEndTurn");
-            }
-        }, 1000);
+        timerInterval = setInterval(render, 500); // 👈 IMPORTANT: not 1000 drift
 
     } else {
         if (statusEl) {
@@ -1071,7 +1074,6 @@ socket.on("playersUpdate", (data) => {
         }
     }
 
-    // Buttons
     const btns = ["dhigoBtn", "tuurBtn", "resetBtn"];
     btns.forEach(id => {
         const el = document.getElementById(id);
