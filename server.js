@@ -643,7 +643,7 @@ function dealCards(roomId) {
 }
 
 // XIDHAANKA DHAMMAADKA EE MUHIIMKA AH (Haddii koodhkaagu uu ku dhex jiray io.on)
-// }); // Ku dar kan haddii function-adani ay ku dhex jiraan io.on("connection")
+// Ku dar kan haddii function-adani ay ku dhex jiraan io.on("connection")
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

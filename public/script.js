@@ -1024,57 +1024,47 @@ function updatePlayerNames(allPlayers, myId) {
 
 socket.on("playersUpdate", (data) => {
     const { players, stockCount, currentTurnId, turnStartTime } = data;
-
-    // 1. CUSBOONAYSIINTA MAGACYADA IYO BOOSASKA
-    // Waxaan u yeeraynaa function-kaaga si uu "Adiga" u qoro meesha saxda ah
     updatePlayerNames(players, socket.id);
 
-    // 2. MAAREYNTA TIMER-KA IYO TURN-KA
     isMyTurn = (currentTurnId === socket.id);
     const statusEl = document.getElementById("turnText");
-    
     if (timerInterval) clearInterval(timerInterval);
 
     if (isMyTurn) {
-        const now = Date.now();
-        const elapsed = Math.floor((now - turnStartTime) / 1000);
-        let timeLeft = 30 - elapsed;
+        // Xisaabi waqtiga hartay isla markaba
+        const calculateTime = () => {
+            const elapsed = Math.floor((Date.now() - turnStartTime) / 1000);
+            return Math.max(0, 30 - elapsed);
+        };
 
-        if (timeLeft > 0) {
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                let msg = myHand.length >= 15 ? "TUUR XABBAD!" : "DOORKAAGA!";
-                
-                if (statusEl) {
-                    statusEl.innerHTML = `<b style="color:#2ecc71">${msg} (${timeLeft}s)</b>`;
-                }
+        let timeLeft = calculateTime();
+        
+        // Isla markiiba qor (ha sugin 1s)
+        const updateUI = (time) => {
+            let msg = (myHand && myHand.length >= 15) ? "TUUR XABBAD!" : "DOORKAAGA!";
+            if (statusEl) statusEl.innerHTML = `<b style="color:#2ecc71">${msg} (${time}s)</b>`;
+        };
 
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    socket.emit("forceEndTurn");
-                }
-            }, 1000);
-        } else {
-            if (statusEl) statusEl.textContent = "WAQTIGII WAA KA DHAMAADAY!";
-        }
+        updateUI(timeLeft);
+
+        timerInterval = setInterval(() => {
+            timeLeft = calculateTime();
+            updateUI(timeLeft);
+
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                socket.emit("forceEndTurn");
+            }
+        }, 1000);
     } else {
         if (statusEl) {
             statusEl.textContent = "Sugaya...";
             statusEl.style.color = "#f1c40f";
         }
     }
-
-    // 3. ANIMATION-KA DOORKA (Cagaarka birbirqaya)
-    // Waxaan ku daraynaa class-kii 'active-turn' qofka uu markuunka u yahay
-    players.forEach(p => {
-        // Maadaama updatePlayerNames uu horey u habeeyay UI-ga, 
-        // halkan waxaan ka raadinaynaa booska uu joogo qofka leh currentTurnId
-        const slot = document.querySelector(`.player-slot[data-player-id="${p.id}"]`); 
-        if (slot) {
-            if (p.id === currentTurnId) slot.classList.add("active-turn");
-            else slot.classList.remove("active-turn");
-        }
-    });
+    
+    // 3. Animation-ka Turn-ka
+    updateTurnVisuals(currentTurnId);
 });
 
 /* GAME START LISTENER */
@@ -1112,10 +1102,20 @@ socket.on("receiveCard", (card) => {
 });
 
 // Kani waa qaybta maqan ee dhibka xalinaysa
-socket.on("updateHand", (newHand) => {
-    console.log("Gacantaada waa la cusboonaysiiyay (Robot-ka ayaa kaar tuuray)");
-    myHand = newHand.map(c => ({...c, selected: false})); // Gacanta ku cusboonaysii xogta server-ka
-    renderMyHand(); // Dib u sawir gacanta John si 14-ka u muuqdaan
+socket.on("updateHand", (data) => {
+    // Hubi haddii xogtu tahay { hand: [...] } ama ay tahay Array toos ah [...]
+    const newHand = Array.isArray(data) ? data : data.hand;
+
+    if (newHand && Array.isArray(newHand)) {
+        // Hadda .map() way shaqaynaysaa sababtoo ah newHand waa Array
+        const handHTML = newHand.map(card => {
+            return `<div class="card">${card.value}${card.suit}</div>`;
+        }).join("");
+        
+        document.getElementById("my-hand-container").innerHTML = handHTML;
+    } else {
+        console.error("Xogta gacanta ma ahan liis sax ah:", data);
+    }
 });
 
 
