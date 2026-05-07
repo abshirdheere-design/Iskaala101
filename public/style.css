@@ -432,6 +432,7 @@ body {
     width: 100px;
     height: 120px;
     border: 1px dashed rgba(255,255,255,0.3); /* Booska dhigista */
+	z-index: 9999;
 }
 
 #deck-indicator {
@@ -541,7 +542,7 @@ body {
 /* ============ 10. MY HAND SECTION ============ */
 .player-hand-section {
     position: fixed;
-    bottom: 85px; /* Kaararka kor ayuu u qaadaa si aysan footer-ka u qarin */
+    bottom: 75px; /* Kaararka kor ayuu u qaadaa si aysan footer-ka u qarin */
     left: 0;
     right: 0;
     display: none;
