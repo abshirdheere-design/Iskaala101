@@ -311,29 +311,29 @@ socket.on("forceEndTurn", () => {
     const cardIndex = p.hand.findIndex(c => c.id === card.id);
     if (cardIndex === -1) return;
 
-    // 1. Ka saar kaarka gacanta
+    // 1. Kaydi qofka kaarka tuuray (Waa "Provider"-ka foorada haddii ciyaartu dhamaato)
+    room.lastProviderId = p.id; 
+
+    // 2. Ka saar kaarka gacanta
     p.hand.splice(cardIndex, 1);
     room.discardPile.push(card);
     
-    // 2. U sheeg qof kasta in discard pile-ku isbeddelay
     io.to(socket.roomId).emit("updateDiscardPile", card);
-    
-    // 3. Cusboonaysii gacanta qofka tuuray kaarka (si uu u arko inuu ka go'ay)
     socket.emit("updateHand", { hand: p.hand });
 
     if (p.hand.length === 0) {
         // CIYAARTU WAA DHAMMAADAY
-        const results = room.players.map(pl => ({ 
-            name: pl.name, 
-            points: calculateHandPoints(pl.hand) 
-        }));
-        
-        io.to(socket.roomId).emit("gameOver", { winnerName: p.name, allResults: results });
         room.gameStarted = false;
         if(room.turnTimeout) clearTimeout(room.turnTimeout);
+
+        // U dir Client-ka xogta foorada u baahan tahay
+        io.to(socket.roomId).emit("gameOver", { 
+            winnerId: p.id, 
+            winnerName: p.name, 
+            providerId: room.lastProviderId, 
+            allPlayers: room.players // Halkan waa halka applyFooroLogic ka helayo xogta
+        });
     } else {
-        // CIYAARTU WAY SOCOTAA - U GUDUB QOFKA XIGA
-        // SAXITAANKA: true ayaa lagu daray halkan
         nextTurn(socket.roomId, true); 
     }
 });
