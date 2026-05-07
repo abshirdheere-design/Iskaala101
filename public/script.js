@@ -318,44 +318,58 @@ function updatePlayerTurnUI(allPlayers, myId, activePlayerId) {
     }
 }
 
-socket.on("turnUpdate", (data) => {
-    // 1. Soo saar ID-ga qofka markuusu yahay
-    const activePlayerId = data.currentPlayerId;
+let allPlayers = [];
+let currentTurnId = null;
+socket.on("playersUpdate", (data) => {
+    const { players, currentTurnId: turnId } = data;
 
-    // 2. Ka saar class-ka 'active-turn' dhamaan boosaska
-    document.querySelectorAll('.player-slot').forEach(slot => {
-        slot.classList.remove('active-turn');
-    });
+    allPlayers = players;
+    currentTurnId = turnId;
 
-    // 3. Hubi inaan hayno liiska ciyaartoyda
-    if (typeof allPlayers !== 'undefined' && activePlayerId) {
-        const myId = socket.id;
-        const myIndex = allPlayers.findIndex(p => p.id === myId);
-        
-        if (myIndex !== -1) {
-            const posIds = ["player-bottom", "player-left", "player-top", "player-right"];
-            
-            // 4. Adeegso nidaamka wareegga si loo helo booska saxda ah
-            for (let i = 0; i < 4; i++) {
-                const playerAtPos = allPlayers[(myIndex + i) % 4];
-                
-                if (playerAtPos && playerAtPos.id === activePlayerId) {
-                    const activeSlot = document.getElementById(posIds[i]);
-                    if (activeSlot) {
-                        activeSlot.classList.add('active-turn');
-                    }
-                }
-            }
-        }
-    }
+    updatePlayerNames(players, socket.id);
 
-    // 5. Haddii aysan markayga ahayn, hubi inaanan badhamada arkin
-    if (activePlayerId !== socket.id) {
-        isMyTurn = false;
-        const actionButtons = document.getElementById("action-buttons");
-        if (actionButtons) actionButtons.style.display = "none";
+    isMyTurn = (turnId === socket.id);
+
+    updateTurnBlink(turnId);
+
+    const statusEl = document.getElementById("turnText");
+
+    if (isMyTurn) {
+        statusEl.innerHTML = `<b style="color:#2ecc71">DOORKAAGA!</b>`;
+    } else {
+        statusEl.textContent = "Sugaya...";
     }
 });
+
+// 1. Qeex function-ka hal mar (meel sare oo global ah)
+function updateTurnBlink(currentTurnId) {
+  document.querySelectorAll(".player-slot").forEach(el => {
+    el.classList.remove("active-turn-blink", "active-turn");
+  });
+
+  if (typeof allPlayers !== "undefined" && allPlayers.length > 0) {
+    const myIndex = allPlayers.findIndex(p => p.id === socket.id);
+    const posIds = ["player-bottom", "player-left", "player-top", "player-right"];
+
+    if (myIndex !== -1) {
+      for (let i = 0; i < allPlayers.length; i++) {
+        const playerAtPos = allPlayers[(myIndex + i) % allPlayers.length];
+        if (playerAtPos && playerAtPos.id === currentTurnId) {
+          const slot = document.getElementById(posIds[i]);
+          if (slot) slot.classList.add("active-turn-blink");
+          break;
+        }
+      }
+    }
+  }
+}
+
+
+socket.on("turnUpdate", ({ currentPlayerId }) => {
+  currentTurnId = currentPlayerId; // kaydi si playersUpdate u isticmaalo
+  updateTurnBlink(currentPlayerId);
+});
+
 
 function renderMeltedGroups(groups) {
     const tableArea = document.getElementById('table-area');

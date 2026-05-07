@@ -346,12 +346,19 @@ body {
 }
 
 #stock-pile {
-    width: 100px;
-    height: 140px;
+    width: 70px;
+    height: 100px;
     position: relative;
     cursor: pointer;
     z-index: 9999;
     pointer-events: auto;
+}
+
+#stock-pile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
 }
 
 #stock-pile:hover { border: 5px solid red; }
@@ -382,8 +389,8 @@ body {
 }
 
 #discard-pile {
-    width: 100px;
-    height: 140px;
+    width: 70px;
+    height: 100px;
     border: 2px dashed rgba(255,255,255,0.35);
     border-radius: 10px;
     background: rgba(0,0,0,0.15);

@@ -71,29 +71,42 @@ function nextTurn(roomId, forceNext = false) {
     const room = rooms[roomId];
     if (!room || !room.gameStarted) return;
 
-    // 1. JOOJI TIMER-KASTA OO HORE U JIRAY (Muhiim)
+    // 1. Jooji timer-kii hore
     if (room.turnTimeout) {
         clearTimeout(room.turnTimeout);
-        room.turnTimeout = null; // Nadiifi variable-ka
+        room.turnTimeout = null;
     }
 
     if (forceNext) {
         room.activePlayerIndex = (room.activePlayerIndex + 1) % room.players.length;
     }
 
-    // ... (logic-ga boodista dadka offline-ka ah) ...
+    // 1b. Bood ciyaartoyda offline-ka ah si turn-ku uusan ku dhicin qof maqan
+    let safety = 0;
+    while (!room.players[room.activePlayerIndex].online && safety < room.players.length) {
+        room.activePlayerIndex = (room.activePlayerIndex + 1) % room.players.length;
+        safety++;
+    }
+
+    // 2. RESET flags-ka dhammaan ciyaartoyda (MUHIIM)
+    room.players.forEach(p => {
+        p.hasActioned = false;
+        p.pickedFromDiscard = false;
+    });
 
     const currentPlayer = room.players[room.activePlayerIndex];
+    room.turnStartTime = Date.now();
 
-    // 2. BILAABO TIMER CUSUB
+    // 3. Bilow timer cusub (30s)
     room.turnTimeout = setTimeout(() => {
         if (rooms[roomId] && rooms[roomId].gameStarted) {
-            console.log(`[AUTO-SKIP] Waqtigu waa ka dhamaaday: ${currentPlayer.name}`);
+            console.log(`[AUTO-SKIP] Waqtigu wuu dhamaaday: ${currentPlayer.name}`);
             nextTurn(roomId, true);
         }
-    }, 30000);
+    }, TURN_TIME_LIMIT);
 
-    // 3. Emit xogta
+    // 4. U sheeg dhammaan ciyaartoyda (blink + isMyTurn)
+    updateRoomPlayers(roomId);                          // <-- HALKAN waa furaha
     io.to(roomId).emit("turnUpdate", { currentPlayerId: currentPlayer.id });
     io.to(currentPlayer.id).emit("yourTurn");
 }
