@@ -77,27 +77,39 @@ function nextTurn(roomId, forceNext = false) {
         room.turnTimeout = null;
     }
 
+    const totalPlayers = room.players.length;
+
+    // 2. MOVE TURN (LIDKA SAACADDA = -1)
     if (forceNext) {
-        room.activePlayerIndex = (room.activePlayerIndex + 1) % room.players.length;
+        room.activePlayerIndex =
+            (room.activePlayerIndex - 1 + totalPlayers) % totalPlayers;
     }
 
-    // 1b. Bood ciyaartoyda offline-ka ah si turn-ku uusan ku dhicin qof maqan
+    // 3. KA BOOD PLAYERS OFFLINE AH
     let safety = 0;
-    while (!room.players[room.activePlayerIndex].online && safety < room.players.length) {
-        room.activePlayerIndex = (room.activePlayerIndex + 1) % room.players.length;
+    while (
+        room.players[room.activePlayerIndex] &&
+        !room.players[room.activePlayerIndex].online &&
+        safety < totalPlayers
+    ) {
+        room.activePlayerIndex =
+            (room.activePlayerIndex - 1 + totalPlayers) % totalPlayers;
         safety++;
     }
 
-    // 2. RESET flags-ka dhammaan ciyaartoyda (MUHIIM)
+    // 4. Hubi player sax ah
+    const currentPlayer = room.players[room.activePlayerIndex];
+    if (!currentPlayer) return;
+
+    room.turnStartTime = Date.now();
+
+    // 5. RESET FLAGS
     room.players.forEach(p => {
         p.hasActioned = false;
         p.pickedFromDiscard = false;
     });
 
-    const currentPlayer = room.players[room.activePlayerIndex];
-    room.turnStartTime = Date.now();
-
-    // 3. Bilow timer cusub (30s)
+    // 6. TIMER cusub
     room.turnTimeout = setTimeout(() => {
         if (rooms[roomId] && rooms[roomId].gameStarted) {
             console.log(`[AUTO-SKIP] Waqtigu wuu dhamaaday: ${currentPlayer.name}`);
@@ -105,9 +117,11 @@ function nextTurn(roomId, forceNext = false) {
         }
     }, TURN_TIME_LIMIT);
 
-    // 4. U sheeg dhammaan ciyaartoyda (blink + isMyTurn)
-    updateRoomPlayers(roomId);                          // <-- HALKAN waa furaha
-    io.to(roomId).emit("turnUpdate", { currentPlayerId: currentPlayer.id });
+    // 7. UPDATE CLIENTS
+    updateRoomPlayers(roomId);
+    io.to(roomId).emit("turnUpdate", {
+        currentPlayerId: currentPlayer.id
+    });
     io.to(currentPlayer.id).emit("yourTurn");
 }
 
@@ -342,31 +356,26 @@ socket.on("forceEndTurn", () => {
        3. MELDING & SYNC
     ---------------------------------- */
     socket.on("meldSets", (sets) => {
-    const room = rooms[socket.roomId];
-    if (!room || !room.gameStarted) return;
-    const p = room.players.find(player => player.id === socket.id);
-    if (!p) return;
+        const room = rooms[socket.roomId];
+        if (!room || !room.gameStarted) return;
+        const p = room.players.find(player => player.id === socket.id);
+        if (!p) return;
 
-    let cardsToRemoveIds = [];
-    sets.forEach(set => {
-        set.forEach(card => cardsToRemoveIds.push(card.id));
-    });
+        let cardsToRemoveIds = [];
+        sets.forEach(set => {
+            set.forEach(card => cardsToRemoveIds.push(card.id));
+        });
 
-    p.hand = p.hand.filter(card => !cardsToRemoveIds.includes(card.id));
-    p.isOpened = true;
-    p.openedSets.push(...sets);
+        p.hand = p.hand.filter(card => !cardsToRemoveIds.includes(card.id));
+        p.isOpened = true;
+        p.openedSets.push(...sets);
 
-    // --- ISBEDDELKA HALKAN KA BILOW ---
-    
-    // 1. Beddel "startHand" una beddel "updateHand"
-    // 2. Kaarka u dir sidii Object: { hand: p.hand }
-    socket.emit("updateHand", { hand: p.hand }); 
+        socket.emit("updateHand", { hand: p.hand }); 
 
-    // --- ISBEDDELKA HALKAN KU DHAMMAADAY ---
-
-    broadcastTableUI(socket.roomId);
-    updateRoomPlayers(socket.roomId);
-});
+        broadcastTableUI(socket.roomId);
+        updateRoomPlayers(socket.roomId);
+		
+    }); // <--- Xiritaankan ayaad u baahnayd!
 
     socket.on("resetMyOpenedCards", () => {
         const room = rooms[socket.roomId]; 
@@ -458,9 +467,9 @@ socket.on("forceEndTurn", () => {
     } else {
         updateRoomPlayers(socket.roomId);
     
-	}
-	});
-	});
+	    }
+    });
+});
 
 /* ----------------------------------
     GLOBAL HELPERS

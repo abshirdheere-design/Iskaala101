@@ -541,15 +541,15 @@ body {
 
 /* ============ 10. MY HAND SECTION ============ */
 .player-hand-section {
-    position: fixed;
-    bottom: 75px; /* Kaararka kor ayuu u qaadaa si aysan footer-ka u qarin */
+    position: fixed;      /* Mar walba salka hoose ha joogo */
+    bottom: 20px;         /* 20px kor ka soo qaad salka hoose */
     left: 0;
     right: 0;
-    display: none;
+    display: flex;        /* Hubi inuu flex yahay marka ciyaartu bilaabato */
     flex-direction: column;
     align-items: center;
-    z-index: 10000;
-    pointer-events: none;
+    z-index: 10000;       /* Inuu ka sareeyo miiska */
+    pointer-events: none; /* Kani dusha sare ayuu xirayaa... */
 }
 
 .player-hand-section > * {
@@ -563,11 +563,12 @@ body {
 }
 
 #my-hand {
-    pointer-events: auto;
+    pointer-events: auto; /* ...laakiin kani wuxuu ogolaanayaa Click-ga */
     display: flex;
     justify-content: center;
     margin-bottom: 10px;
-    z-index: 20;
+    z-index: 10001;
+    gap: -15px;           /* Haddii aad rabto in kaararku is-dhaafaan sidii turub dhab ah */
 }
 
 .status-msg {
