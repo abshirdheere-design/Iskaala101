@@ -874,93 +874,108 @@ body {
 @media (min-width: 1100px) {
     #player-top {
         top: 55px;
+        left: 50%;
+        transform: translateX(-50%);
+        position: absolute;
     }
 
     #player-left {
+        /* Kan waa qofka bidixdaada (Last Player) */
         left: max(7.5%, calc(50% - 550px));
+        right: auto;
+        top: 50%;
+        transform: translateY(-50%);
+        position: absolute;
     }
 
     #player-right {
+        /* Kan waa qofka midigtaada (Next Player - Counter-Clockwise) */
         right: max(7.5%, calc(50% - 550px));
         left: auto;
+        top: 50%;
+        transform: translateY(-50%);
+        position: absolute;
+    }
+
+    #player-bottom {
+        bottom: 180px; /* Wax yar kor u qaad si uusan gacanta ugu dhex dhicin */
+        left: 50%;
+        transform: translateX(-50%);
+        position: absolute;
     }
 
     .player-hand-section {
-        bottom: 85px;
+        bottom: 20px; /* Gacantaada salka hoose keen */
+        position: fixed;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        z-index: 10000;
     }
 }
 
 
 /* ============ 17. MOBILE RESPONSIVE (HAL BLOCK KALIYA) ============ */
 @media (max-width: 600px) {
-
+    /* Miiska cagaarka ah ee wareegsan */
     #game-table::before {
         width: 96%;
-        height: 32vh;
-        top: 25%;
-        border-radius: 50px;
+        height: 35vh; /* Wax yar ayaan u kordhiyay si uu miisku u muuqdo */
+        top: 20%;
+        border-radius: 40px;
     }
 
+    /* Kaararka Gacanta */
     .card {
-        width: 45px;
-        height: 70px;
-        margin-left: -20px;
+        width: 48px; /* Wax yar ayaan u weyneeyay si loo taaban karo */
+        height: 72px;
+        margin-left: -18px; /* overlap ka yar si farta loola helo */
+        box-shadow: 2px 0 5px rgba(0,0,0,0.3);
     }
 
-    .card:first-child {
-        margin-left: 0;
-    }
-
-    #player-top {
-        top: 8%;
-        left: 50%;
-        transform: translateX(-50%);
-    }
-
-    #player-left {
-        top: 25%;
-        left: 3%;
-        right: auto;
-        transform: translateY(-50%);
-        font-size: 0.8rem;
-    }
-
+    /* Ciyaaryahanka Midig (Counter-Clockwise - Next Player) */
     #player-right {
-        top: 25%;
-        right: 3%;
+        top: 40%; /* Waxaan ka dhigay bartamaha vertical-ka */
+        right: 2%;
         left: auto;
         transform: translateY(-50%);
-        font-size: 0.8rem;
+        font-size: 0.75rem;
     }
 
+    /* Ciyaaryahanka Bidix (Last Player) */
+    #player-left {
+        top: 40%; 
+        left: 2%;
+        right: auto;
+        transform: translateY(-50%);
+        font-size: 0.75rem;
+    }
+
+    /* Meesha dhibcaha ama magacaaga */
     #player-bottom {
-        bottom: 95px;
+        bottom: 85px; /* In yar hoos ayaan u dhigay */
     }
 
-    #center-area {
-        top: 22%;
-        transform: translate(-50%, -50%) scale(0.8);
-    }
-
+    /* Qaybta Gacanta (Hand Section) */
     .player-hand-section {
-        bottom: 75px;
-        z-index: 10000;
-        pointer-events: auto;
+        bottom: 15px; /* Aad u hooseey si uu miiska u banneeyo */
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
+    /* Badhamada Action-ka (Tuur, Dhigo, etc.) */
     .action-buttons {
-        gap: 5px;
-        margin-bottom: 5px;
-        z-index: 10001;
-        pointer-events: auto;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: center;
+        width: 100%;
     }
 
     .action-buttons button {
-        padding: 10px 8px;
-        font-size: 12px;
-        font-weight: bold;
-        background: #f1c40f;
-        color: black;
-        border-radius: 10px;
+        padding: 8px 12px;
+        font-size: 11px;
+        min-width: 60px; /* Si ay u sahlanaato taabashada (Touch Target) */
     }
 }
