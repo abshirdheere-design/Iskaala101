@@ -873,7 +873,7 @@ body {
 /* ============ 16. DESKTOP LARGE SCREENS ============ */
 @media (min-width: 1100px) {
     #player-top {
-        top: 55px;
+        top: 75px;
         left: 50%;
         transform: translateX(-50%);
         position: absolute;
@@ -898,7 +898,7 @@ body {
     }
 
     #player-bottom {
-        bottom: 240px; /* Wax yar kor u qaad si uusan gacanta ugu dhex dhicin */
+        bottom: 260px; /* Wax yar kor u qaad si uusan gacanta ugu dhex dhicin */
         left: 50%;
         transform: translateX(-50%);
         position: absolute;
