@@ -883,7 +883,7 @@ body {
         /* Kan waa qofka bidixdaada (Last Player) */
         left: max(7.5%, calc(50% - 550px));
         right: auto;
-        top: 70%;
+        top: 35%;
         transform: translateY(-50%);
         position: absolute;
     }
@@ -892,13 +892,13 @@ body {
         /* Kan waa qofka midigtaada (Next Player - Counter-Clockwise) */
         right: max(7.5%, calc(50% - 550px));
         left: auto;
-        top: 70%;
+        top: 35%;
         transform: translateY(-50%);
         position: absolute;
     }
 
     #player-bottom {
-        bottom: 220px; /* Wax yar kor u qaad si uusan gacanta ugu dhex dhicin */
+        bottom: 240px; /* Wax yar kor u qaad si uusan gacanta ugu dhex dhicin */
         left: 50%;
         transform: translateX(-50%);
         position: absolute;
