@@ -22,7 +22,7 @@ const pointValues = {
 };
 
 async function bilowQaybintaIskala() {
-    const players = ['bottom', 'left', 'top', 'right']; // Boosaska ciyaartoyda ee tusaale_7.jpg
+    const players = ['bottom', 'right', 'top', 'left']; // Boosaska ciyaartoyda ee tusaale_7.jpg
     const totalCards = 14;
     const batchSize = 2; // Waxaad ka dhigi kartaa 2 ama 3 markiiba
     const dealingZone = document.getElementById('dealing-zone');
@@ -320,7 +320,7 @@ function updatePlayerTurnUI(allPlayers, myId, activePlayerId) {
     if (myIndex === -1) return;
 
     // 2. Diyaari boosaska miiska (waafaqsan ID-yada HTML-kaaga)
-    const posIds = ["player-bottom", "player-left", "player-top", "player-right"];
+    const posIds = ["player-bottom", "player-right", "player-top", "player-left"];
     
     // 3. Marka hore ka saar 'active-turn' dhamaan si loo cusubaysiiyo
     document.querySelectorAll('.player-slot').forEach(slot => {
@@ -379,7 +379,7 @@ function updateTurnBlink(currentTurnId) {
 
   if (typeof allPlayers !== "undefined" && allPlayers.length > 0) {
     const myIndex = allPlayers.findIndex(p => p.id === socket.id);
-    const posIds = ["player-bottom", "player-left", "player-top", "player-right"];
+    const posIds = ["player-bottom", "player-right", "player-top", "player-left"];
 
     if (myIndex !== -1) {
       for (let i = 0; i < allPlayers.length; i++) {
@@ -1049,7 +1049,7 @@ function updatePlayerNames(allPlayers, myId) {
         rotatedPlayers.push(allPlayers[(myIndex + i) % 4]);
     }
 
-    const posIds = ["name-bottom", "name-left", "name-top", "name-right"];
+    const posIds = ["name-bottom", "name-right", "name-top", "name-left"];
 
     rotatedPlayers.forEach((player, i) => {
         const el = document.getElementById(posIds[i]);
