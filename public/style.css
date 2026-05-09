@@ -905,7 +905,7 @@ body {
     }
 
     .player-hand-section {
-        bottom: 50px; /* Gacantaada salka hoose keen */
+        bottom: 60px; /* Gacantaada salka hoose keen */
         position: fixed;
         width: 100%;
         display: flex;
