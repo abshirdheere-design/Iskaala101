@@ -469,20 +469,22 @@ body {
     transform: translateX(-50%);
 }
 
-/* Magaca bidix — hadda wuxuu ku fadhiisanayaa geeska miiska, kama baxayo fog */
-#player-left {
-    top: 35%;
-    left: 80px;          /* gaar joogto ah, ma aha calc awal sidaan max(7.5%, calc(50% - 550px)); */
-    transform: translate(-50%, -50%);
-	z-index: 1500;
-}
 
 /* Magaca midig — hadda wuxuu ku fadhiisanayaa geeska miiska, kama baxayo fog */
 #player-right {
     top: 35%;
-    right: 80px; /* awal sidaan max(7.5%, calc(50% - 550px)); */
+    right: 70px; /* awal sidaan max(7.5%, calc(50% - 550px)); */
     left: auto;
     transform: translate(50%, -50%);
+	z-index: 1500;
+}
+
+
+/* Magaca bidix — hadda wuxuu ku fadhiisanayaa geeska miiska, kama baxayo fog */
+#player-left {
+    top: 35%;
+    left: 70px;          /* gaar joogto ah, ma aha calc awal sidaan max(7.5%, calc(50% - 550px)); */
+    transform: translate(-50%, -50%);
 	z-index: 1500;
 }
 
