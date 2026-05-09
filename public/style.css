@@ -454,13 +454,6 @@ body {
     z-index: 1000;
 }
 
-/* Magaca kore — wuxuu ku fadhiisanayaa geeska kore ee miiska */
-#player-top {
-    top: 35px;   /* hadda 55px → 20px */
-    left: 50%;
-    transform: translateX(-50%);
-	z-index: 1500; /* magaca ha sare u taagnaado */
-}
 
 /* Magaca bidix — hadda wuxuu ku fadhiisanayaa geeska miiska, kama baxayo fog */
 #player-left {
@@ -470,11 +463,12 @@ body {
 	z-index: 1500;
 }
 
-/* Magaca hoose — wuxuu ku fadhiisanayaa geeska hoose ee miiska */
-#player-bottom {
-    bottom: 40px;
+/* Magaca kore — wuxuu ku fadhiisanayaa geeska kore ee miiska */
+#player-top {
+    top: 35px;   /* hadda 55px → 20px */
     left: 50%;
     transform: translateX(-50%);
+	z-index: 1500; /* magaca ha sare u taagnaado */
 }
 
 /* Magaca midig — hadda wuxuu ku fadhiisanayaa geeska miiska, kama baxayo fog */
@@ -486,6 +480,12 @@ body {
 	z-index: 1500;
 }
 
+/* Magaca hoose — wuxuu ku fadhiisanayaa geeska hoose ee miiska */
+#player-bottom {
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+}
 
 .player-name-tag {
 	position: relative; /* waa lagu daray si sare loogu qaado magaca */
@@ -873,19 +873,20 @@ body {
 
 /* ============ 16. DESKTOP LARGE SCREENS ============ */
 @media (min-width: 1100px) {
-    #player-top {
-        top: 75px;
-        left: 50%;
-        transform: translateX(-50%);
-        position: absolute;
-    }
-
-    #player-left {
+    
+	    #player-left {
         /* Kan waa qofka bidixdaada (Last Player) */
         left: max(7.5%, calc(50% - 550px));
         right: auto;
         top: 35%;
         transform: translateY(-50%);
+        position: absolute;
+    }
+	
+	#player-top {
+        top: 75px;
+        left: 50%;
+        transform: translateX(-50%);
         position: absolute;
     }
 
