@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname, "public")));
 let rooms = {}; 
 let onlineUsers = 0;
 const TURN_TIME_LIMIT = 30000; 
-const POSITIONS = ['bottom', 'left', 'top', 'right'];
+const POSITIONS = ['bottom', 'right', 'top', 'left'];
 
 /* 1. DECK LOGIC */
 function createDeck() {
