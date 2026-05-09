@@ -458,14 +458,14 @@ body {
 /* Magaca bidix — hadda wuxuu ku fadhiisanayaa geeska miiska, kama baxayo fog */
 #player-left {
     top: 35%;
-    left: 35px;          /* gaar joogto ah, ma aha calc awal sidaan max(7.5%, calc(50% - 550px)); */
+    left: 20x;          /* gaar joogto ah, ma aha calc awal sidaan max(7.5%, calc(50% - 550px)); */
     transform: translate(-50%, -50%);
 	z-index: 1500;
 }
 
 /* Magaca kore — wuxuu ku fadhiisanayaa geeska kore ee miiska */
 #player-top {
-    top: 35px;   /* hadda 55px → 20px */
+    top: 25px;   /* hadda 55px → 20px */
     left: 50%;
     transform: translateX(-50%);
 	z-index: 1500; /* magaca ha sare u taagnaado */
@@ -474,7 +474,7 @@ body {
 /* Magaca midig — hadda wuxuu ku fadhiisanayaa geeska miiska, kama baxayo fog */
 #player-right {
     top: 35%;
-    right: 35px; /* awal sidaan max(7.5%, calc(50% - 550px)); */
+    right: 20px; /* awal sidaan max(7.5%, calc(50% - 550px)); */
     left: auto;
     transform: translate(50%, -50%);
 	z-index: 1500;
@@ -876,7 +876,7 @@ body {
     
 	    #player-left {
         /* Kan waa qofka bidixdaada (Last Player) */
-        left: max(7.5%, calc(50% - 550px));
+        left: max(5%, calc(50% - 600px)); /* Miiska xoogaa ka fogee */
         right: auto;
         top: 35%;
         transform: translateY(-50%);
@@ -884,7 +884,7 @@ body {
     }
 	
 	#player-top {
-        top: 75px;
+        top: 60px;
         left: 50%;
         transform: translateX(-50%);
         position: absolute;
@@ -892,7 +892,7 @@ body {
 
     #player-right {
         /* Kan waa qofka midigtaada (Next Player - Counter-Clockwise) */
-        right: max(7.5%, calc(50% - 550px));
+        right: max(5%, calc(50% - 600px)); /* Miiska xoogaa ka fogee */
         left: auto;
         top: 35%;
         transform: translateY(-50%);
@@ -900,7 +900,7 @@ body {
     }
 
     #player-bottom {
-        bottom: 290px; /* Wax yar kor u qaad si uusan gacanta ugu dhex dhicin */
+        bottom: 280px; /* Wax yar kor u qaad si uusan gacanta ugu dhex dhicin */
         left: 50%;
         transform: translateX(-50%);
         position: absolute;
