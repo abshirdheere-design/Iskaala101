@@ -1160,7 +1160,7 @@ socket.on("updateHand", (data) => {
 });
 
 
-
+let timerInterval = null;
 socket.on("discardPickedSuccess", (data) => {
     // data waa Object, ee ma ahan kaarka tooskiisa. 
     // Markaa waa inaan niraahdaa data.card
