@@ -935,18 +935,9 @@ body {
         box-shadow: 2px 0 5px rgba(0,0,0,0.3);
     }
 
-    /* Ciyaaryahanka Midig (Counter-Clockwise - Next Player) */
-    #player-right {
-        top: 40%; /* Waxaan ka dhigay bartamaha vertical-ka */
-        right: 2%;
-        left: auto;
-        transform: translateY(-50%);
-        font-size: 0.75rem;
-    }
-
     /* Ciyaaryahanka Bidix (Last Player) */
     #player-left {
-        top: 40%; 
+        top: 35%; 
         left: 2%;
         right: auto;
         transform: translateY(-50%);
@@ -957,10 +948,19 @@ body {
     #player-bottom {
         bottom: 85px; /* In yar hoos ayaan u dhigay */
     }
+	
+	/* Ciyaaryahanka Midig (Counter-Clockwise - Next Player) */
+    #player-right {
+        top: 35%; /* Waxaan ka dhigay bartamaha vertical-ka */
+        right: 2%;
+        left: auto;
+        transform: translateY(-50%);
+        font-size: 0.75rem;
+    }
 
     /* Qaybta Gacanta (Hand Section) */
     .player-hand-section {
-        bottom: 15px; /* Aad u hooseey si uu miiska u banneeyo */
+        bottom: 20px; /* Aad u hooseey si uu miiska u banneeyo */
         width: 100%;
         display: flex;
         flex-direction: column;
