@@ -456,7 +456,7 @@ body {
 
 /* Magaca kore — wuxuu ku fadhiisanayaa geeska kore ee miiska */
 #player-top {
-    top: 10px;   /* hadda 55px → 20px */
+    top: 35px;   /* hadda 55px → 20px */
     left: 50%;
     transform: translateX(-50%);
 	z-index: 1500; /* magaca ha sare u taagnaado */
@@ -472,7 +472,7 @@ body {
 
 /* Magaca hoose — wuxuu ku fadhiisanayaa geeska hoose ee miiska */
 #player-bottom {
-    bottom: 310px;
+    bottom: 40px;
     left: 50%;
     transform: translateX(-50%);
 }
@@ -899,7 +899,7 @@ body {
     }
 
     #player-bottom {
-        bottom: 260px; /* Wax yar kor u qaad si uusan gacanta ugu dhex dhicin */
+        bottom: 290px; /* Wax yar kor u qaad si uusan gacanta ugu dhex dhicin */
         left: 50%;
         transform: translateX(-50%);
         position: absolute;
