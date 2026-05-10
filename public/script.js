@@ -1064,33 +1064,6 @@ function updatePlayerNames(allPlayers, myId) {
     });
 }
 
-socket.on("playersUpdate", (data) => {
-    const { players, currentTurnId } = data;
-
-    updatePlayerNames(players, socket.id);
-
-    isMyTurn = (currentTurnId === socket.id);
-
-    // 🔥 HALKAN: remove blink from all players first
-    document.querySelectorAll(".player").forEach(el => {
-        el.classList.remove("active-turn-blink");
-    });
-
-    // 🔥 HALKAN: add blink to current player
-    const currentPlayerEl = document.querySelector(`[data-id="${currentTurnId}"]`);
-    if (currentPlayerEl) {
-        currentPlayerEl.classList.add("active-turn-blink");
-    }
-
-    const statusEl = document.getElementById("turnText");
-
-    if (isMyTurn) {
-        statusEl.innerHTML = `<b style="color:#2ecc71">DOORKAAGA!</b>`;
-    } else {
-        statusEl.textContent = "Sugaya...";
-    }
-});
-
 function updateTurnVisuals(currentTurnId) {
     document.querySelectorAll('.player-slot').forEach(slot => {
         slot.classList.remove('active-turn');
