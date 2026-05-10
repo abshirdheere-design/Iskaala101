@@ -1164,6 +1164,24 @@ socket.on("yourTurn", () => {
     renderMyHand();
 });
 
+socket.on("autoDiscarded", (card) => {
+
+    const index = myHand.findIndex(c =>
+        c.value === card.value &&
+        c.suit === card.suit
+    );
+
+    if (index !== -1) {
+        myHand.splice(index, 1);
+    }
+
+    renderMyHand();
+
+    hasDrawn = false;
+    pickedFromDiscard = false;
+    isMyTurn = false;
+});
+
 socket.on("updateDiscardPile", (card) => {
     const pile = document.getElementById("discard-pile");
     if (!pile) return;

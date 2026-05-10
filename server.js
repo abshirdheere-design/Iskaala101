@@ -585,10 +585,18 @@ function startTurnTimer(roomId) {
     const room = rooms[roomId];
     if (!room) return;
 
+    // clear previous timer
     if (room.turnTimeout) clearTimeout(room.turnTimeout);
 
+    // mark turn start
     room.turnStartTime = Date.now();
     updateRoomPlayers(roomId);
+
+    const player = room.players[room.activePlayerIndex];
+    if (!player) return;
+
+    // reset action state for new turn
+    player.hasActioned = false;
 
     room.turnTimeout = setTimeout(() => {
         if (!room.gameStarted) return;
@@ -596,22 +604,36 @@ function startTurnTimer(roomId) {
         const player = room.players[room.activePlayerIndex];
         if (!player) return;
 
+        // 🟡 AUTO DRAW if no action
         if (!player.hasActioned && room.stockPile.length > 0) {
             const card = room.stockPile.pop();
             player.hand.push(card);
             player.hasActioned = true;
+
             io.to(player.id).emit("receiveCard", card);
         }
 
+        // 🔴 AUTO DISCARD if hand overflow (>14)
         if (player.hand.length > 14) {
             const discarded = player.hand.pop();
+
             room.discardPile.push(discarded);
+
             io.to(roomId).emit("updateDiscardPile", discarded);
+
+            // ⭐ IMPORTANT: tell ONLY player
+            io.to(player.id).emit("autoDiscarded", discarded);
+
+            // keep hand synced (safe fallback)
+            io.to(player.id).emit("updateHand", {
+                hand: player.hand
+            });
         }
 
+        // move turn
         moveToNextPlayer(roomId);
 
-        // ❌ REMOVE RESTART TIMER HERE
+        // ❌ DO NOT restart timer here (prevents double timers)
         // startTurnTimer(roomId);
 
     }, 30000);
