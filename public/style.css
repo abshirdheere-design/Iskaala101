@@ -51,16 +51,51 @@ body {
 #btn-exit:hover { background: #e74c3c; }
 .badge-opened { background: #27ae60; color: #fff; font-size: .7rem; padding: 2px 10px; border-radius: 999px; font-weight: 700; }
 .hidden { display: none !important; }
-#table-area { flex: 1; position: relative; overflow: hidden; }
-.felt-oval { position: absolute; top: 8%; left: 50%; transform: translateX(-50%); width: 80%; max-width: 900px; height: 65%; background: linear-gradient(to bottom, #158a44, #0a4d25); border: 10px solid #3d2b1f; border-radius: 250px; box-shadow: inset 0 0 50px rgba(0,0,0,.6), 0 10px 30px rgba(0,0,0,.5); }
-.player-slot { position: absolute; z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.slot-top { top: 6px; left: 50%; transform: translateX(-50%); }
-.slot-left { top: 50%; left: 6px; transform: translateY(-50%); }
-.slot-right { top: 50%; right: 6px; transform: translateY(-50%); }
+#table-area {
+    flex: 1; /* Tani waxay siinaysaa booska u dhexeeya Header-ka iyo Gacanta */
+    position: relative;
+    width: 100%;
+    min-height: 400px; /* Hubi in dherer yar uu jiro */
+    overflow: hidden;
+}
+.felt-oval {
+    position: absolute;
+    top: 50%; /* Dhexda keen */
+    left: 50%;
+    transform: translate(-50%, -50%); /* Dhexda toos ugu rid */
+    width: 85%;
+    max-width: 900px;
+    height: 75%; /* Kordhi dhererka miiska */
+    background: radial-gradient(circle, #158a44 0%, #0a4d25 100%);
+    border: 8px solid #3d2b1f;
+    border-radius: 2000px; /* Si uu oval u noqdo */
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.6), 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 1;
+}
+..player-slot {
+    position: absolute;
+    z-index: 10; /* Ka dhig mid ka sarreeya miiska */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Boosaska saxda ah */
+.slot-top { top: 20px; left: 50%; transform: translateX(-50%); }
+.slot-left { top: 50%; left: 40px; transform: translateY(-50%); }
+.slot-right { top: 50%; right: 40px; transform: translateY(-50%); }
 .player-badge { padding: 4px 14px; border-radius: 999px; border: 2px solid var(--gold); color: var(--gold); font-weight: 700; font-size: .75rem; white-space: nowrap; transition: all .3s; }
 .player-badge.active { border-color: var(--green); color: var(--green); box-shadow: 0 0 12px rgba(46,204,113,.6); animation: pulse 1.2s infinite; }
 .opponent-cards { display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; max-width: 200px; }
-.piles-center { position: absolute; top: 28%; left: 50%; transform: translateX(-50%); display: flex; gap: 40px; align-items: center; z-index: 30; }
+..piles-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Dhexda miiska */
+    display: flex;
+    gap: 30px;
+    z-index: 20;
+}
 .pile-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .pile-btn { background: none; border: none; cursor: pointer; padding: 0; }
 .pile-label { color: var(--gold); font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
