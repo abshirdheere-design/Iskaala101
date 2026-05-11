@@ -1198,6 +1198,21 @@ socket.on("updateDiscardPile", (card) => {
     }
 });
 
+// Dhagayso cusboonaysiinta tirada kaararka dhexda yaalla (Stock)
+socket.on("updateStockCount", (count) => {
+    const stockElement = document.getElementById("stock-count");
+    if (stockElement) {
+        stockElement.innerText = count;
+        
+        // Haddii aad rabto inuu qarsoomo marka kaarku dhamaado
+        if (count <= 0) {
+            stockElement.parentElement.style.visibility = "hidden";
+        } else {
+            stockElement.parentElement.style.visibility = "visible";
+        }
+    }
+});
+
 socket.on("updateOpponents", (data) => {
     // data.allPlayers waa inuu noqdaa liis ay ku jiraan dhammaan 4-ta ciyaaryahan
     // Haddii server-kaagu soo diro data.allPlayers, isticmaal kan:
