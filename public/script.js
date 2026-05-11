@@ -445,16 +445,44 @@ document.addEventListener('DOMContentLoaded', () => {
   $('btn-tuur').addEventListener('click', handleTuur);
 });
 function joinGame() {
-  const name = $('name-input').value.trim();
-  if (!name) return;
+  const nameInput = $('name-input');
+  const name = nameInput.value.trim();
+  
+  if (!name) {
+    alert("Fadlan geli magacaaga!");
+    return;
+  }
+
   myName = name;
-  showScreen('waiting');
+  
+  // MUHIIM: HTML-kaagu wuxuu leeyahay id="waiting-screen" 
+  // Markaa waa inaad u qortaa 'waiting' sababtoo ah showScreen() ayaa ku daraysa '-screen'
+  showScreen('waiting'); 
+  
   renderWaitingRoom([]);
   socket.emit('joinRandom', name);
-}
-function typeWriter(elementId, text, speed = 45) { ... }
 
-// joinGame ku dar:
-setTimeout(() => {
-  typeWriter('waiting-typewriter', `${name} soo dhoow dulqaado inta ay ku soo biir ayaan ciyaartooyda kale`, 48);
-}, 300);
+  // Typewriter logic
+  setTimeout(() => {
+    const typewriterEl = $('waiting-typewriter');
+    if (typewriterEl) {
+      typeWriter('waiting-typewriter', `${name}, soo dhowoow! Dulqaado fadlan inta ay ciyaartooyda kale ku soo biirayaan...`, 48);
+    }
+  }, 300);
+}
+function typeWriter(elementId, text, speed = 45) {
+  const el = $(elementId);
+  if (!el) return;
+  
+  el.textContent = ""; // Marka hore faaruqi meesha
+  let i = 0;
+  
+  function type() {
+    if (i < text.length) {
+      el.textContent += text.charAt(i);
+      i++;
+      setTimeout(type, speed);
+    }
+  }
+  type();
+}
