@@ -111,14 +111,14 @@ body {
 
 /* 2. Magac (Bidix) - Waxaan ka dhignay 12% si uu miiska u soo galo */
 .slot-left { 
-    left: 16% !important;
+    left: 10% !important; /* Waxaan ka soo sikeynay 16% */
     top: 50%; 
     transform: translateY(-50%); 
 }
 
 /* 3. Magaca (Midig) - Isna 12% si uu miiska u soo galo */
 .slot-right { 
-    right: 16% !important;
+    right: 10% !important; /* Waxaan ka soo sikeynay 16% */
     top: 50%; 
     transform: translateY(-50%); 
 }
@@ -127,26 +127,24 @@ body {
 .player-badge.active { border-color: var(--green); color: var(--green); box-shadow: 0 0 12px rgba(46,204,113,.6); animation: pulse 1.2s infinite; }
 .opponent-cards {
     display: flex;
-    flex-wrap: wrap;
-    gap: 4px; /* Masaafo yar u gee kaararka dhexdooda */
+    flex-wrap: nowrap !important; /* Tani waxay xoog uga saaraysaa safka labaad */
     justify-content: center;
-    max-width: 120px; /* Isku ururi si aysan miiska uga bixin */
+    align-items: center;
+    gap: 0; /* Waxaan u isticmaali doonaa margin-ka hoose si ay isku dhex galaan */
 }
 
 /* Qofka sare (Antonella) - Kan wuxuu beddelayaa 'max-width' iyo 'flex-direction' ee qofka sare oo kaliya */
 .slot-left .opponent-cards, 
 .slot-right .opponent-cards {
     display: flex;
-    flex-direction: column; /* Kor iyo hoos */
+    flex-direction: column; /* Kaararku hal saf oo toosan ha noqdaan */
     align-items: center;
-    gap: -45px; /* Tani waa furaha! Waxay isku dhex riixaysaa kaararka si ay is-dulaan */
 }
 
 /* In kaarka dambe uu ka dambeeyo kan hore (Overlap) */
 .slot-left .card-back-sm, 
 .slot-right .card-back-sm {
-    margin-bottom: -35px; /* Kaararku ha is-fuulaan */
-    transition: transform 0.2s;
+    margin-bottom: -48px; /* Tani waxay ka dhigaysaa hal saf oo is-dhex fadhiya */
 }
 
 /* Haddii aad rabto in kaarka ugu dambeeya uu yara muuqdo */
@@ -157,12 +155,16 @@ body {
 
 .slot-top .opponent-cards {
     display: flex;
-    flex-direction: row;
+    flex-direction: row; /* Hal saf oo jiifa */
     justify-content: center;
 }
 
 .slot-top .card-back-sm {
-    margin-right: -25px;
+    margin-right: -30px; /* Kaararku dhinac ha isaga dulaan */
+}
+
+.slot-top .card-back-sm:last-child {
+    margin-right: 0;
 }
 
 .piles-center {
