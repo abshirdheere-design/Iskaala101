@@ -45,10 +45,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 40px; /* Ballaca dhinacyada kordhi */
+    padding: 20px 40px 10px; /* Waxaan kordhinnay padding-ka sare (20px) */
     background: rgba(0,0,0,0.9);
-    width: 100%; /* Hubi inuu 100% fidsan yahay */
-    border-bottom: 2px solid var(--gold); /* Xariiq dahab ah oo la mid ah tusaalaha */
+    width: 100%;
+    border-bottom: 2px solid var(--gold);
 }
 .header-left { display: flex; align-items: center; gap: 8px; }
 .online-dot { color: var(--green); animation: pulse 1.5s infinite; }
@@ -108,16 +108,16 @@ body {
     transform: translateX(-50%); 
 }
 
-/* 2. John (Bidix) - Waxaan ka dhignay 12% si uu miiska u soo galo */
+/* 2. Magac (Bidix) - Waxaan ka dhignay 12% si uu miiska u soo galo */
 .slot-left { 
-    left: 12% !important; 
+    left: 8% !important; /* Waxaan ka soo sikeynay 12% oo aan dhignay 8% */
     top: 50%; 
     transform: translateY(-50%); 
 }
 
-/* 3. Bruno (Midig) - Isna 12% si uu miiska u soo galo */
+/* 3. Magaca (Midig) - Isna 12% si uu miiska u soo galo */
 .slot-right { 
-    right: 12% !important; 
+    right: 8% !important; /* Waxaan ka soo sikeynay 12% oo aan dhignay 8% */
     top: 50%; 
     transform: translateY(-50%); 
 }
@@ -133,17 +133,36 @@ body {
 }
 
 /* Qofka sare (Antonella) - Kan wuxuu beddelayaa 'max-width' iyo 'flex-direction' ee qofka sare oo kaliya */
-.slot-top .opponent-cards {
-    flex-direction: row; 
-    max-width: none; /* Kan ayaa ka adkaanaya kii 120px ahaa */
-    gap: 5px;
-}
-
-/* John iyo Bruno - Kuwani waxay beddelayaan qaabka labada dhinac oo kaliya */
 .slot-left .opponent-cards, 
 .slot-right .opponent-cards {
-    flex-direction: column; 
-    gap: -25px; 
+    display: flex;
+    flex-direction: column; /* Kor iyo hoos */
+    align-items: center;
+    gap: -45px; /* Tani waa furaha! Waxay isku dhex riixaysaa kaararka si ay is-dulaan */
+}
+
+/* In kaarka dambe uu ka dambeeyo kan hore (Overlap) */
+.slot-left .card-back-sm, 
+.slot-right .card-back-sm {
+    margin-bottom: -35px; /* Kaararku ha is-fuulaan */
+    transition: transform 0.2s;
+}
+
+/* Haddii aad rabto in kaarka ugu dambeeya uu yara muuqdo */
+.slot-left .card-back-sm:last-child, 
+.slot-right .card-back-sm:last-child {
+    margin-bottom: 0;
+}
+
+.slot-top .opponent-cards {
+    display: flex;
+    flex-direction: row; /* Dhinac u fidi */
+    justify-content: center;
+    gap: -30px; /* Kaararka isku soo riix dhinaca */
+}
+
+.slot-top .card-back-sm {
+    margin-right: -25px; /* Is-dul-saar dhinac ah */
 }
 
 .piles-center {
