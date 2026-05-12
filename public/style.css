@@ -45,7 +45,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 30px 10px; /* Waxaan kordhinnay padding-ka sare (20px) */
+    padding: 10px 20px 5px; /* Waxaan kordhinnay padding-ka sare (20px) */
     background: rgba(0,0,0,0.9);
     width: 100%;
     border-bottom: 2px solid var(--gold);
