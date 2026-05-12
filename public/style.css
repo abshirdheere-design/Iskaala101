@@ -41,7 +41,13 @@ body {
 .waiting-note { color: #555; font-size: .85rem; text-align: center; margin-top: 8px; }
 #game-screen { display: none; flex-direction: column; height: 100vh; overflow: hidden; }
 #game-screen.active { display: flex; }
-#game-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #000; border-bottom: 2px solid var(--gold); z-index: 50; flex-shrink: 0; min-height: 48px; }
+#game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.9);
+}
 .header-left { display: flex; align-items: center; gap: 8px; }
 .online-dot { color: var(--green); animation: pulse 1.5s infinite; }
 .header-right { display: flex; align-items: center; gap: 12px; }
@@ -88,7 +94,13 @@ body {
 
 .player-badge { padding: 4px 14px; border-radius: 999px; border: 2px solid var(--gold); color: var(--gold); font-weight: 700; font-size: .75rem; white-space: nowrap; transition: all .3s; }
 .player-badge.active { border-color: var(--green); color: var(--green); box-shadow: 0 0 12px rgba(46,204,113,.6); animation: pulse 1.2s infinite; }
-.opponent-cards { display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; max-width: 200px; }
+.opponent-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px; /* Masaafo yar u gee kaararka dhexdooda */
+    justify-content: center;
+    max-width: 120px; /* Isku ururi si aysan miiska uga bixin */
+}
 .piles-center {
     position: absolute;
     top: 50%;
@@ -105,7 +117,13 @@ body {
     gap: 8px;
 }
 .pile-btn { background: none; border: none; cursor: pointer; padding: 0; }
-.pile-label { color: var(--gold); font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.pile-label {
+    color: var(--gold); /* Ka dhig mid dahab ah si uu u iftiimo */
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8); /* Hoos yar sii si uu u muuqdo */
+    margin-top: 5px;
+}
 .card-back-lg { width: 80px; height: 112px; border: 2px solid #1a3a8c; background: linear-gradient(135deg, #1a3a8c, #0d1f52); border-radius: 12px; position: relative; display: flex; align-items: center; justify-content: center; box-shadow: 2px 2px 8px rgba(0,0,0,.5); }
 .card-back-inner {
   position: absolute; inset: 4px; border: 1px solid rgba(100,150,255,.3); border-radius: 8px;
@@ -118,7 +136,7 @@ body {
 #btn-draw:hover .card-back-lg { border-color: var(--gold); box-shadow: 0 0 14px rgba(241,196,15,.5); }
 #btn-draw:active .card-back-lg { transform: scale(0.96); }
 .discard-empty { width: 80px; height: 112px; border: 2px dashed rgba(255,255,255,.25); border-radius: 12px; background: rgba(0,0,0,.2); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.25); font-size: .75rem; }
-.my-name-badge { position: absolute; bottom: 18%; left: 50%; transform: translateX(-50%); padding: 6px 18px; border-radius: 999px; border: 2px solid var(--gold); color: var(--gold); font-size: .85rem; z-index: 20; }
+.my-name-badge { position: absolute; bottom: 22%; left: 50%; transform: translateX(-50%); padding: 6px 18px; border-radius: 999px; border: 2px solid var(--gold); color: var(--gold); font-size: .85rem; z-index: 20; }
 .my-name-badge.active { border-color: var(--green); color: var(--green); box-shadow: 0 0 12px rgba(46,204,113,.6); animation: pulse 1.2s infinite; }
 .my-table-sets { position: absolute; bottom: 22%; left: 50%; transform: translateX(-50%); display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; z-index: 20; max-width: 60%; }
 .opened-set { display: flex; }
