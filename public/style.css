@@ -45,8 +45,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
+    padding: 10px 40px; /* Ballaca dhinacyada kordhi */
     background: rgba(0,0,0,0.9);
+    width: 100%; /* Hubi inuu 100% fidsan yahay */
+    border-bottom: 2px solid var(--gold); /* Xariiq dahab ah oo la mid ah tusaalaha */
 }
 .header-left { display: flex; align-items: center; gap: 8px; }
 .online-dot { color: var(--green); animation: pulse 1.5s infinite; }
@@ -68,16 +70,27 @@ body {
 }
 
 .felt-oval {
+
     position: absolute;
-    width: 94%; /* Aad u waasac ah */
+
+    width: 90%; /* Aad u waasac ah */
+
     max-width: 1200px; /* Ballaca ugu dambeeya */
-    height: 85%; /* Inuu kor iyo hoosba u fido */
+
+    height: 80%; /* Inuu kor iyo hoosba u fido */
+
     background: radial-gradient(circle, #158a44 0%, #0a4d25 100%);
-    border: 12px solid #3d2b1f;
-    /* Halkii ay ka ahaan lahayd 50%, ka dhig geesaha kaliya kuwo wareegsan */
-    border-radius: 150px; 
-    box-shadow: inset 0 0 80px rgba(0,0,0,0.7);
+
+    border: 10px solid #3d2b1f;
+
+    /* Halkii ay ka ahaan lahayd 150%, ka dhig geesaha kaliya kuwo wareegsan */
+
+    border-radius: 200px; 
+
+    box-shadow: inset 0 0 100px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5);
+
     z-index: 1;
+
 }
 
 .player-slot {
@@ -88,10 +101,26 @@ body {
     align-items: center;
 }
 
-/* Boosaska dhabta ah ee miiska dushiisa */
-.slot-top { top: 4%; left: 50%; transform: translateX(-50%); }
-.slot-left { left: 2%; top: 50%; transform: translateY(-50%); }
-.slot-right { right: 2%; top: 50%; transform: translateY(-50%); }
+/* 1. Qofka sare (Antonella) */
+.slot-top { 
+    top: 5%; 
+    left: 50%; 
+    transform: translateX(-50%); 
+}
+
+/* 2. John (Bidix) - Waxaan ka dhignay 12% si uu miiska u soo galo */
+.slot-left { 
+    left: 12% !important; 
+    top: 50%; 
+    transform: translateY(-50%); 
+}
+
+/* 3. Bruno (Midig) - Isna 12% si uu miiska u soo galo */
+.slot-right { 
+    right: 12% !important; 
+    top: 50%; 
+    transform: translateY(-50%); 
+}
 
 .player-badge { padding: 4px 14px; border-radius: 999px; border: 2px solid var(--gold); color: var(--gold); font-weight: 700; font-size: .75rem; white-space: nowrap; transition: all .3s; }
 .player-badge.active { border-color: var(--green); color: var(--green); box-shadow: 0 0 12px rgba(46,204,113,.6); animation: pulse 1.2s infinite; }
@@ -102,6 +131,21 @@ body {
     justify-content: center;
     max-width: 120px; /* Isku ururi si aysan miiska uga bixin */
 }
+
+/* Qofka sare (Antonella) - Kan wuxuu beddelayaa 'max-width' iyo 'flex-direction' ee qofka sare oo kaliya */
+.slot-top .opponent-cards {
+    flex-direction: row; 
+    max-width: none; /* Kan ayaa ka adkaanaya kii 120px ahaa */
+    gap: 5px;
+}
+
+/* John iyo Bruno - Kuwani waxay beddelayaan qaabka labada dhinac oo kaliya */
+.slot-left .opponent-cards, 
+.slot-right .opponent-cards {
+    flex-direction: column; 
+    gap: -25px; 
+}
+
 .piles-center {
     position: absolute;
     top: 50%;
