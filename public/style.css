@@ -99,6 +99,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+	pointer-events: none;
 }
 
 /* 1. Qofka sare (Antonella) */
@@ -110,14 +111,14 @@ body {
 
 /* 2. Magac (Bidix) - Waxaan ka dhignay 12% si uu miiska u soo galo */
 .slot-left { 
-    left: 8% !important; /* Waxaan ka soo sikeynay 12% oo aan dhignay 8% */
+    left: 16% !important;
     top: 50%; 
     transform: translateY(-50%); 
 }
 
 /* 3. Magaca (Midig) - Isna 12% si uu miiska u soo galo */
 .slot-right { 
-    right: 8% !important; /* Waxaan ka soo sikeynay 12% oo aan dhignay 8% */
+    right: 16% !important;
     top: 50%; 
     transform: translateY(-50%); 
 }
@@ -156,13 +157,12 @@ body {
 
 .slot-top .opponent-cards {
     display: flex;
-    flex-direction: row; /* Dhinac u fidi */
+    flex-direction: row;
     justify-content: center;
-    gap: -30px; /* Kaararka isku soo riix dhinaca */
 }
 
 .slot-top .card-back-sm {
-    margin-right: -25px; /* Is-dul-saar dhinac ah */
+    margin-right: -25px;
 }
 
 .piles-center {
