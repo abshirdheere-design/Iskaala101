@@ -81,29 +81,32 @@ body {
     z-index: 1;
 }
 .player-slot {
+    position: absolute;   /* ✅ muhiim */
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px; /* Masaafada magaca iyo kaarka */
+    gap: 5px;
     width: fit-content;
     height: auto;
-    z-index: 100; /* Hubi inuu dusha sare jiro */
+    z-index: 100;
 }
+
 .slot-top {
-    top: 15% !important; /* Bruno kor u qaad yar */
+    top: 12%;
     left: 50%;
     transform: translateX(-50%);
 }
-.slot-left { 
-    left: 12% !important; /* Wax yar dib u durki */
-    top: 50%; 
-    transform: translateY(-50%); 
+
+.slot-left {
+    left: 6%;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
-.slot-right { 
-    right: 12% !important; /* Wax yar dib u durki */
-    top: 50%; 
-    transform: translateY(-50%); 
+.slot-right {
+    right: 6%;
+    top: 50%;
+    transform: translateY(-50%);
 }
 .player-badge { 
     position: relative; /* Muhiim u ah z-index */
@@ -122,8 +125,6 @@ body {
 .player-badge.active { border-color: var(--green); color: var(--green); box-shadow: 0 0 12px rgba(46,204,113,.6); animation: pulse 1.2s infinite; }
 .opponent-cards {
     display: flex !important;
-    flex-direction: row !important; /* Hubi inay jiif yihiin */
-    flex-wrap: nowrap !important;   /* Hal saf oo kaliya */
     width: auto;
 }
 
