@@ -90,19 +90,18 @@ body {
     z-index: 100; /* Hubi inuu dusha sare jiro */
 }
 .slot-top {
-    top: 10% !important;
+    top: 15% !important; /* Bruno kor u qaad yar */
     left: 50%;
     transform: translateX(-50%);
 }
-}
 .slot-left { 
-    left: 8% !important; /* Waxaa lagu soo dhoweeyey geeska */
+    left: 12% !important; /* Wax yar dib u durki */
     top: 50%; 
     transform: translateY(-50%); 
 }
 
 .slot-right { 
-    right: 8% !important; /* Waxaa lagu soo dhoweeyey geeska */
+    right: 12% !important; /* Wax yar dib u durki */
     top: 50%; 
     transform: translateY(-50%); 
 }
@@ -122,18 +121,18 @@ body {
 }
 .player-badge.active { border-color: var(--green); color: var(--green); box-shadow: 0 0 12px rgba(46,204,113,.6); animation: pulse 1.2s infinite; }
 .opponent-cards {
-    display: flex;
-    flex-wrap: nowrap !important; /* Tani waxay xannibeysaa safka labaad */
-    justify-content: center;
-    align-items: center;
-    gap: 0;
+    display: flex !important;
+    flex-direction: row !important; /* Hubi inay jiif yihiin */
+    flex-wrap: nowrap !important;   /* Hal saf oo kaliya */
+    width: auto;
 }
 
 /* Dhinacyada (Left/Right) iyo John (Sare) */
 .opponent-cards .card-back-sm {
-    margin-right: -36px !important; /* Kaararka aad isugu soo riix si ay boos yar u qaataan */
+    margin-right: -38px !important; /* Kaararka aad isugu soo riix */
     margin-bottom: 0 !important;
 }
+
 .opponent-cards .card-back-sm:last-child {
     margin-right: 0 !important;
 }
@@ -172,7 +171,7 @@ body {
     transform: translate(-50%, -50%);
     display: flex;
     gap: 40px;
-    z-index: 30;
+    z-index: 50;
 }
 .pile-wrap {
     display: flex;
