@@ -111,14 +111,14 @@ body {
 
 /* 2. Magac (Bidix) - Waxaan ka dhignay 12% si uu miiska u soo galo */
 .slot-left { 
-    left: 10% !important; /* Waxaan ka soo sikeynay 16% */
+    left: 15% !important; /* Waxaan ka soo sikeynay 16% */
     top: 50%; 
     transform: translateY(-50%); 
 }
 
 /* 3. Magaca (Midig) - Isna 12% si uu miiska u soo galo */
 .slot-right { 
-    right: 10% !important; /* Waxaan ka soo sikeynay 16% */
+    right: 15% !important; /* Waxaan ka soo sikeynay 16% */
     top: 50%; 
     transform: translateY(-50%); 
 }
