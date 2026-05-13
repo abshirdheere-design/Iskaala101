@@ -89,6 +89,7 @@ body {
     width: fit-content;
     height: auto;
     z-index: 100;
+	gap: 10px;
 }
 
 .slot-top {
@@ -100,24 +101,17 @@ body {
     align-items: center;
 }
 
-.slot-left {
-    left: 2.5%;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 12px;
+/* Magacyada iyo kaararka dhinacyada */
+.slot-left { 
+    left: 8% !important; /* Waxaa laga soo dhawaajiyey 2% ilaa 8% */
+    top: 50%; 
+    transform: translateY(-50%); 
 }
 
-.slot-right {
-    right: 2.5%;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: row-reverse;
-    align-items: center;
-    gap: 12px;
+.slot-right { 
+    right: 8% !important; /* Waxaa laga soo dhawaajiyey 2% ilaa 8% */
+    top: 50%; 
+    transform: translateY(-50%); 
 }
 .player-badge { 
     position: relative; /* Muhiim u ah z-index */
@@ -164,19 +158,21 @@ body {
     margin-right: 0 !important;
 }
 
-.slot-left .opponent-cards,
+.slot-left .opponent-cards, 
 .slot-right .opponent-cards {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: flex !important;
+    flex-direction: row !important; /* Jiif (Horizontal) */
+    gap: 0 !important;
 }
-.slot-left .card-back-sm,
+.slot-left .card-back-sm, 
 .slot-right .card-back-sm {
-    margin-bottom: -40px;
+    margin-right: -35px !important; /* Kaararka ayaa isku dhex gelaya si jiif ah */
+    margin-bottom: 0 !important;    /* Vertical-kii hore ka saar */
+    transform: rotate(0deg);        /* Hubi inaysan wareegsanayn */
 }
-.slot-left .card-back-sm:last-child,
+.slot-left .card-back-sm:last-child, 
 .slot-right .card-back-sm:last-child {
-    margin-bottom: 0;
+    margin-right: 0 !important;
 }
 .slot-top .opponent-cards {
     display: flex;
