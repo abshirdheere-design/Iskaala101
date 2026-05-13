@@ -89,7 +89,7 @@ body {
     width: fit-content;
     height: auto;
     z-index: 100;
-	gap: 10px;
+	gap: 5px; /* Masaafada magaca iyo kaarka ugu sarreeya */
 }
 
 .slot-top {
@@ -103,13 +103,13 @@ body {
 
 /* Magacyada iyo kaararka dhinacyada */
 .slot-left { 
-    left: 8% !important; /* Waxaa laga soo dhawaajiyey 2% ilaa 8% */
+    left: 15% !important; /* Waxaa laga soo dhawaajiyey 2% ilaa 8% */
     top: 50%; 
     transform: translateY(-50%); 
 }
 
 .slot-right { 
-    right: 8% !important; /* Waxaa laga soo dhawaajiyey 2% ilaa 8% */
+    right: 15% !important; /* Waxaa laga soo dhawaajiyey 2% ilaa 8% */
     top: 50%; 
     transform: translateY(-50%); 
 }
@@ -145,17 +145,20 @@ body {
 .player-badge.active { border-color: var(--green); color: var(--green); box-shadow: 0 0 12px rgba(46,204,113,.6); animation: pulse 1.2s infinite; }
 .opponent-cards {
     display: flex !important;
-    width: auto;
+    flex-direction: column !important; /* Waxay ka dhigaysaa mid taagan/vertical */
+    align-items: center;
+    gap: 0;
 }
 
 /* Dhinacyada (Left/Right) iyo John (Sare) */
 .opponent-cards .card-back-sm {
-    margin-right: -38px !important; /* Kaararka aad isugu soo riix */
-    margin-bottom: 0 !important;
+    margin-bottom: -55px !important; /* Waxay kaararka isugu soo jiidaysaa dusha sare */
+    margin-right: 0 !important;      /* Ka saar margin-kii hore ee jiifka ahaa */
 }
 
+/* Kaarka ugu dambeeya margin ma u baahna */
 .opponent-cards .card-back-sm:last-child {
-    margin-right: 0 !important;
+    margin-bottom: 0 !important;
 }
 
 .slot-left .opponent-cards, 
