@@ -45,7 +45,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px 5px; /* Waxaan kordhinnay padding-ka sare (20px) */
+    padding: 10px 20px 5px;
     background: rgba(0,0,0,0.9);
     width: 100%;
     border-bottom: 2px solid var(--gold);
@@ -60,121 +60,90 @@ body {
 .badge-opened { background: #27ae60; color: #fff; font-size: .7rem; padding: 2px 10px; border-radius: 999px; font-weight: 700; }
 .hidden { display: none !important; }
 #table-area {
-    flex: 1; 
+    flex: 1;
     position: relative;
-    width: 100vw; /* Inuu daboolo ballaca shaashadda */
+    width: 100vw;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-
 .felt-oval {
-
     position: absolute;
-
-    width: 90%; /* Aad u waasac ah */
-
-    max-width: 1200px; /* Ballaca ugu dambeeya */
-
-    height: 80%; /* Inuu kor iyo hoosba u fido */
-
+    width: 90%;
+    max-width: 1200px;
+    height: 80%;
     background: radial-gradient(circle, #158a44 0%, #0a4d25 100%);
-
     border: 10px solid #3d2b1f;
-
-    /* Halkii ay ka ahaan lahayd 150%, ka dhig geesaha kaliya kuwo wareegsan */
-
-    border-radius: 200px; 
-
+    border-radius: 200px;
     box-shadow: inset 0 0 100px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5);
-
     z-index: 1;
-
 }
-
 .player-slot {
     position: absolute;
-    z-index: 10; 
+    z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: center;
-	pointer-events: none;
+    pointer-events: none;
 }
-
-/* 1. Qofka sare (Antonella) */
-.slot-top { 
-    top: 12%; 
-    left: 50%; 
-    transform: translateX(-50%); 
+.slot-top {
+    top: 12%;
+    left: 50%;
+    transform: translateX(-50%);
 }
-
-/* 2. Magac (Bidix) - Waxaan ka dhignay 12% si uu miiska u soo galo */
-.slot-left { 
-    left: 15% !important; /* Waxaan ka soo sikeynay 16% */
-    top: 50%; 
-    transform: translateY(-50%); 
+.slot-left {
+    left: 15% !important;
+    top: 50%;
+    transform: translateY(-50%);
 }
-
-/* 3. Magaca (Midig) - Isna 12% si uu miiska u soo galo */
-.slot-right { 
-    right: 15% !important; /* Waxaan ka soo sikeynay 16% */
-    top: 50%; 
-    transform: translateY(-50%); 
+.slot-right {
+    right: 15% !important;
+    top: 50%;
+    transform: translateY(-50%);
 }
-
 .player-badge { padding: 4px 14px; border-radius: 999px; border: 2px solid var(--gold); color: var(--gold); font-weight: 700; font-size: .75rem; white-space: nowrap; transition: all .3s; }
 .player-badge.active { border-color: var(--green); color: var(--green); box-shadow: 0 0 12px rgba(46,204,113,.6); animation: pulse 1.2s infinite; }
 .opponent-cards {
     display: flex;
-    flex-wrap: nowrap !important; /* Tani waxay xoog uga saaraysaa safka labaad */
+    flex-wrap: nowrap !important;
     justify-content: center;
     align-items: center;
-    gap: 0; /* Waxaan u isticmaali doonaa margin-ka hoose si ay isku dhex galaan */
+    gap: 0;
 }
-
-/* Qofka sare (Antonella) - Kan wuxuu beddelayaa 'max-width' iyo 'flex-direction' ee qofka sare oo kaliya */
-.slot-left .opponent-cards, 
+.slot-left .opponent-cards,
 .slot-right .opponent-cards {
     display: flex;
-    flex-direction: column; /* Kaararku hal saf oo toosan ha noqdaan */
+    flex-direction: column;
     align-items: center;
 }
-
-/* In kaarka dambe uu ka dambeeyo kan hore (Overlap) */
-.slot-left .card-back-sm, 
+.slot-left .card-back-sm,
 .slot-right .card-back-sm {
-    margin-bottom: -48px; /* Tani waxay ka dhigaysaa hal saf oo is-dhex fadhiya */
+    margin-bottom: -48px;
 }
-
-/* Haddii aad rabto in kaarka ugu dambeeya uu yara muuqdo */
-.slot-left .card-back-sm:last-child, 
+.slot-left .card-back-sm:last-child,
 .slot-right .card-back-sm:last-child {
     margin-bottom: 0;
 }
-
 .slot-top .opponent-cards {
     display: flex;
-    flex-direction: row; /* Hal saf oo jiifa */
+    flex-direction: row;
     justify-content: center;
 }
-
 .slot-top .card-back-sm {
-    margin-right: -30px; /* Kaararku dhinac ha isaga dulaan */
+    margin-right: -30px;
 }
-
 .slot-top .card-back-sm:last-child {
     margin-right: 0;
 }
-
 .piles-center {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Tani waxay dhexda keenaysaa bartamaha piles-ka */
+    transform: translate(-50%, -50%);
     display: flex;
     gap: 40px;
-    z-index: 30; /* Ka dhig mid ka sarreeya felt-oval */
+    z-index: 30;
 }
 .pile-wrap {
     display: flex;
@@ -184,10 +153,10 @@ body {
 }
 .pile-btn { background: none; border: none; cursor: pointer; padding: 0; }
 .pile-label {
-    color: var(--gold); /* Ka dhig mid dahab ah si uu u iftiimo */
+    color: var(--gold);
     font-size: 0.75rem;
     font-weight: 800;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.8); /* Hoos yar sii si uu u muuqdo */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
     margin-top: 5px;
 }
 .card-back-lg { width: 80px; height: 112px; border: 2px solid #1a3a8c; background: linear-gradient(135deg, #1a3a8c, #0d1f52); border-radius: 12px; position: relative; display: flex; align-items: center; justify-content: center; box-shadow: 2px 2px 8px rgba(0,0,0,.5); }
