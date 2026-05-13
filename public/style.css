@@ -92,21 +92,32 @@ body {
 }
 
 .slot-top {
-    top: 12%;
+    top: 3%;
     left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .slot-left {
-    left: 6%;
+    left: 2.5%;
     top: 50%;
     transform: translateY(-50%);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
 }
 
 .slot-right {
-    right: 6%;
+    right: 2.5%;
     top: 50%;
     transform: translateY(-50%);
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 12px;
 }
 .player-badge { 
     position: relative; /* Muhiim u ah z-index */
@@ -122,6 +133,21 @@ body {
     white-space: nowrap; 
     transition: all .3s; 
 }
+
+.slot-left .player-badge,
+.slot-right .player-badge {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    height: 140px;
+    min-width: 55px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1rem;
+}
+
 .player-badge.active { border-color: var(--green); color: var(--green); box-shadow: 0 0 12px rgba(46,204,113,.6); animation: pulse 1.2s infinite; }
 .opponent-cards {
     display: flex !important;
@@ -144,9 +170,9 @@ body {
     flex-direction: column;
     align-items: center;
 }
-.slot-left .card-back-sm, 
+.slot-left .card-back-sm,
 .slot-right .card-back-sm {
-    margin-bottom: -56px !important; /* Waxaa laga dhigay -56px si safku u gaabado */
+    margin-bottom: -40px;
 }
 .slot-left .card-back-sm:last-child,
 .slot-right .card-back-sm:last-child {
@@ -158,8 +184,9 @@ body {
     justify-content: center;
 }
 .slot-top .card-back-sm {
-    margin-right: -32px !important; /* Isku dhufo dhinac ahaan */
+    margin-right: -22px !important; /* Isku dhufo dhinac ahaan */
     margin-bottom: 0;
+	
 }
 
 .slot-top .card-back-sm:last-child {
