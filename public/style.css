@@ -70,7 +70,8 @@ body {
 }
 .felt-oval {
     position: absolute;
-    width: 90%;
+    width: 85% !important; /* Wax yar yaree ballaca si magacyadu geesaha u fariistaan */
+    height: 75% !important;
     max-width: 1200px;
     height: 80%;
     background: radial-gradient(circle, #158a44 0%, #0a4d25 100%);
@@ -83,26 +84,42 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px; /* Masaafada u dhexeysa magaca iyo turubka */
-    height: auto !important;
+    gap: 5px; /* Masaafada magaca iyo kaarka */
+    width: fit-content;
+    height: auto;
+    z-index: 100; /* Hubi inuu dusha sare jiro */
 }
-.slot-top { 
-    top: 15% !important; /* Wax yar hoos u soo dhufo */
-    left: 50%; 
-    transform: translateX(-50%); 
+.slot-top {
+    top: 10% !important;
+    left: 50%;
+    transform: translateX(-50%);
+}
 }
 .slot-left { 
-    left: 20% !important; /* Waxaa laga soo kiciyey 15% */
+    left: 8% !important; /* Waxaa lagu soo dhoweeyey geeska */
     top: 50%; 
     transform: translateY(-50%); 
 }
 
 .slot-right { 
-    right: 20% !important; /* Waxaa laga soo kiciyey 15% */
+    right: 8% !important; /* Waxaa lagu soo dhoweeyey geeska */
     top: 50%; 
     transform: translateY(-50%); 
 }
-.player-badge { padding: 4px 14px; border-radius: 999px; border: 2px solid var(--gold); color: var(--gold); font-weight: 700; font-size: .75rem; white-space: nowrap; transition: all .3s; }
+.player-badge { 
+    position: relative; /* Muhiim u ah z-index */
+    z-index: 101; /* Hubi inay dusha ka saaran tahay kaararka */
+    background-color: rgba(0, 0, 0, 0.7) !important; /* Madow khafiif ah si magacu u muuqdo */
+    
+    padding: 4px 14px; 
+    border-radius: 999px; 
+    border: 2px solid var(--gold); 
+    color: var(--gold); 
+    font-weight: 700; 
+    font-size: .75rem; 
+    white-space: nowrap; 
+    transition: all .3s; 
+}
 .player-badge.active { border-color: var(--green); color: var(--green); box-shadow: 0 0 12px rgba(46,204,113,.6); animation: pulse 1.2s infinite; }
 .opponent-cards {
     display: flex;
@@ -111,6 +128,16 @@ body {
     align-items: center;
     gap: 0;
 }
+
+/* Dhinacyada (Left/Right) iyo John (Sare) */
+.opponent-cards .card-back-sm {
+    margin-right: -36px !important; /* Kaararka aad isugu soo riix si ay boos yar u qaataan */
+    margin-bottom: 0 !important;
+}
+.opponent-cards .card-back-sm:last-child {
+    margin-right: 0 !important;
+}
+
 .slot-left .opponent-cards,
 .slot-right .opponent-cards {
     display: flex;
