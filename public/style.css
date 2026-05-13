@@ -93,7 +93,7 @@ body {
 }
 
 .slot-top {
-    top: 3%;
+    top: 10%;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -103,13 +103,13 @@ body {
 
 /* Magacyada iyo kaararka dhinacyada */
 .slot-left { 
-    left: 15% !important; /* Waxaa laga soo dhawaajiyey 2% ilaa 8% */
+    left: 17% !important; /* Waxaa laga soo dhawaajiyey 2% ilaa 8% */
     top: 50%; 
     transform: translateY(-50%); 
 }
 
 .slot-right { 
-    right: 15% !important; /* Waxaa laga soo dhawaajiyey 2% ilaa 8% */
+    right: 17% !important; /* Waxaa laga soo dhawaajiyey 2% ilaa 8% */
     top: 50%; 
     transform: translateY(-50%); 
 }
