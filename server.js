@@ -55,34 +55,16 @@ function createDeck() {
   return shuffle(deck);
 }
 
-socket.on('drawCard', () => {
-  const room = rooms[socket.roomId];
-  if (!room || !room.gameStarted) return;
-
-  const p = room.players[room.activePlayerIndex];
-  if (p.id !== socket.id) return;
-
-  // SHARDIGA CUSUB: Haddii uu haysto 15 kaar, looma ogola inuu qaato mid kale
-  if (p.hand.length >= 15) {
-    socket.emit('message', 'Ma qaadan kartid kaar kale, horey ayaad u haysataa 15 kaar. Mid tuur!');
-    return;
+function prepareGame(playerCount) {
+  const deck = createDeck(); // 144 xabbadood
+  const hands = [];
+  for (let i = 0; i < playerCount; i++) {
+    // Qofka u horreeya (i === 0) sii 15, kuwa kale sii 14
+    const count = (i === 0) ? 15 : 14; 
+    hands.push(deck.splice(0, count));
   }
-
-  if (p.hasActioned) {
-    socket.emit('message', 'Horey ayaad u qaadatay kaar.');
-    return;
-  }
-
-  // Haddii uu shardiga kore gudbo, markaas kaarka sii
-  refillStockIfEmpty(socket.roomId);
-  if (room.stockPile && room.stockPile.length > 0) {
-    const card = room.stockPile.pop();
-    p.hand.push(card);
-    p.hasActioned = true; // Calamada inuu tallaabo qaaday
-    socket.emit('receiveCard', card);
-    updateRoomPlayers(socket.roomId);
-  }
-});
+  return { allHands: hands, remainingDeck: deck };
+}
 
 function refillStockIfEmpty(roomId) {
   const room = rooms[roomId];
@@ -275,21 +257,35 @@ io.on('connection', socket => {
   });
 
   socket.on('drawCard', () => {
-    const room = rooms[socket.roomId];
-    if (!room || !room.gameStarted) return;
-    const p = room.players[room.activePlayerIndex];
-    if (p.id !== socket.id) return;
-    if (p.hand.length >= 15 || p.hasActioned) { socket.emit('message', 'Horey ayaad u qaadatay kaar.'); return; }
-    refillStockIfEmpty(socket.roomId);
-    if (room.stockPile && room.stockPile.length > 0) {
-      const card = room.stockPile.pop();
-      p.hand.push(card); p.hasActioned = true;
-      socket.emit('receiveCard', card);
-      updateRoomPlayers(socket.roomId);
-    } else {
-      socket.emit('message', 'Ma jiro turub dambe ee la qaato!');
-    }
-  });
+  const room = rooms[socket.roomId];
+  if (!room || !room.gameStarted) return;
+
+  const p = room.players[room.activePlayerIndex];
+  if (p.id !== socket.id) return;
+
+  // Haddii uu haysto 15 kaar, waa inuu mid tuuraa marka hore
+  if (p.hand.length >= 15) {
+    socket.emit('notification', 'Ma qaadan kartid kaar kale. Mid tuur marka hore!');
+    return;
+  }
+
+  if (p.hasActioned) {
+    socket.emit('notification', 'Horey ayaad u qaadatay kaar.');
+    return;
+  }
+
+  refillStockIfEmpty(socket.roomId);
+  if (room.stockPile && room.stockPile.length > 0) {
+    const card = room.stockPile.pop();
+    p.hand.push(card);
+    p.hasActioned = true;
+    socket.emit('receiveCard', card);
+    
+    // MUHIIM: U sheeg qof kasta in turubku yaraaday
+    io.to(socket.roomId).emit('updateStockCount', room.stockPile.length);
+    updateRoomPlayers(socket.roomId);
+  }
+});
 
   socket.on('pickDiscard', () => {
     const room = rooms[socket.roomId];
