@@ -85,7 +85,6 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
     width: fit-content;
     height: auto;
     z-index: 100;
@@ -138,19 +137,44 @@ body {
     gap: 10px;
 }
 
-.slot-left .player-badge,
+.slot-left .player-badge {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    height: 140px;
+    min-width: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    order: 1; /* Magaca bidixda ee xiga bannaanka */
+    font-size: 1rem;
+    position: relative;
+    z-index: 101;
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    padding: 4px 14px;
+    border-radius: 999px;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    font-weight: 700;
+}
+
 .slot-right .player-badge {
     writing-mode: vertical-rl;
     text-orientation: mixed;
     height: 140px;
     min-width: 55px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-    order: 1;
-	order: 2;
+    order: 2; /* Magaca midigta ee xiga bannaanka */
     font-size: 1rem;
+    position: relative;
+    z-index: 101;
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    padding: 4px 14px;
+    border-radius: 999px;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    font-weight: 700;
 }
 
 .player-badge.active { border-color: var(--green); color: var(--green); box-shadow: 0 0 12px rgba(46,204,113,.6); animation: pulse 1.2s infinite; }
@@ -171,22 +195,55 @@ body {
     margin-bottom: 0 !important;
 }
 
-.slot-left .opponent-cards, 
+.slot-left .opponent-cards {
+    display: flex !important;
+    flex-direction: column !important; /* Kaararku waa qotomaan */
+    gap: 0 !important;
+    order: 2; /* Turubka wuxuu imaanayaa midigta magaca (Gudaha miiska) */
+}
+
 .slot-right .opponent-cards {
     display: flex !important;
-    flex-direction: column !important; /* Ka dhig qotoma (Vertical stack) */
+    flex-direction: column !important; /* Kaararku waa qotomaan */
     gap: 0 !important;
+    order: 1; /* Turubka wuxuu imaanayaa bidixda magaca (Gudaha miiska) */
 }
-.slot-left .card-back-sm, 
+
+
+.slot-left .card-back-sm {
+    margin-bottom: -54px !important; /* Isku dhufo dherer ahaan (Vertical Overlap) */
+    margin-right: 0 !important;      /* Hubi inuusan jirin margin jiif ah */
+    transform: rotate(0deg);         /* Toosi kaarka */
+}
+
+/* Kaarka ugu dambeeya ee hoose yaal margin ma u baahna */
+.slot-left .card-back-sm:last-child {
+    margin-bottom: 0 !important;
+}
+
 .slot-right .card-back-sm {
-    margin-bottom: -54px !important; /* Isku dhufo dherer ahaan */
-    margin-right: 0 !important;      /* Ka saar margin-kii jiifka */
-    transform: rotate(0deg);        /* Hubi inaysan wareegsanayn */
+    margin-bottom: -54px !important; /* Isku dhufo dherer ahaan (Vertical Overlap) */
+    margin-right: 0 !important;      /* Hubi inuusan jirin margin jiif ah */
+    transform: rotate(0deg);         /* Toosi kaarka */
 }
-.slot-left .card-back-sm:last-child, 
+
+/* Kaarka ugu dambeeya ee hoose yaal margin ma u baahna */
 .slot-right .card-back-sm:last-child {
-    margin-right: 0 !important;
+    margin-bottom: 0 !important;
 }
+
+
+.slot-left .card-back-sm:last-child {
+    margin-bottom: 0 !important; /* Maadaama uu hadda qotomo (vertical) yahay */
+    margin-right: 0 !important;  /* Hubi in margin jiif ah uusan jirin */
+}
+
+.slot-right .card-back-sm:last-child {
+    margin-bottom: 0 !important; /* Maadaama uu hadda qotomo (vertical) yahay */
+    margin-right: 0 !important;  /* Hubi in margin jiif ah uusan jirin */
+}
+
+
 .slot-top .opponent-cards {
     flex-direction: row !important; /* Ka dhig jiif (Horizontal) Bruno turubkiisa */
     gap: 0;
