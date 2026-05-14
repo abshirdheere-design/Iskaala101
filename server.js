@@ -56,9 +56,13 @@ function createDeck() {
 }
 
 function prepareGame(playerCount) {
-  const deck = createDeck();
+  const deck = createDeck(); // 144 xabbadood
   const hands = [];
-  for (let i = 0; i < playerCount; i++) hands.push(deck.splice(0, 14));
+  for (let i = 0; i < playerCount; i++) {
+    // Qofka u horreeya (i === 0) sii 15, kuwa kale sii 14
+    const count = (i === 0) ? 15 : 14; 
+    hands.push(deck.splice(0, count));
+  }
   return { allHands: hands, remainingDeck: deck };
 }
 
