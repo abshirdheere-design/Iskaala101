@@ -36,23 +36,29 @@ function showNotification(msg, duration = 3000) {
 }
 
 function distributeCardsAnimated(handCards) {
-    const container = document.getElementById('hand-cards');
-    container.innerHTML = ''; 
+  const container = $('hand-cards');
+  if (!container) return;
 
-    handCards.forEach((card, index) => {
+  container.innerHTML = ''; // Faaruqi hal mar bilowga
+
+  handCards.forEach((card, index) => {
+    setTimeout(() => {
+      const cardElement = createCardUI(card);
+      cardElement.classList.add('card-deal'); // Halkan ayuu CSS-ku shaqaynayaa
+      container.appendChild(cardElement);
+
+      // Haddii uu yahay kaarkii ugu dambeeyay
+      if (index === handCards.length - 1) {
         setTimeout(() => {
-            const cardElement = createCardUI(card); 
-            cardElement.classList.add('card-deal'); 
-            container.appendChild(cardElement);
-
-            if (index === handCards.length - 1) {
-                // Fariin u dir Server-ka si uu u bilaabo saacadda
-                socket.emit('animation_finished'); 
-                canPlay = true; 
-            }
-        }, index * 150); 
-    });
-} 
+          socket.emit('animation_finished');
+          // Ka saar animation-ka si uusan mar kale u dhicin markaad sort gareyso
+          const allCards = container.querySelectorAll('.card-deal');
+          allCards.forEach(el => el.classList.remove('card-deal'));
+        }, 650); // Sug inta uu animation-ka u dambeeya dhammaanayo
+      }
+    }, index * 100); // 0.1 ilbiriqsi u dhexeeya kaar kasta
+  });
+}
 
 function startTurnTimer() {
   clearInterval(turnTimerInterval);

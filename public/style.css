@@ -365,17 +365,23 @@ body {
   flex-direction: column;
 }
 /* Kaarka oo dhexda ka soo duulaya kuna soo dhacaya gacantaada */
+/* Animation-ka kaarka soo dhacaya */
 .card-deal {
-    animation: dealFly 0.6s ease-out forwards;
+  position: relative; /* Muhiim si uu u dhaqaaqo */
+  animation: flyIn 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+  will-change: transform, opacity;
+  z-index: 100;
 }
 
-@keyframes dealFly {
-    0% {
-        transform: translate(-100px, -300px) rotate(-20deg);
-        opacity: 0;
-    }
-    100% {
-        transform: translate(0, 0) rotate(0);
-        opacity: 1;
-    }
+@keyframes flyIn {
+  0% {
+    /* Kaarku wuxuu ka imaanayaa 500px xagga sare */
+    transform: translateY(-500px) rotate(15deg) scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    /* Wuxuu ku degayaa booskiisa saxda ah */
+    transform: translateY(0) rotate(0) scale(1);
+    opacity: 1;
+  }
 }
