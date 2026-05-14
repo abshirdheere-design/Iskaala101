@@ -133,8 +133,8 @@ body {
 /* Bidixda iyo Midigta si ay magaca iyo turubku isku saf u noqdaan */
 .slot-left, .slot-right {
     display: flex !important;
-    flex-direction: row !important; /* Isku saf ka dhig magaca iyo turubka */
-    align-items: center !important;
+    flex-direction: row !important; /* Magaca iyo turubka hal saf (jiif) */
+    align-items: center !important; /* Dhexda ka toosi vertical ahaan */
     gap: 10px;
 }
 
@@ -148,22 +148,22 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-
+    order: 1;
+	order: 2;
     font-size: 1rem;
 }
 
 .player-badge.active { border-color: var(--green); color: var(--green); box-shadow: 0 0 12px rgba(46,204,113,.6); animation: pulse 1.2s infinite; }
 .opponent-cards {
     display: flex !important;
-    flex-direction: column !important; /* Waxay ka dhigaysaa mid taagan/vertical */
-    align-items: center;
-    gap: 0;
+    flex-direction: column !important; /* Ka dhig qotoma kaararka */
+    gap: 0 !important;
 }
 
 /* Dhinacyada (Left/Right) iyo John (Sare) */
 .opponent-cards .card-back-sm {
-    margin-bottom: -55px !important; /* Waxay kaararka isugu soo jiidaysaa dusha sare */
-    margin-right: 0 !important;      /* Ka saar margin-kii hore ee jiifka ahaa */
+    margin-bottom: -54px !important;
+    margin-right: 0 !important;
 }
 
 /* Kaarka ugu dambeeya margin ma u baahna */
