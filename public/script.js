@@ -34,6 +34,26 @@ function showNotification(msg, duration = 3000) {
   clearTimeout(notifTimer);
   notifTimer = setTimeout(() => el.classList.add('hidden'), duration);
 }
+
+function distributeCardsAnimated(handCards) {
+    const container = document.getElementById('hand-cards');
+    container.innerHTML = ''; 
+
+    handCards.forEach((card, index) => {
+        setTimeout(() => {
+            const cardElement = createCardUI(card); 
+            cardElement.classList.add('card-deal'); 
+            container.appendChild(cardElement);
+
+            if (index === handCards.length - 1) {
+                // Fariin u dir Server-ka si uu u bilaabo saacadda
+                socket.emit('animation_finished'); 
+                canPlay = true; 
+            }
+        }, index * 150); 
+    });
+} 
+
 function startTurnTimer() {
   clearInterval(turnTimerInterval);
   turnTimeLeft = 30;
@@ -371,17 +391,29 @@ function initSocket() {
     showScreen('game'); renderAll();
   });
   socket.on('playersUpdate', data => {
-    players = data.players; stockCount = data.stockCount; currentTurnId = data.currentTurnId;
+    // --- KHADKA CUSUB EE LOG-GA ---
+    console.log("--- Xog Cusub oo timid ---");
+    console.log("Turubka (Stock):", data.stockCount);
+    console.log("Ma Doorkayga baa?:", data.currentTurnId === socket.id);
+    // ------------------------------
+
+    players = data.players; 
+    stockCount = data.stockCount; 
+    currentTurnId = data.currentTurnId;
+    
     const wasMyTurn = isMyTurn;
     isMyTurn = data.currentTurnId === socket.id;
+    
     if (isMyTurn && !wasMyTurn) {
       startTurnTimer();
       showNotification('DOORKAAGA! Kaar qaado ama tuurista ka qaado.', 2500);
     }
+    
     const me = players.find(p => p.id === socket.id);
     if (me) myScore = me.points || 0;
+    
     renderAll();
-  });
+});
   socket.on('yourTurn', () => {
     isMyTurn = true; startTurnTimer();
     showNotification('DOORKAAGA!', 2000); renderAll();

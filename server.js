@@ -173,6 +173,13 @@ function moveToNextPlayer(roomId) {
 io.on('connection', socket => {
   onlineUsers++;
   io.emit('updateOnlineCount', onlineUsers);
+  socket.on('animation_finished', () => {
+    const room = rooms[socket.roomId];
+    if (room && !room.timerStarted) {
+        startTurnTimer(socket.roomId); // Halkan ka billow saacadda rasmiga ah
+        room.timerStarted = true;
+    }
+});
 
   socket.on('joinRandom', name => {
     for (const id in rooms) {
