@@ -20,6 +20,7 @@ let turnTimeLeft = 30;
 let turnTimerInterval = null;
 let dragStartIndex = null;
 const POINT_VALUES = { '6':6,'7':7,'8':8,'9':9,'10':10,'j':10,'q':10,'k':10,'a':11 };
+
 function $(id) { return document.getElementById(id); }
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -32,48 +33,75 @@ function showNotification(msg, duration = 3000) {
   el.textContent = msg;
   el.classList.remove('hidden');
   clearTimeout(notifTimer);
-  notifTimer = setTimeout(() => el.classList.add('hidden'), duration);
+  if (duration > 0) {
+    notifTimer = setTimeout(() => el.classList.add('hidden'), duration);
+  }
 }
 
-function distributeCardsAnimated(handCards) {
+function distributeAllCardsAnimated(myCards, opponentCounts, onDone) {
+  const container = $('table-area');
+  const handContainer = $('hand-cards');
+  if (!container || !handContainer) return;
+  
+  handContainer.innerHTML = '';
+  
+  // Boosaska ciyaartoyda ee shaashadda (X, Y)
+  const positions = {
+    top:   { x: 0,    y: -220 },
+    left:  { x: -360, y: 0    },
+    right: { x: 360,  y: 0    }
+  };
+  
+  const total = myCards.length;
+  const opNames = ['right', 'top', 'left'];
+  let delay = 0;
+  const step = 100; // Waqtiga u dhexeeya kaar kasta
 
-    const container = $('game-table');
-    const handContainer = $('hand-cards');
+  // 1. Qaybinta kaararka dadka kaa soo horjeeda
+  opNames.forEach(pos => {
+    const count = opponentCounts[pos] || 14;
+    const tx = positions[pos].x;
+    const ty = positions[pos].y;
+    
+    for (let i = 0; i < count; i++) {
+      const d = delay;
+      setTimeout(() => {
+        const flying = document.createElement('div');
+        // card-deal (animation) + card-back-sm (qaabka dhabarka afar-geeska ah)
+        flying.className = 'card-deal card-back-sm'; 
+        flying.style.setProperty('--targetX', `${tx}px`);
+        flying.style.setProperty('--targetY', `${ty}px`);
+        container.appendChild(flying);
+        
+        setTimeout(() => flying.remove(), 650);
+      }, d);
+      delay += step;
+    }
+  });
 
-    if (!container || !handContainer) return;
-
-    handContainer.innerHTML = '';
-
-    handCards.forEach((card, index) => {
-
-        setTimeout(() => {
-
-            // Kaarka duulaya
-            const flying = document.createElement('div');
-            flying.className = 'card-deal';
-
-            // Meesha uu ku dambaynayo
-            const targetX = -350 + (index * 45);
-
-            flying.style.setProperty('--targetX', `${targetX}px`);
-            flying.style.setProperty('--targetY', `260px`);
-
-            container.appendChild(flying);
-
-            // Marka animation dhammaado
-            setTimeout(() => {
-
-                flying.remove();
-
-                const realCard = createCardUI(card);
-                handContainer.appendChild(realCard);
-
-            }, 700);
-
-        }, index * 120);
-
-    });
-
+  // 2. Qaybinta kaararkaaga adiga (U duulista gacantaada hoose)
+  myCards.forEach((card, index) => {
+    const d = delay;
+    setTimeout(() => {
+      const flying = document.createElement('div');
+      flying.className = 'card-deal card-back-sm'; // Adigana dhabarka ha kuu jeedo intuu duulayo
+      
+      const targetX = -((total - 1) * 36) + (index * 72);
+      flying.style.setProperty('--targetX', `${targetX}px`);
+      flying.style.setProperty('--targetY', `260px`);
+      container.appendChild(flying);
+      
+      setTimeout(() => {
+        flying.remove();
+        if (index === total - 1) {
+          renderHand(); // Markuu dhamaado kan u dambeeya, gacantaada fur
+          socket.emit('animation_finished');
+          if (onDone) onDone();
+        }
+      }, 650);
+    }, d);
+    delay += step;
+  });
 }
 
 function startTurnTimer() {
@@ -86,14 +114,17 @@ function startTurnTimer() {
     if (turnTimeLeft === 0) clearInterval(turnTimerInterval);
   }, 1000);
 }
+
 function getCardValue(card) {
   const map = { a:14, k:13, q:12, j:11 };
   const v = String(card.value).toLowerCase();
   return map[v] || parseInt(v);
 }
+
 function cardPoints(card) {
   return POINT_VALUES[String(card.value).toLowerCase()] || 0;
 }
+
 function autoSplitIntoGroups(cards) {
   const groups = [];
   const usedIdx = new Set();
@@ -120,12 +151,14 @@ function autoSplitIntoGroups(cards) {
   });
   return groups;
 }
+
 function findValidGroups(cards) {
   const groups = autoSplitIntoGroups(cards);
   const usedIds = new Set(groups.flat().map(c => c.id));
   const remaining = cards.filter(c => !usedIds.has(c.id));
   return { validGroups: groups, remaining };
 }
+
 function applyFooroLogic(winnerId, providerId, allPlayers) {
   if (!allPlayers || !allPlayers.length) return null;
   const provIdx = allPlayers.findIndex(p => p.id === providerId);
@@ -143,18 +176,32 @@ function applyFooroLogic(winnerId, providerId, allPlayers) {
   });
   return target;
 }
+
+function getCardImagePath(card) {
+  const suitMap = { '♦': 'd', '♥': 'h', '♠': 's', '♣': 'c' };
+  const v = String(card.value).toLowerCase();
+  const s = suitMap[card.suit] || '';
+  return `/cards/${v}${s}.svg`;
+}
+
 function makeCard(card, size, opts = {}) {
   const el = document.createElement('div');
-  const isRed = card.suit === '♥' || card.suit === '♦';
-  el.className = `card ${size} ${isRed ? 'red-suit' : 'black-suit'}${opts.selected ? ' selected' : ''}${opts.overlap ? ' overlap' : ''}`;
-  el.innerHTML = `<span class="cv">${card.value}</span><span class="cs">${card.suit}</span><span class="cv-bot">${card.value}</span>`;
+  el.className = `card ${size}${opts.selected ? ' selected' : ''}${opts.overlap ? ' overlap' : ''}`;
+  const img = document.createElement('img');
+  img.src = getCardImagePath(card);
+  img.alt = `${card.value}${card.suit}`;
+  img.draggable = false;
+  img.style.cssText = 'width:100%;height:100%;object-fit:contain;border-radius:inherit;pointer-events:none;';
+  el.appendChild(img);
   return el;
 }
+
 function makeCardBack(size) {
   const el = document.createElement('div');
   el.className = `card-back-${size}`;
   return el;
 }
+
 function renderHeader() {
   $('hdr-name').textContent = myName;
   $('hdr-score').textContent = `Dhibco: ${myScore}`;
@@ -168,7 +215,13 @@ function renderHeader() {
   }
   if (isOpened) $('hdr-opened-badge').classList.remove('hidden');
   else $('hdr-opened-badge').classList.add('hidden');
+
+  const btnPause = document.getElementById('btn-pause');
+  if (btnPause) {
+    btnPause.style.display = isMyTurn ? 'inline-block' : 'none';
+  }
 }
+
 function renderHand() {
   const container = $('hand-cards');
   container.innerHTML = '';
@@ -187,6 +240,7 @@ function renderHand() {
   $('btn-dhigo').disabled = !isMyTurn;
   $('btn-tuur').disabled = !isMyTurn;
 }
+
 function renderDiscardPile() {
   const el = $('discard-display');
   el.innerHTML = '';
@@ -199,9 +253,11 @@ function renderDiscardPile() {
     el.textContent = 'Madhan';
   }
 }
+
 function renderStockPile() {
   $('stock-count-label').textContent = stockCount;
 }
+
 function renderOpponentSlot(position, opponentName, count, active, opened, sets) {
   const badge = $(`badge-${position}`);
   const cardsEl = $(`cards-${position}`);
@@ -211,7 +267,7 @@ function renderOpponentSlot(position, opponentName, count, active, opened, sets)
     cardsEl.innerHTML = '';
     return;
   }
-  badge.textContent = opponentName + (opened ? ' ✓' : '');
+  badge.textContent = `${opponentName}${opened ? ' ✓' : ''} (${count})`;
   badge.className = active ? 'player-badge active' : 'player-badge';
   cardsEl.innerHTML = '';
   if (sets && sets.length > 0) {
@@ -222,26 +278,22 @@ function renderOpponentSlot(position, opponentName, count, active, opened, sets)
       cardsEl.appendChild(setDiv);
     });
   } else {
-    const show = Math.min(count, 7);
-    for (let i = 0; i < show; i++) cardsEl.appendChild(makeCardBack('sm'));
-    if (count > 7) {
-      const more = document.createElement('span');
-      more.style.cssText = 'color:rgba(255,255,255,.4);font-size:.75rem;align-self:center;margin-left:4px;';
-      more.textContent = `+${count - 7}`;
-      cardsEl.appendChild(more);
-    }
+    for (let i = 0; i < count; i++) cardsEl.appendChild(makeCardBack('sm'));
   }
 }
+
 function getPlayerAtOffset(offset) {
   const myIdx = players.findIndex(p => p.id === socket.id);
   if (myIdx === -1) return null;
   return players[(myIdx + offset) % players.length] || null;
 }
+
 function getTableSetsAtOffset(offset) {
   const myIdx = tablePlayers.findIndex(p => p.id === socket.id);
   if (myIdx === -1) return [];
   return tablePlayers[(myIdx + offset) % tablePlayers.length]?.openedSets || [];
 }
+
 function renderOpponents() {
   const offsets = { left: 3, top: 2, right: 1 };
   ['left', 'top', 'right'].forEach(pos => {
@@ -257,12 +309,14 @@ function renderOpponents() {
     );
   });
 }
+
 function renderMyBadge() {
   const badge = $('my-name-badge');
   badge.textContent = myName + (isOpened ? ' ✓' : '') + ' (Adiga)';
   const amActive = currentTurnId === socket.id;
   badge.className = `my-name-badge bold ${amActive ? 'active' : 'gold'}`;
 }
+
 function renderMyTableSets() {
   const container = $('my-table-sets');
   container.innerHTML = '';
@@ -273,6 +327,7 @@ function renderMyTableSets() {
     container.appendChild(setDiv);
   });
 }
+
 function renderAll() {
   renderHeader();
   renderHand();
@@ -282,10 +337,12 @@ function renderAll() {
   renderMyBadge();
   renderMyTableSets();
 }
+
 function toggleCard(idx) {
   myHand[idx] = { ...myHand[idx], selected: !myHand[idx].selected };
   renderHand();
 }
+
 function handleDrop(targetIdx) {
   if (dragStartIndex === null || dragStartIndex === targetIdx) return;
   const moved = myHand.splice(dragStartIndex, 1)[0];
@@ -293,6 +350,7 @@ function handleDrop(targetIdx) {
   dragStartIndex = null;
   renderHand();
 }
+
 function handleSort() {
   const vOrder = { '6':6,'7':7,'8':8,'9':9,'10':10,'j':11,'q':12,'k':13,'a':14 };
   const sOrder = { '♠':4,'♥':3,'♦':2,'♣':1 };
@@ -304,17 +362,34 @@ function handleSort() {
   myHand = myHand.map(c => ({ ...c, selected: false }));
   renderHand();
 }
+
 function handleDraw() {
   if (!isMyTurn) { showNotification('Sug doorkaaga!'); return; }
   if (hasDrawn) { showNotification('Horey ayaad u qaadatay kaar.'); return; }
+  const drawEl = document.getElementById('btn-draw');
+  if (drawEl) {
+    drawEl.classList.remove('card-pickup-anim');
+    void drawEl.offsetWidth;
+    drawEl.classList.add('card-pickup-anim');
+    drawEl.addEventListener('animationend', () => drawEl.classList.remove('card-pickup-anim'), { once: true });
+  }
   socket.emit('drawCard');
 }
+
 function handlePickDiscard() {
   if (!isMyTurn) { showNotification('Sug doorkaaga!'); return; }
   if (hasDrawn) { showNotification('Horey ayaad u qaadatay kaar.'); return; }
   if (!discardTop) { showNotification('Tuurista kuma jiraan kaar.'); return; }
+  const discardEl = document.getElementById('discard-display');
+  if (discardEl) {
+    discardEl.classList.remove('card-pickup-anim');
+    void discardEl.offsetWidth;
+    discardEl.classList.add('card-pickup-anim');
+    discardEl.addEventListener('animationend', () => discardEl.classList.remove('card-pickup-anim'), { once: true });
+  }
   socket.emit('pickDiscard');
 }
+
 function handleDhigo() {
   if (!isMyTurn) { showNotification('Sug doorkaaga!'); return; }
   const selected = myHand.filter(c => c.selected);
@@ -355,6 +430,7 @@ function handleDhigo() {
   }
   renderAll();
 }
+
 function handleReset() {
   if (iHaveOpened || isOpened) { showNotification('Hore ayaad u degtay, kama noqon kartid!'); return; }
   if (!myOpenedSets.length) { showNotification('Ma jiraan kaarar aad dhigtay.'); return; }
@@ -365,6 +441,7 @@ function handleReset() {
   showNotification('Kaararkii waa lagu soo celiyay gacantaada.');
   renderAll();
 }
+
 function handleTuur() {
   if (!isMyTurn) { showNotification('Sug doorkaaga!'); return; }
   if (myHand.length === 14 && !hasDrawn) { showNotification('Fadlan marka hore kaar qaado!'); return; }
@@ -378,12 +455,20 @@ function handleTuur() {
   const remaining = myHand.length - 1;
   if (remaining === 1 || remaining === 2) { showNotification('Xeerka Batuutada: Ma kuu hari karaan 1 ama 2 xabo!'); return; }
   const cardToPlay = myHand[selIdx];
+  const discardEl = document.getElementById('discard-display');
+  if (discardEl) {
+    discardEl.classList.remove('card-throw-anim');
+    void discardEl.offsetWidth;
+    discardEl.classList.add('card-throw-anim');
+    discardEl.addEventListener('animationend', () => discardEl.classList.remove('card-throw-anim'), { once: true });
+  }
   socket.emit('playCard', cardToPlay);
   myHand.splice(selIdx, 1);
   isMyTurn = false; hasDrawn = false; pickedFromDiscard = false;
   clearInterval(turnTimerInterval);
   renderAll();
 }
+
 function renderWaitingRoom(plist) {
   $('waiting-count').textContent = `Raadinaya... (${plist.length}/4)`;
   const list = $('waiting-list');
@@ -401,68 +486,148 @@ function renderWaitingRoom(plist) {
     list.appendChild(row);
   }
 }
+
+function joinGame() {
+  const nameInput = $('name-input');
+  const name = nameInput.value.trim();
+  if (!name) {
+    showNotification('Fadlan geli magacaaga!');
+    return;
+  }
+  myName = name;
+  showScreen('waiting');
+  renderWaitingRoom([]);
+  socket.emit('joinRandom', name);
+  setTimeout(() => {
+    const typewriterEl = $('waiting-typewriter');
+    if (typewriterEl) {
+      typeWriter('waiting-typewriter', `${name}, soo dhowoow! Dulqaado fadlan inta ay ciyaartooyda kale ku soo biirayaan...`, 48);
+    }
+  }, 300);
+}
+
+function typeWriter(elementId, text, speed = 45) {
+  const el = $(elementId);
+  if (!el) return;
+  el.textContent = '';
+  let i = 0;
+  function type() {
+    if (i < text.length) {
+      el.textContent += text.charAt(i);
+      i++;
+      setTimeout(type, speed);
+    }
+  }
+  type();
+}
+
+function showReconnectOverlay(msg) {
+  const overlay = document.getElementById('reconnect-overlay');
+  const msgEl   = document.getElementById('reconnect-msg');
+  if (overlay) overlay.classList.remove('hidden');
+  if (msgEl)   msgEl.textContent = msg || 'Dib u xidh...';
+}
+function hideReconnectOverlay() {
+  const overlay = document.getElementById('reconnect-overlay');
+  if (overlay) overlay.classList.add('hidden');
+}
+
 function initSocket() {
   socket = io({ path: '/socket.io' });
+
+  socket.on('disconnect', reason => {
+    showReconnectOverlay(`Xiriirka waa go'ay — Dib u xidh...`);
+  });
+
+  socket.on('connect', () => {
+    hideReconnectOverlay();
+    if (myName) socket.emit('request_sync');
+  });
+
+  socket.on('connect_error', () => {
+    showReconnectOverlay('Serverka lama gaari karo — Sugaya...');
+  });
+
   socket.on('waitingRoomUpdate', data => renderWaitingRoom(data.players));
+
   socket.on('startHand', hand => {
     myHand = hand.map(c => ({ ...c, selected: false }));
-    showScreen('game'); renderAll();
+    showScreen('game');
+    renderHeader();
+    renderDiscardPile();
+    renderStockPile();
+    renderMyBadge();
+    renderMyTableSets();
+    ['left', 'top', 'right'].forEach(pos => {
+      const cardsEl = document.getElementById(`cards-${pos}`);
+      if (cardsEl) cardsEl.innerHTML = '';
+    });
+    const opponentCounts = { left: 14, top: 14, right: 14 };
+    setTimeout(() => {
+      distributeAllCardsAnimated(myHand, opponentCounts, () => {
+        renderOpponents();
+      });
+    }, 150);
   });
+
   socket.on('matchFound', data => {
     discardTop = data.topDiscard; currentTurnId = data.currentTurn;
     showScreen('game'); renderAll();
   });
-  socket.on('playersUpdate', data => {
-    // --- KHADKA CUSUB EE LOG-GA ---
-    console.log("--- Xog Cusub oo timid ---");
-    console.log("Turubka (Stock):", data.stockCount);
-    console.log("Ma Doorkayga baa?:", data.currentTurnId === socket.id);
-    // ------------------------------
 
-    players = data.players; 
-    stockCount = data.stockCount; 
+  socket.on('playersUpdate', data => {
+    players = data.players;
+    stockCount = data.stockCount;
     currentTurnId = data.currentTurnId;
-    
     const wasMyTurn = isMyTurn;
     isMyTurn = data.currentTurnId === socket.id;
-    
     if (isMyTurn && !wasMyTurn) {
       startTurnTimer();
       showNotification('DOORKAAGA! Kaar qaado ama tuurista ka qaado.', 2500);
     }
-    
     const me = players.find(p => p.id === socket.id);
-    if (me) myScore = me.points || 0;
-    
+    if (me) {
+      myScore = me.points || 0;
+    }
     renderAll();
-});
+  });
+
   socket.on('yourTurn', () => {
     isMyTurn = true; startTurnTimer();
     showNotification('DOORKAAGA!', 2000); renderAll();
   });
+
   socket.on('updateDiscardPile', card => { discardTop = card; renderDiscardPile(); });
   socket.on('updateStockCount', count => { stockCount = count; renderStockPile(); });
+
   socket.on('receiveCard', card => {
     myHand.push({ ...card, selected: false }); hasDrawn = true; renderHand();
   });
+
   socket.on('updateHand', data => {
     myHand = data.hand.map(c => ({ ...c, selected: false })); renderHand();
   });
+
   socket.on('discardPickedSuccess', data => {
     pickedFromDiscard = true; hasDrawn = true;
     showNotification(`${data.card.value}${data.card.suit} tuuristii ayaad ka qaadatay`, 2000);
   });
+
   socket.on('autoDiscarded', card => {
     showNotification(`Waqtigii dhamaday — ${card.value}${card.suit} ayaa si toos ah loo tuuray`, 3000);
   });
+
   socket.on('updateTableUI', data => {
     tablePlayers = data.players; currentMinToOpen = data.nextRequiredPoints;
     renderOpponents(); renderMyTableSets(); renderHand();
   });
+
   socket.on('updateOpponents', data => { opponents = data; renderOpponents(); });
+
   socket.on('scoreUpdated', data => {
     if (data.playerId === socket.id) { myScore = data.newTotal; renderHeader(); }
   });
+
   socket.on('gameOver', data => {
     clearInterval(turnTimerInterval);
     if (data.winnerId === socket.id) {
@@ -483,60 +648,103 @@ function initSocket() {
       $('modal-body').innerHTML = `<span style="color:#2ecc71;font-weight:700">${data.winnerName}</span> ayaa guuleystay!`;
     }
   });
+
   socket.on('notification', msg => showNotification(msg));
-  socket.on('timerPaused', data => { showNotification(data.message, 2000); clearInterval(turnTimerInterval); });
+
+  // Ku dar kuwan gudaha initSocket() ee faylka script.js
+socket.on('timerPaused', data => {
+  clearInterval(turnTimerInterval); // Jooji saacadda shaashadda ee hoos u xisaabinaysay
+  showNotification(data.message, 6000);
+
+  const btn = document.getElementById('btn-pause');
+  if (btn && data.activePlayerId === socket.id) {
+    btn.textContent = 'Fasax'; // Qoraalku wuxuu noqonayaa "Fasax" si dib loogu riixo
+    btn.dataset.paused = 'true';
+    btn.style.background = '#f39c12'; // Midabka ha loo beddelo oranji
+  }
+});
+
+socket.on('timerResumed', () => {
+  showNotification('▶️ Waqtiga dib ayuu bilaabmay!', 2000);
+
+  const btn = document.getElementById('btn-pause');
+  if (btn) {
+    btn.textContent = 'Isuga'; // Dib ugu soo celi qoraalkii rasmiga ahaa
+    btn.dataset.paused = 'false';
+    btn.style.background = ''; // Ka saar midabkii oranjiga ahaa
+  }
+
+  if (isMyTurn) {
+    // Dib u bilow saacadda muuqaalka ah ee shaashaddaada
+    startTurnTimer(); 
+  }
+});
+
   setInterval(() => socket.emit('ping_keep_alive'), 25000);
 }
-document.addEventListener('DOMContentLoaded', () => {
-  initSocket();
-  $('join-btn').addEventListener('click', joinGame);
-  $('name-input').addEventListener('keydown', e => { if (e.key === 'Enter') joinGame(); });
-  $('btn-draw').addEventListener('click', handleDraw);
-  $('btn-pick-discard').addEventListener('click', handlePickDiscard);
-  $('btn-dhigo').addEventListener('click', handleDhigo);
-  $('btn-reset').addEventListener('click', handleReset);
-  $('btn-sort').addEventListener('click', handleSort);
-  $('btn-tuur').addEventListener('click', handleTuur);
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && socket) {
+    socket.emit('request_sync');
+  }
 });
-function joinGame() {
-  const nameInput = $('name-input');
-  const name = nameInput.value.trim();
-  
-  if (!name) {
-    alert("Fadlan geli magacaaga!");
-    return;
+
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Marka hore ku xir badhamada hubin la'aan si aysan u xannibmin
+  const joinBtn = document.getElementById('join-btn');
+  if (joinBtn) joinBtn.addEventListener('click', joinGame);
+
+  const nameInput = document.getElementById('name-input');
+  if (nameInput) {
+    nameInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') joinGame();
+    });
   }
 
-  myName = name;
-  
-  // MUHIIM: HTML-kaagu wuxuu leeyahay id="waiting-screen" 
-  // Markaa waa inaad u qortaa 'waiting' sababtoo ah showScreen() ayaa ku daraysa '-screen'
-  showScreen('waiting'); 
-  
-  renderWaitingRoom([]);
-  socket.emit('joinRandom', name);
+  // 2. Badhamada ciyaarta dhexdeeda
+  const btnDraw = document.getElementById('btn-draw');
+  if (btnDraw) btnDraw.addEventListener('click', handleDraw);
 
-  // Typewriter logic
-  setTimeout(() => {
-    const typewriterEl = $('waiting-typewriter');
-    if (typewriterEl) {
-      typeWriter('waiting-typewriter', `${name}, soo dhowoow! Dulqaado fadlan inta ay ciyaartooyda kale ku soo biirayaan...`, 48);
-    }
-  }, 300);
-}
-function typeWriter(elementId, text, speed = 45) {
-  const el = $(elementId);
-  if (!el) return;
-  
-  el.textContent = ""; // Marka hore faaruqi meesha
-  let i = 0;
-  
-  function type() {
-    if (i < text.length) {
-      el.textContent += text.charAt(i);
-      i++;
-      setTimeout(type, speed);
-    }
+  const btnPickDiscard = document.getElementById('btn-pick-discard');
+  if (btnPickDiscard) btnPickDiscard.addEventListener('click', handlePickDiscard);
+
+  const btnDhigo = document.getElementById('btn-dhigo');
+  if (btnDhigo) btnDhigo.addEventListener('click', handleDhigo);
+
+  const btnReset = document.getElementById('btn-reset');
+  if (btnReset) btnReset.addEventListener('click', handleReset);
+
+  const btnSort = document.getElementById('btn-sort');
+  if (btnSort) btnSort.addEventListener('click', handleSort);
+
+  const btnTuur = document.getElementById('btn-tuur');
+  if (btnTuur) btnTuur.addEventListener('click', handleTuur);
+
+  // 3. Badhanka Hakinna / Isuga (Pause/Resume Timer)
+  const btnPause = document.getElementById('btn-pause');
+  if (btnPause) {
+    btnPause.addEventListener('click', () => {
+      if (!isMyTurn) return;
+      const isPaused = btnPause.dataset.paused === 'true';
+      if (!isPaused) {
+        socket.emit('pauseTimer');
+        btnPause.textContent = 'Fasax';
+        btnPause.dataset.paused = 'true';
+        btnPause.style.background = '#f39c12';
+        clearInterval(turnTimerInterval);
+      } else {
+        socket.emit('resumeTimer');
+        btnPause.textContent = 'Isuga';
+        btnPause.dataset.paused = 'false';
+        btnPause.style.background = '';
+      }
+    });
   }
-  type();
-}
+
+  // 4. Ugu dambayn wac initSocket gudaha try/catch si haddii uu error jiro uusan koodhka kale u dhiman
+  try {
+    initSocket();
+  } catch (err) {
+    console.error("Cillad ayaa ka dhacday inta ay socotay initSocket:", err);
+  }
+});

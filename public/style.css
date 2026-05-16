@@ -28,7 +28,7 @@ body {
 #join-btn { width: 100%; padding: 16px; background: var(--gold); color: #000; font-weight: 900; font-size: 1.1rem; border: none; border-radius: 14px; letter-spacing: .15em; cursor: pointer; transition: background .2s, box-shadow .2s; }
 #join-btn:hover { background: #f39c12; box-shadow: 0 0 20px rgba(241,196,15,.4); }
 .setup-footer-info { color: #555; font-size: .85rem; margin-top: 16px; }
-#waiting-screen { justify-content: center; }
+
 .waiting-box { background: rgba(0,0,0,.95); border: 2px solid var(--gold); border-radius: 20px; padding: 36px; width: 100%; max-width: 420px; box-shadow: 0 0 30px rgba(241,196,15,.25); min-height: 340px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .waiting-title { color: var(--gold); font-size: 1.5rem; font-weight: 900; letter-spacing: .1em; }
 .waiting-count { background: #fff; color: #000; font-weight: 700; font-size: 1.1rem; padding: 10px 24px; border-radius: 10px; width: 100%; text-align: center; }
@@ -67,10 +67,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: visible !important;
 }
 .felt-oval {
     position: absolute;
-    width: 85% !important; /* Wax yar yaree ballaca si magacyadu geesaha u fariistaan */
+    width: 85% !important;
     height: 75% !important;
     max-width: 1200px;
     height: 80%;
@@ -81,14 +82,14 @@ body {
     z-index: 1;
 }
 .player-slot {
-    position: absolute;   /* ✅ muhiim */
+    position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: fit-content;
     height: auto;
     z-index: 100;
-	gap: 5px; /* Masaafada magaca iyo kaarka ugu sarreeya */
+    gap: 5px;
 }
 
 .slot-top {
@@ -100,40 +101,37 @@ body {
     align-items: center;
 }
 
-/* Magacyada iyo kaararka dhinacyada */
-.slot-left { 
-    left: 17% !important; /* Waxaa laga soo dhawaajiyey 2% ilaa 8% */
-	flex-direction: row-reverse !important; /* Turubka bidix, Magaca midig */
-    top: 50%; 
-    transform: translateY(-50%); 
+.slot-left {
+    left: 17% !important;
+    flex-direction: row-reverse !important;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
-.slot-right { 
-    right: 17% !important; /* Waxaa laga soo dhawaajiyey 2% ilaa 8% */
-	flex-direction: row !important; /* Magaca bidix, Turubka midig */
-    top: 50%; 
-    transform: translateY(-50%); 
+.slot-right {
+    right: 17% !important;
+    flex-direction: row !important;
+    top: 50%;
+    transform: translateY(-50%);
 }
-.player-badge { 
-    position: relative; /* Muhiim u ah z-index */
-    z-index: 101; /* Hubi inay dusha ka saaran tahay kaararka */
-    background-color: rgba(0, 0, 0, 0.7) !important; /* Madow khafiif ah si magacu u muuqdo */
-    
-    padding: 4px 14px; 
-    border-radius: 999px; 
-    border: 2px solid var(--gold); 
-    color: var(--gold); 
-    font-weight: 700; 
-    font-size: .75rem; 
-    white-space: nowrap; 
-    transition: all .3s; 
+.player-badge {
+    position: relative;
+    z-index: 101;
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    padding: 4px 14px;
+    border-radius: 999px;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    font-weight: 700;
+    font-size: .75rem;
+    white-space: nowrap;
+    transition: all .3s;
 }
 
-/* Bidixda iyo Midigta si ay magaca iyo turubku isku saf u noqdaan */
 .slot-left, .slot-right {
     display: flex !important;
-    flex-direction: row !important; /* Magaca iyo turubka hal saf (jiif) */
-    align-items: center !important; /* Dhexda ka toosi vertical ahaan */
+    flex-direction: row !important;
+    align-items: center !important;
     gap: 10px;
 }
 
@@ -145,7 +143,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    order: 1; /* Magaca bidixda ee xiga bannaanka */
+    order: 1;
     font-size: 1rem;
     position: relative;
     z-index: 101;
@@ -165,7 +163,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    order: 2; /* Magaca midigta ee xiga bannaanka */
+    order: 2;
     font-size: 1rem;
     position: relative;
     z-index: 101;
@@ -180,12 +178,12 @@ body {
 .card-back {
     width: 60px;
     height: 90px;
-    background-image: url('back.png'); 
+    background-image: url('/cards/back.png');
     background-size: cover;
     border-radius: 6px;
     box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
     position: absolute;
-    transition: all 0.5s ease-in-out; 
+    transition: all 0.5s ease-in-out;
     z-index: 100;
 }
 
@@ -193,84 +191,68 @@ body {
   position: relative;
   width: 65px;
   height: 95px;
-  /* Booska mazzada dhexda */
 }
 
 .player-badge.active { border-color: var(--green); color: var(--green); box-shadow: 0 0 12px rgba(46,204,113,.6); animation: pulse 1.2s infinite; }
 .opponent-cards {
     display: flex !important;
-    flex-direction: column !important; /* Ka dhig qotoma kaararka */
+    flex-direction: column !important;
     gap: 0 !important;
 }
 
-/* Dhinacyada (Left/Right) iyo John (Sare) */
 .opponent-cards .card-back-sm {
     margin-bottom: -54px !important;
     margin-right: 0 !important;
 }
 
-/* Kaarka ugu dambeeya margin ma u baahna */
 .opponent-cards .card-back-sm:last-child {
     margin-bottom: 0 !important;
 }
 
 .slot-left .opponent-cards {
     display: flex !important;
-    flex-direction: column !important; /* Kaararku waa qotomaan */
+    flex-direction: column !important;
     gap: 0 !important;
-    order: 2; /* Turubka wuxuu imaanayaa midigta magaca (Gudaha miiska) */
+    order: 2;
 }
 
 .slot-right .opponent-cards {
     display: flex !important;
-    flex-direction: column !important; /* Kaararku waa qotomaan */
+    flex-direction: column !important;
     gap: 0 !important;
-    order: 1; /* Turubka wuxuu imaanayaa bidixda magaca (Gudaha miiska) */
+    order: 1;
 }
-
 
 .slot-left .card-back-sm {
-    margin-bottom: -54px !important; /* Isku dhufo dherer ahaan (Vertical Overlap) */
-    margin-right: 0 !important;      /* Hubi inuusan jirin margin jiif ah */
-    transform: rotate(0deg);         /* Toosi kaarka */
+    margin-bottom: -54px !important;
+    margin-right: 0 !important;
+    transform: rotate(0deg);
 }
 
-/* Kaarka ugu dambeeya ee hoose yaal margin ma u baahna */
 .slot-left .card-back-sm:last-child {
     margin-bottom: 0 !important;
+    margin-right: 0 !important;
 }
 
 .slot-right .card-back-sm {
-    margin-bottom: -54px !important; /* Isku dhufo dherer ahaan (Vertical Overlap) */
-    margin-right: 0 !important;      /* Hubi inuusan jirin margin jiif ah */
-    transform: rotate(0deg);         /* Toosi kaarka */
+    margin-bottom: -54px !important;
+    margin-right: 0 !important;
+    transform: rotate(0deg);
 }
 
-/* Kaarka ugu dambeeya ee hoose yaal margin ma u baahna */
 .slot-right .card-back-sm:last-child {
     margin-bottom: 0 !important;
+    margin-right: 0 !important;
 }
-
-
-.slot-left .card-back-sm:last-child {
-    margin-bottom: 0 !important; /* Maadaama uu hadda qotomo (vertical) yahay */
-    margin-right: 0 !important;  /* Hubi in margin jiif ah uusan jirin */
-}
-
-.slot-right .card-back-sm:last-child {
-    margin-bottom: 0 !important; /* Maadaama uu hadda qotomo (vertical) yahay */
-    margin-right: 0 !important;  /* Hubi in margin jiif ah uusan jirin */
-}
-
 
 .slot-top .opponent-cards {
-    flex-direction: row !important; /* Ka dhig jiif (Horizontal) Bruno turubkiisa */
+    flex-direction: row !important;
     gap: 0;
 }
 
 .slot-top .card-back-sm {
-    margin-right: -32px !important; /* Isku dhufo dhinac ahaan */
-    margin-bottom: 0 !important;    /* Ka saar margin-ka hoose ee qotominaya */
+    margin-right: -32px !important;
+    margin-bottom: 0 !important;
 }
 
 .slot-top .card-back-sm:last-child {
@@ -299,11 +281,16 @@ body {
     text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
     margin-top: 5px;
 }
-.card-back-lg { width: 80px; height: 112px; border: 2px solid #1a3a8c; background: linear-gradient(135deg, #1a3a8c, #0d1f52); border-radius: 12px; position: relative; display: flex; align-items: center; justify-content: center; box-shadow: 2px 2px 8px rgba(0,0,0,.5); }
-.card-back-inner {
-  position: absolute; inset: 4px; border: 1px solid rgba(100,150,255,.3); border-radius: 8px;
-  pointer-events: none;
+.card-back-lg {
+    width: 80px; height: 112px;
+    background-image: url('/cards/back.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 12px;
+    box-shadow: 2px 2px 8px rgba(0,0,0,.5);
 }
+.card-back-inner { display: none; }
+
 .stock-count {
   position: absolute; color: #ffd700; font-weight: 900; font-size: 1.5rem;
   text-shadow: 0 0 8px rgba(0,0,0,.8); pointer-events: none;
@@ -337,8 +324,16 @@ body {
 .card.lg .cv-bot { font-size: 14px; }
 .card.overlap { margin-left: -16px; }
 .card.overlap:first-child { margin-left: 0; }
-.card-back-sm { width: 46px; height: 64px; border: 2px solid #1a3a8c; background: linear-gradient(135deg, #1a3a8c, #0d1f52); border-radius: 7px; position: relative; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.card-back-sm::after { content: ''; position: absolute; inset: 3px; border: 1px solid rgba(100,150,255,.3); border-radius: 4px; }
+.card-back-sm {
+    width: 46px; height: 64px;
+    background-image: url('/cards/back.png');
+    background-size: cover;
+    background-position: center;
+    border-radius: 7px;
+    flex-shrink: 0;
+    box-shadow: 1px 1px 4px rgba(0,0,0,.4);
+}
+.card-back-sm::after { display: none; }
 #hand-area { flex-shrink: 0; background: rgba(0,0,0,.9); border-top: 2px solid rgba(241,196,15,.3); padding: 12px 12px 32px; }
 .hand-cards { display: flex; align-items: flex-end; justify-content: center; gap: 4px; min-height: 110px; flex-wrap: wrap; margin-bottom: 12px; }
 .controls-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
@@ -383,45 +378,44 @@ body {
   display: flex;
   flex-direction: column;
 }
-/* Animation-ka kaarka soo dhacaya */
 .card-deal {
     position: absolute !important;
-    left: 50%;
+    left: 50%; 
     top: 50%;
-
-    width: 60px;
+    width: 60px; 
     height: 90px;
-
+    /* Muhiim: Halkan ku dar margin-ka si uu xudunta (center) u fariisto mazzada dhexdeeda */
+    margin-left: -30px; 
+    margin-top: -45px;
     z-index: 99999;
     pointer-events: none;
-
-    animation: flyIn 0.7s ease-out forwards;
-
-    background-image: url('back.png');
+    animation: flyIn 0.5s ease-out forwards;
+    background-image: url('/cards/back.png');
     background-size: cover;
     background-position: center;
-
     border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.6);
 }
+
+.card-deal::after { display: none; }
 
 @keyframes flyIn {
-
-    0% {
-        transform:
-            translate(-50%, -50%)
-            scale(0.2)
-            rotate(40deg);
-
-        opacity: 0;
-    }
-
-    100% {
-
-        transform:
-            translate(var(--targetX), var(--targetY))
-            scale(1)
-            rotate(0deg);
-
-        opacity: 1;
-    }
+    0%   { transform: translate(0, 0) scale(0.15); opacity: 0; }
+    100% { transform: translate(var(--targetX), var(--targetY)) scale(1); opacity: 1; }
 }
+
+@keyframes cardPickup {
+    0%   { transform: scale(1) translateY(0); box-shadow: 2px 2px 8px rgba(0,0,0,.5); }
+    50%  { transform: scale(1.12) translateY(-6px); box-shadow: 0 0 22px rgba(241,196,15,.85); }
+    100% { transform: scale(1) translateY(0); box-shadow: 2px 2px 8px rgba(0,0,0,.5); }
+}
+
+/* Tuur animation */
+@keyframes cardThrow {
+    0%   { box-shadow: 2px 2px 8px rgba(0,0,0,.5); }
+    40%  { box-shadow: 0 0 28px rgba(231,76,60,.9); }
+    100% { box-shadow: 2px 2px 8px rgba(0,0,0,.5); }
+}
+
+.card-pickup-anim { animation: cardPickup 0.35s ease; }
+.card-throw-anim  { animation: cardThrow 0.35s ease; }

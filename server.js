@@ -123,7 +123,7 @@ function startTurnTimer(roomId) {
   updateRoomPlayers(roomId);
   const player = room.players[room.activePlayerIndex];
   if (!player) return;
-  player.hasActioned = false;
+  player.hasActioned = player.hand.length >= 15;
   room.turnTimeout = setTimeout(() => {
     if (!room.gameStarted) return;
     const cur = room.players[room.activePlayerIndex];
@@ -147,11 +147,18 @@ function startTurnTimer(roomId) {
 function moveToNextPlayer(roomId) {
   const room = rooms[roomId];
   if (!room) return;
+  // ✅ SAXID: nadiifi pause-ka si turn cusub uu si caadi ah u bilaabanaa
+  room.isPaused = false;
+  room.pauseTimeLeft = undefined;
+  if (room.turnTimeout) {
+    clearTimeout(room.turnTimeout);
+    room.turnTimeout = null;
+  }
   room.activePlayerIndex = (room.activePlayerIndex + 1) % room.players.length;
   let safety = 0;
-  while (room.players[room.activePlayerIndex] &&
-         !room.players[room.activePlayerIndex].online &&
-         safety < room.players.length) {
+  while (safety < room.players.length) {
+    const cur = room.players[room.activePlayerIndex];
+    if (cur && cur.online && !cur.hoosgale) break;
     room.activePlayerIndex = (room.activePlayerIndex + 1) % room.players.length;
     safety++;
   }
@@ -161,13 +168,31 @@ function moveToNextPlayer(roomId) {
   io.to(roomId).emit('playersUpdate', {
     players: room.players.map(p => ({
       id: p.id, name: p.name, cardCount: p.hand.length,
-      isOpened: p.isOpened || false, online: p.online, points: p.points || 0
+      isOpened: p.isOpened || false, online: p.online,
+      points: p.points || 0, hoosgale: p.hoosgale || false
     })),
     stockCount: room.stockPile.length,
     currentTurnId: next ? next.id : null,
     turnStartTime: room.turnStartTime
   });
   if (next) io.to(next.id).emit('yourTurn');
+}
+
+// 3. JIDKA GUUD EE START TURN TIMER (SERVER-SIDE)
+function startTurnTimer(room) {
+  if (room.turnTimeout) clearTimeout(room.turnTimeout);
+  
+  room.turnStartTime = Date.now();
+  room.isPaused = false; // Saacadda cusub mar walba si caadi ah ayay u furmeysaa
+
+  room.turnTimeout = setTimeout(() => {
+    // BUG 2 FIX: Haddii qolku pause galay intay 30-ka ilbiriqsi socdeen, ha wareejin turn-ka!
+    if (room.isPaused) return; 
+
+    if (room.gameStarted && room.activePlayerIndex !== null) {
+      moveToNextPlayer(room);
+    }
+  }, TURN_TIME_LIMIT);
 }
 
 io.on('connection', socket => {
@@ -333,30 +358,45 @@ io.on('connection', socket => {
   });
 
   socket.on('playCard', card => {
-    const room = rooms[socket.roomId];
-    if (!room || !room.gameStarted) return;
-    const p = room.players[room.activePlayerIndex];
-    if (p.id !== socket.id) return;
-    const idx = p.hand.findIndex(c => c.id === card.id);
-    if (idx === -1) return;
-    room.lastProviderId = p.id;
-    p.hand.splice(idx, 1);
-    room.discardPile.push(card);
-    io.to(socket.roomId).emit('updateDiscardPile', card);
-    socket.emit('updateHand', { hand: p.hand });
-    if (p.hand.length === 0) {
-      room.gameStarted = false;
-      if (room.turnTimeout) clearTimeout(room.turnTimeout);
-      io.to(socket.roomId).emit('gameOver', {
-        winnerId: p.id, winnerName: p.name, providerId: room.lastProviderId,
-        allPlayers: room.players.map(pl => ({
-          id: pl.id, name: pl.name, isOpened: pl.isOpened, hand: pl.hand, points: pl.points || 0
-        }))
-      });
-    } else {
-      moveToNextPlayer(socket.roomId);
+  const room = rooms[socket.roomId];
+  if (!room || !room.gameStarted) return;
+  const p = room.players[room.activePlayerIndex];
+  if (p.id !== socket.id) return;
+  const idx = p.hand.findIndex(c => c.id === card.id);
+  if (idx === -1) return;
+  room.lastProviderId = p.id;
+  p.hand.splice(idx, 1);
+  room.discardPile.push(card);
+  io.to(socket.roomId).emit('updateDiscardPile', card);
+  socket.emit('updateHand', { hand: p.hand });
+  if (p.hand.length === 0) {
+    // ✅ Guul — ciyaartu waa dhammaatay
+    room.gameStarted = false;
+    if (room.turnTimeout) clearTimeout(room.turnTimeout);
+    // Hoosgale players: 1 fooro
+    room.players.forEach(pl => {
+      if (pl.hoosgale) pl.points = (pl.points || 0) + 1;
+    });
+    io.to(socket.roomId).emit('gameOver', {
+      winnerId: p.id, winnerName: p.name, providerId: room.lastProviderId,
+      allPlayers: room.players.map(pl => ({
+        id: pl.id, name: pl.name, isOpened: pl.isOpened,
+        hand: pl.hand, points: pl.points || 0
+      }))
+    });
+  } else {
+    // ✅ Hoosgale check — tuurista qaatay oo aan degi karin
+    if (p.pickedFromDiscard && !p.hoosgale) {
+      p.hoosgale = true;
+      room.stockPile = shuffle([...room.stockPile, ...p.hand]);
+      p.hand = [];
+      io.to(p.id).emit('hoosgaleTriggered');
+      io.to(socket.roomId).emit('notification', `⚠️ ${p.name} HOOSGALE! hoos ayuu galay turubiina waa laga qaaday oo hoos ayaa la galiyay.`);
+      updateRoomPlayers(socket.roomId);
     }
-  });
+    moveToNextPlayer(socket.roomId);
+  }
+});
 
   socket.on('meldSets', data => {
     const room = rooms[socket.roomId];
@@ -400,13 +440,60 @@ io.on('connection', socket => {
     }
   });
 
-  socket.on('pauseTimerRequest', () => {
-    const room = rooms[socket.roomId];
-    if (room && room.turnTimeout) {
-      clearTimeout(room.turnTimeout); room.turnTimeout = null;
-      io.to(socket.roomId).emit('timerPaused', { message: 'Saacadda waa la hakiyay...' });
-    }
+ // 1. HAKINTA SAACADDA (SERVER-SIDE)
+socket.on('pauseTimer', () => {
+  const room = rooms[socket.roomId];
+  if (!room || !room.gameStarted) return; // Lagama rabo 'room.isPaused' halkan si uusan u xannibmin
+
+  const cur = room.players[room.activePlayerIndex];
+  if (!cur || cur.id !== socket.id) return;
+
+  // Xisaabi waqtiga rasmiga ah ee u haray intaan timeout-ka la tirin
+  if (!room.isPaused) {
+    const timeElapsed = Date.now() - room.turnStartTime;
+    room.pauseTimeLeft = Math.max(5000, TURN_TIME_LIMIT - timeElapsed);
+  }
+
+  // BUG 1 FIX: Calanka 'isPaused' hadda si JOOGTO ah ayaa loo dejiyaa, ha jiro timeout ama yuusan jirin!
+  room.isPaused = true; 
+
+  if (room.turnTimeout) {
+    clearTimeout(room.turnTimeout);
+    room.turnTimeout = null;
+  }
+
+  io.to(socket.roomId).emit('timerPaused', {
+    activePlayerId: socket.id,
+    message: `⏸️ ${cur.name} baa dalbaday in la sugo — Waqtiga waa la hakiyay!`
   });
+});
+
+// 2. DIB U BILAABISTA SAACADDA (SERVER-SIDE)
+socket.on('resumeTimer', () => {
+  const room = rooms[socket.roomId];
+  if (!room || !room.gameStarted || !room.isPaused) return;
+
+  const cur = room.players[room.activePlayerIndex];
+  if (!cur || cur.id !== socket.id) return;
+
+  room.isPaused = false;
+  // Dib u xisaabi waqtigii bilowga si uusan ilbiriqsigu u dhiman
+  room.turnStartTime = Date.now() - (TURN_TIME_LIMIT - room.pauseTimeLeft);
+
+  if (room.turnTimeout) clearTimeout(room.turnTimeout);
+
+  // Dib u rur saacadda haraaga ah
+  room.turnTimeout = setTimeout(() => {
+    // BUG 3 FIX: Haddii qofku dib u hakiyay intuu callback-gan dhexda ku jiray, HALKAN KU ISTAAG!
+    if (room.isPaused) return; 
+
+    if (room.gameStarted && room.activePlayerIndex !== null) {
+      moveToNextPlayer(room); // Ama function-kaaga caadiga ah ee wareejinta
+    }
+  }, room.pauseTimeLeft);
+
+  io.to(socket.roomId).emit('timerResumed');
+});
 
   socket.on('ping_keep_alive', () => socket.emit('pong_alive'));
 
