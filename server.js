@@ -115,35 +115,6 @@ function broadcastTableUI(roomId) {
   });
 }
 
-function startTurnTimer(roomId) {
-  const room = rooms[roomId];
-  if (!room) return;
-  if (room.turnTimeout) clearTimeout(room.turnTimeout);
-  room.turnStartTime = Date.now();
-  updateRoomPlayers(roomId);
-  const player = room.players[room.activePlayerIndex];
-  if (!player) return;
-  player.hasActioned = player.hand.length >= 15;
-  room.turnTimeout = setTimeout(() => {
-    if (!room.gameStarted) return;
-    const cur = room.players[room.activePlayerIndex];
-    if (!cur) return;
-    if (!cur.hasActioned && room.stockPile.length > 0) {
-      const card = room.stockPile.pop();
-      cur.hand.push(card); cur.hasActioned = true;
-      io.to(cur.id).emit('receiveCard', card);
-    }
-    if (cur.hand.length > 14) {
-      const discarded = cur.hand.pop();
-      room.discardPile.push(discarded);
-      io.to(roomId).emit('updateDiscardPile', discarded);
-      io.to(cur.id).emit('autoDiscarded', discarded);
-      io.to(cur.id).emit('updateHand', { hand: cur.hand });
-    }
-    moveToNextPlayer(roomId);
-  }, TURN_TIME_LIMIT);
-}
-
 function moveToNextPlayer(roomId) {
   const room = rooms[roomId];
   if (!room) return;
@@ -178,20 +149,53 @@ function moveToNextPlayer(roomId) {
   if (next) io.to(next.id).emit('yourTurn');
 }
 
-// 3. JIDKA GUUD EE START TURN TIMER (SERVER-SIDE)
-function startTurnTimer(room) {
+function startTurnTimer(roomId) {
+  const room = rooms[roomId];
+  if (!room) return;
+
+  // Dila timeout-kii hore haddii uu jiray
   if (room.turnTimeout) clearTimeout(room.turnTimeout);
-  
+
   room.turnStartTime = Date.now();
   room.isPaused = false; // Saacadda cusub mar walba si caadi ah ayay u furmeysaa
 
+  updateRoomPlayers(roomId);
+
+  const player = room.players[room.activePlayerIndex];
+  if (!player) return;
+
+  // Xakamee haddii uu mar hore ficil sameeyay (15 kaar ka dhigan inuu soo jiidatay)
+  player.hasActioned = player.hand.length >= 15;
+
+  // Saacadda weyn ee 30-ka ilbiriqsi ee turn-ka
   room.turnTimeout = setTimeout(() => {
-    // BUG 2 FIX: Haddii qolku pause galay intay 30-ka ilbiriqsi socdeen, ha wareejin turn-ka!
+    if (!room.gameStarted) return;
+
+    // BUG 2 FIX: Haddii qolku pause galay intay saacaddu socotay, JOOJI saacadda, ha wareejin turn-ka!
     if (room.isPaused) return; 
 
-    if (room.gameStarted && room.activePlayerIndex !== null) {
-      moveToNextPlayer(room);
+    const cur = room.players[room.activePlayerIndex];
+    if (!cur) return;
+
+    // LOGIC-GII AUTOMATIC-KA: Haddii waqtigu ka dhamaado qofka isagoo aan waxba samayn
+    if (!cur.hasActioned && room.stockPile.length > 0) {
+      const card = room.stockPile.pop();
+      cur.hand.push(card);
+      cur.hasActioned = true;
+      io.to(cur.id).emit('receiveCard', card);
     }
+
+    // Haddii kaarku ka badan yahay 14, si toos ah mid uga tuur (Auto-discard)
+    if (cur.hand.length > 14) {
+      const discarded = cur.hand.pop();
+      room.discardPile.push(discarded);
+      io.to(roomId).emit('updateDiscardPile', discarded);
+      io.to(cur.id).emit('autoDiscarded', discarded);
+      io.to(cur.id).emit('updateHand', { hand: cur.hand });
+    }
+
+    // U wareeji ciyaarta qofka xiga maadaama waqtigii dhamaaday
+    moveToNextPlayer(roomId);
   }, TURN_TIME_LIMIT);
 }
 
