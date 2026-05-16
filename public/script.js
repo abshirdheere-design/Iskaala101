@@ -36,28 +36,44 @@ function showNotification(msg, duration = 3000) {
 }
 
 function distributeCardsAnimated(handCards) {
-  const container = $('hand-cards');
-  if (!container) return;
 
-  container.innerHTML = ''; // Faaruqi hal mar bilowga
+    const container = $('game-table');
+    const handContainer = $('hand-cards');
 
-  handCards.forEach((card, index) => {
-    setTimeout(() => {
-      const cardElement = createCardUI(card);
-      cardElement.classList.add('card-deal'); // Halkan ayuu CSS-ku shaqaynayaa
-      container.appendChild(cardElement);
+    if (!container || !handContainer) return;
 
-      // Haddii uu yahay kaarkii ugu dambeeyay
-      if (index === handCards.length - 1) {
+    handContainer.innerHTML = '';
+
+    handCards.forEach((card, index) => {
+
         setTimeout(() => {
-          socket.emit('animation_finished');
-          // Ka saar animation-ka si uusan mar kale u dhicin markaad sort gareyso
-          const allCards = container.querySelectorAll('.card-deal');
-          allCards.forEach(el => el.classList.remove('card-deal'));
-        }, 650); // Sug inta uu animation-ka u dambeeya dhammaanayo
-      }
-    }, index * 100); // 0.1 ilbiriqsi u dhexeeya kaar kasta
-  });
+
+            // Kaarka duulaya
+            const flying = document.createElement('div');
+            flying.className = 'card-deal';
+
+            // Meesha uu ku dambaynayo
+            const targetX = -350 + (index * 45);
+
+            flying.style.setProperty('--targetX', `${targetX}px`);
+            flying.style.setProperty('--targetY', `260px`);
+
+            container.appendChild(flying);
+
+            // Marka animation dhammaado
+            setTimeout(() => {
+
+                flying.remove();
+
+                const realCard = createCardUI(card);
+                handContainer.appendChild(realCard);
+
+            }, 700);
+
+        }, index * 120);
+
+    });
+
 }
 
 function startTurnTimer() {

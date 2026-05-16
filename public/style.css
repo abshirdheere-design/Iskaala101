@@ -385,26 +385,43 @@ body {
 }
 /* Animation-ka kaarka soo dhacaya */
 .card-deal {
-    position: relative;
-    animation: flyIn 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
-    will-change: transform, opacity;
-    z-index: 100;
-    
-    /* Muhiim: Kaarku dhabarka ha u jeedo inta uu duulayo */
-    background-image: url('back.png') !important;
-    background-size: cover !important;
-    color: transparent !important; /* Qari nambarada inta uu duulayo */
+    position: absolute !important;
+    left: 50%;
+    top: 50%;
+
+    width: 60px;
+    height: 90px;
+
+    z-index: 99999;
+    pointer-events: none;
+
+    animation: flyIn 0.7s ease-out forwards;
+
+    background-image: url('back.png');
+    background-size: cover;
+    background-position: center;
+
+    border-radius: 8px;
 }
 
 @keyframes flyIn {
+
     0% {
-        /* Kaarku wuxuu ka soo bilaabanayaa meel sare (Mazzada) */
-        transform: translateY(-500px) rotateX(0deg) rotate(25deg) scale(0.4);
+        transform:
+            translate(-50%, -50%)
+            scale(0.2)
+            rotate(40deg);
+
         opacity: 0;
     }
+
     100% {
-        /* Markuu gacanta soo gaaro wuxuu isku rogayaa (Flip) */
-        transform: translateY(0) rotateX(360deg) rotate(0deg) scale(1);
+
+        transform:
+            translate(var(--targetX), var(--targetY))
+            scale(1)
+            rotate(0deg);
+
         opacity: 1;
     }
 }
