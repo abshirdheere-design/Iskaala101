@@ -495,7 +495,7 @@ function handleTuur() {
 // ===================== WAITING ROOM =====================
 
 function startWaitingCountdown() {
-  waitingCountdown = 10;
+  waitingCountdown = 360;
   const noteEl = $('waiting-auto-note');
   if (noteEl) noteEl.textContent = `(Robotyadu si toos ah ayay ku biiraan ${waitingCountdown}s)`;
   if (waitingAutoTimer) clearInterval(waitingAutoTimer);

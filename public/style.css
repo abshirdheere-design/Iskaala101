@@ -475,3 +475,105 @@ body {
   font-size: .85rem;
   font-weight: 600;
 }
+/* ======================== MOBILE OPTIMIZATION (MEDIA QUERY) ======================== */
+@media (max-width: 768px) {
+  body {
+    overflow-y: auto; /* Waxay u oggolaanaysaa mobile-ka inuu xoogaa u fariisto haddii loo baahdo */
+  }
+
+  /* 1. Miiska felt-oval-ka rasmiga ah oo loo dhuubay mobile-ka */
+  .felt-oval {
+    width: 95% !important;
+    height: 60% !important;
+    top: 5%;
+    border-radius: 40px; /* Laga dhigay labajibbaaran geesaha ka wareegsan si uu shaashadda u buuxiyo */
+    border-width: 6px;
+  }
+
+  /* 2. Meelaynta Ciyaartoyda (Slots) ee Mobile-ka */
+  .slot-top { top: 2% !important; }
+  .slot-left { left: 4% !important; }
+  .slot-right { right: 4% !important; }
+
+  /* 3. Badhamada miiska dhexdiisa ku jira (Stock & Discard) */
+  .piles-center {
+    gap: 15px !important;
+  }
+  .card-back-lg, .discard-empty, .card.lg {
+    width: 55px !important;
+    height: 77px !important;
+  }
+  .stock-count {
+    font-size: 1.1rem !important;
+  }
+
+  /* 4. MEESHA GACANTA (Hand Area) - Halkan ayaa ah meesha ugu muhiimsan */
+  #hand-area {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    padding: 8px 6px 12px !important;
+    background: linear-gradient(to top, rgba(0,0,0,1) 80%, rgba(0,0,0,0.8) 100%);
+    z-index: 9999;
+  }
+
+  /* 5. KAARARKA GACANTA - Hal xariiq oo isku dhex jira (No Row Wrapping) */
+  .hand-cards {
+    display: flex !important;
+    flex-wrap: nowrap !important; /* Waxay diidaysaa inay kaararku dhowr saf noqdaan */
+    overflow-x: auto; /* Waxay oggolaanaysaa in farta loogu kaxaysto bidix iyo midig haddii ay badataa */
+    justify-content: flex-start !important; /* Waxay ka bilaabaysaa bidixda si ay u silisato */
+    padding: 15px 10px 5px !important;
+    gap: 0px !important; /* Waxaan u isticmaalaynaa margin si ay isu dul fuulaan */
+    min-height: 90px !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Kaararka dhexdooda si ay isu dul fuulaan (Overlap) */
+  .hand-cards .card.md {
+    width: 52px !important; /* Wax yar waa la dhuubay */
+    height: 74px !important;
+    margin-right: -14px !important; /* Mid kasta wuxuu ku dhex dhuumanayaa kaarka ku xiga */
+    font-size: 11px;
+  }
+
+  /* Marka la xusho kaarka (Selected) kor ha u baxo */
+  .hand-cards .card.md.selected {
+    transform: translateY(-15px) !important;
+    margin-right: -10px !important; /* Si kaarka ku xiga u muuqdo */
+  }
+
+  /* 6. BADHAMADA KONTOROOLKA (Controls Row) */
+  .controls-row {
+    flex-direction: column-reverse !important; /* Badhamada iyo dhibcaha isku beddel */
+    gap: 8px !important;
+  }
+
+  .btn-group {
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr); /* Waxay u qaybinaysaa badhamada 3 saf oo isle'eg */
+    gap: 6px !important;
+  }
+
+  .btn-green, .btn-gray, .btn-blue, .btn-red {
+    padding: 8px 4px !important;
+    font-size: 0.75rem !important;
+    text-align: center;
+    border-radius: 8px !important;
+    width: 100% !important;
+  }
+  
+  /* Badhanka Isuga ha fariisto safka hoose isagoo weyn */
+  #btn-pause {
+     grid-column: span 3; /* Wuxuu qaadanayaa ballaca saddexda badhan oo dhan */
+  }
+
+  .score-info {
+    width: 100%;
+    text-align: center !important;
+    font-size: 0.8rem !important;
+    margin-bottom: 2px;
+  }
+}
